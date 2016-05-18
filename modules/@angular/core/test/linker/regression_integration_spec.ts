@@ -23,7 +23,8 @@ import {
   ViewMetadata,
   PLATFORM_PIPES,
   OpaqueToken,
-  Injector
+  Injector,
+  forwardRef
 } from '@angular/core';
 import {NgIf, NgClass} from '@angular/common';
 import {CompilerConfig} from '@angular/compiler';
@@ -177,6 +178,16 @@ function declareTests(isJit: boolean) {
                async.done();
              });
        }));
+       
+    it('should handle mutual recursion entered from multiple sides - #7084',
+      inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+        tcb.createAsync(FakeRecursiveComp)
+            .then((fixture) => {
+              fixture.detectChanges();
+              expect(fixture.nativeElement).toHaveText('[]');
+              async.done();
+            });
+      }));
 
 
   });
@@ -200,3 +211,31 @@ class CustomPipe implements PipeTransform {
 @Component({selector: 'cmp-content', template: `<ng-content></ng-content>`})
 class CmpWithNgContent {
 }
+
+@Component({
+  selector: 'left',
+  template: `L<right *ngIf="false"></right>`,
+  directives: [
+    forwardRef(() => RightComp),
+  ]
+})
+class LeftComp {}
+
+@Component({
+  selector: 'right',
+  template: `R<left *ngIf="false"></left>`,
+  directives: [
+    forwardRef(() => LeftComp),
+  ]
+})
+class RightComp {}
+
+@Component({
+  selector: 'fakeRecursiveComp',
+  template: `[<left *ngIf="false"></left><right *ngIf="false"></right>]`,
+  directives: [
+    forwardRef(() => LeftComp),
+    forwardRef(() => RightComp),
+  ]
+})
+export class FakeRecursiveComp {}
