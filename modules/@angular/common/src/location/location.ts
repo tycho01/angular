@@ -1,5 +1,5 @@
-import {Injectable, Inject} from '@angular/core';
-import {EventEmitter, ObservableWrapper} from '../../src/facade/async';
+import {Injectable, EventEmitter} from '@angular/core';
+import {ObservableWrapper} from '../../src/facade/async';
 
 import {LocationStrategy} from './location_strategy';
 
@@ -62,6 +62,13 @@ export class Location {
    * Returns the normalized URL path.
    */
   path(): string { return this.normalize(this.platformStrategy.path()); }
+
+  /**
+   * Normalizes the given path and compares to the current normalized path.
+   */
+  isCurrentPathEqualTo(path: string, query: string = ''): boolean {
+    return this.path() == this.normalize(path + Location.normalizeQueryParams(query));
+  }
 
   /**
    * Given a string representing a URL, returns the normalized URL path without leading or

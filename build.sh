@@ -4,13 +4,18 @@ set -e -o pipefail
 
 cd `dirname $0`
 
+export NODE_PATH=${NODE_PATH}:$(pwd)/dist/all:$(pwd)/dist/tools
 
-TSCONFIG=./modules/tsconfig.json
-echo "====== (all)COMPILING: \$(npm bin)/tsc -p ${TSCONFIG} ====="
+
 rm -rf ./dist/all/
 mkdir -p ./dist/all/
 
-# prepare all files for e2e tests
+TSCONFIG=./tools/tsconfig.json
+echo "====== (all)COMPILING: \$(npm bin)/tsc -p ${TSCONFIG} ====="
+$(npm bin)/tsc -p ${TSCONFIG}
+
+
+echo "====== Copying files needed for e2e tests ====="
 cp -r ./modules/playground ./dist/all/
 cp -r ./modules/playground/favicon.ico ./dist/
 #rsync -aP ./modules/playground/* ./dist/all/playground/
@@ -26,6 +31,9 @@ ln -s ../../../../node_modules/rxjs .
 ln -s ../../../../node_modules/angular/angular.js .
 cd -
 
+
+TSCONFIG=./modules/tsconfig.json
+echo "====== (all)COMPILING: \$(npm bin)/tsc -p ${TSCONFIG} ====="
 # compile ts code
 # TODO: Right now we have a cycle in that the compiler_cli depends on Angular
 # but we need it to compile Angular.
@@ -43,7 +51,6 @@ for PACKAGE in \
   compiler \
   common \
   platform-browser \
-  platform-browser-dynamic \
   platform-server \
   http \
   router \
@@ -53,8 +60,9 @@ for PACKAGE in \
 do
   SRCDIR=./modules/@angular/${PACKAGE}
   DESTDIR=./dist/packages-dist/${PACKAGE}
-  UMDES6PATH=${DESTDIR}/esm/${PACKAGE}.umd.js
-  UMDES5PATH=${DESTDIR}/${PACKAGE}.umd.js
+  UMD_ES6_PATH=${DESTDIR}/esm/${PACKAGE}.umd.js
+  UMD_ES5_PATH=${DESTDIR}/bundles/${PACKAGE}.umd.js
+  UMD_ES5_MIN_PATH=${DESTDIR}/bundles/${PACKAGE}.umd.min.js
 
   if [[ ${PACKAGE} == "router-deprecated" ]]; then
     echo "======      COMPILING: \$(npm bin)/tsc -p ${SRCDIR}/tsconfig-es5.json        ====="
@@ -88,32 +96,28 @@ do
     fi
 
     echo "======      BUNDLING: ${SRCDIR} ====="
+    mkdir ${DESTDIR}/bundles
+
     (
       cd  ${SRCDIR}
       echo "..."  # here just to have grep match something and not exit with 1
       ../../../node_modules/.bin/rollup -c rollup.config.js
     ) 2>&1 | grep -v "as external dependency"
 
-    # workaround for https://github.com/rollup/rollup/issues/626
-    if [[ ${TRAVIS} ]]; then
-      sed -i    "s/ class exports\./ class /g" ${DESTDIR}/esm/${PACKAGE}.umd.js
-    else
-      sed -i '' "s/ class exports\./ class /g" ${DESTDIR}/esm/${PACKAGE}.umd.js
-    fi
-
     $(npm bin)/tsc  \
-        --out ${UMDES5PATH} \
+        --out ${UMD_ES5_PATH} \
         --target es5 \
         --allowJs \
-        ${UMDES6PATH} \
+        ${UMD_ES6_PATH} \
         modules/\@angular/manual_typings/globals.d.ts \
         modules/\@angular/typings/es6-collections/es6-collections.d.ts \
         modules/\@angular/typings/es6-promise/es6-promise.d.ts
-    rm ${UMDES6PATH}
+    rm ${UMD_ES6_PATH}
 
-    cat ./modules/@angular/license-banner.txt > ${UMDES5PATH}.tmp
-    cat ${UMDES5PATH} >> ${UMDES5PATH}.tmp
-    mv ${UMDES5PATH}.tmp ${UMDES5PATH}
+    cat ./modules/@angular/license-banner.txt > ${UMD_ES5_PATH}.tmp
+    cat ${UMD_ES5_PATH} >> ${UMD_ES5_PATH}.tmp
+    mv ${UMD_ES5_PATH}.tmp ${UMD_ES5_PATH}
 
+    $(npm bin)/uglifyjs -c --screw-ie8 -o ${UMD_ES5_MIN_PATH} ${UMD_ES5_PATH}
   fi
 done

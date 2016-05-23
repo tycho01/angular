@@ -18,16 +18,14 @@ declare var System: any;
       System.config({
         map: {
           'index': 'index.js',
-          '@angular/core': '/packages-dist/core/core.umd.js',
-          '@angular/common': '/packages-dist/common/common.umd.js',
-          '@angular/compiler': '/packages-dist/compiler/compiler.umd.js',
-          '@angular/platform-browser': '/packages-dist/platform-browser/platform-browser.umd.js',
-          '@angular/platform-browser-dynamic':
-              '/packages-dist/platform-browser-dynamic/platform-browser-dynamic.umd.js',
-          '@angular/http': '/packages-dist/http/http.umd.js',
-          '@angular/upgrade': '/packages-dist/upgrade/upgrade.umd.js',
-          '@angular/router': '/packages-dist/router/router.umd.js',
-          '@angular/router-deprecated': '/packages-dist/router-deprecated/router-deprecated.umd.js',
+          '@angular/core': '/packages-dist/core/bundles/core.umd.js',
+          '@angular/common': '/packages-dist/common/bundles/common.umd.js',
+          '@angular/compiler': '/packages-dist/compiler/bundles/compiler.umd.js',
+          '@angular/platform-browser': '/packages-dist/platform-browser/bundles/platform-browser.umd.js',
+          '@angular/http': '/packages-dist/http/bundles/http.umd.js',
+          '@angular/upgrade': '/packages-dist/upgrade/bundles/upgrade.umd.js',
+          '@angular/router': '/packages-dist/router/bundles/router.umd.js',
+          '@angular/router-deprecated': '/packages-dist/router-deprecated/bundles/router-deprecated.umd.js',
           '@angular/core/src/facade': '/all/@angular/core/src/facade',
           'rxjs': location.pathname.replace(/index\.html$/, '') + 'rxjs'
         },
@@ -51,7 +49,6 @@ declare var System: any;
           '@angular/compiler': {main: 'index.js', defaultExtension: 'js'},
           '@angular/common': {main: 'index.js', defaultExtension: 'js'},
           '@angular/platform-browser': {main: 'index.js', defaultExtension: 'js'},
-          '@angular/platform-browser-dynamic': {main: 'index.js', defaultExtension: 'js'},
           '@angular/router': {main: 'index.js', defaultExtension: 'js'},
           // 'rxjs': {
           //   defaultExtension: 'js'

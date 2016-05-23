@@ -202,7 +202,7 @@ The reference `#...` now always means `ref-`.
 - Outside of `ngFor`, a `#...` meant a reference.
 - Inside of `ngFor`, it meant a local variable.
 
-This was pattern was confusing.
+This pattern was confusing.
 
 **After:**
 
@@ -288,7 +288,7 @@ as a served file in your Karma or other test configuration.
   should be used, create one before calling this method.
   (e.g. via `ReflectiveInjector.resolveAndCreate(…)`.
 
-* - `DynamicComponentLoader.loadIntoLocation` has been removed. Use `@ViewChild(‘myVar’, read: ViewContainerRef)` to get hold of a `ViewContainerRef` at an element with variable `myVar`. Then call `DynamicComponentLoader.loadNextToLocation`.
+* - `DynamicComponentLoader.loadIntoLocation` has been removed. Use `@ViewChild(‘myVar’, {read: ViewContainerRef})` to get hold of a `ViewContainerRef` at an element with variable `myVar`. Then call `DynamicComponentLoader.loadNextToLocation`.
 - `DynamicComponentLoader.loadNextToLocation` now takes a `ViewContainerRef` instead of an `ElementRef`.
 - `AppViewManager` is renamed into `ViewUtils` and is a mere private utility service.
 
@@ -348,7 +348,7 @@ it('should wait for returned promises', async(inject([FancyService], (service) =
 })));
 // Note that if there is no injection, we no longer need `inject` OR `injectAsync`.
 it('should wait for returned promises', async(() => {
-  somePromise.then() => { expect(true).toEqual(true); });
+  somePromise.then(() => { expect(true).toEqual(true); });
 }));
 ```
 
@@ -1191,7 +1191,7 @@ Use `angular-polyfills.js` instead.
   }
   ```
 
-  or [check angular2's package.json](https://github.com/angular/angular/blob/master/package.json#L34) for the latest peer dependencies
+  or [check angular2's package.json](https://github.com/angular/angular/blob/master/package.json) for the latest `dependencies`
 
 
 <a name="2.0.0-alpha.48"></a>

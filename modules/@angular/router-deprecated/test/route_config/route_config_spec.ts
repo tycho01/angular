@@ -10,7 +10,7 @@ import {
   xit,
 } from '@angular/core/testing/testing_internal';
 
-import {bootstrap} from '@angular/platform-browser-dynamic';
+import {bootstrap} from '@angular/platform-browser';
 import {APP_BASE_HREF, LocationStrategy} from '@angular/common';
 import {Component, Directive} from '@angular/core/src/metadata';
 import {getDOM} from '@angular/platform-browser/src/dom/dom_adapter';
@@ -172,7 +172,7 @@ export function main() {
                    .catch((e) => {
                      expect(e.originalException)
                          .toContainError(
-                             `Route "/child" with name "child" does not begin with an uppercase letter. Route names should be CamelCase like "Child".`);
+                             `Route "/child" with name "child" does not begin with an uppercase letter. Route names should be PascalCase like "Child".`);
                      async.done();
                      return null;
                    })}));
@@ -185,7 +185,7 @@ export function main() {
                    .catch((e) => {
                      expect(e.originalException)
                          .toContainError(
-                             `Route "/child" with name "child" does not begin with an uppercase letter. Route names should be CamelCase like "Child".`);
+                             `Route "/child" with name "child" does not begin with an uppercase letter. Route names should be PascalCase like "Child".`);
                      async.done();
                      return null;
                    })}));
