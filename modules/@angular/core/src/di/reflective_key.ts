@@ -1,6 +1,8 @@
-import {stringify, isBlank} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
+import {BaseException} from '../facade/exceptions';
+import {isBlank, stringify} from '../facade/lang';
+
 import {resolveForwardRef} from './forward_ref';
+
 
 /**
  * A unique object used for retrieving items from the {@link ReflectiveInjector}.
@@ -16,6 +18,7 @@ import {resolveForwardRef} from './forward_ref';
  * `Key` should not be created directly. {@link ReflectiveInjector} creates keys automatically when
  * resolving
  * providers.
+ * @experimental
  */
 export class ReflectiveKey {
   /**

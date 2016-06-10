@@ -10,14 +10,16 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "../dist/all/",
+    "noImplicitAny": true,
     "paths": {
-      "selenium-webdriver": ["./@angular/typings/selenium-webdriver/selenium-webdriver.d.ts"],
+      "selenium-webdriver": ["../node_modules/@types/selenium-webdriver/index.d.ts"],
       "rxjs/*": ["../node_modules/rxjs/*"],
       "@angular/*": ["./@angular/*"],
-      "ts-metadata-collector": ["../dist/tools/ts-metadata-collector"]
+      "@angular/tsc-wrapped": ["../dist/tools/@angular/tsc-wrapped"]
     },
     "rootDir": ".",
     "inlineSourceMap": true,
+    "lib": ["es6", "dom"],
     "target": "es5"
   },
   "exclude": [
@@ -30,6 +32,6 @@
     "rollup-test",
     "upgrade-ts2dart.d.ts",
     "zone-ts2dart.d.ts",
-    "@angular/compiler_cli/integrationtest"
+    "@angular/compiler-cli/integrationtest"
   ]
 }

@@ -21,11 +21,11 @@ export interface BrowserNodeGlobal {
 }
 
 // TODO(jteplitz602): Load WorkerGlobalScope from lib.webworker.d.ts file #3492
-declare var WorkerGlobalScope;
+declare var WorkerGlobalScope: any /** TODO #9100 */;
 // CommonJS / Node have global context exposed as "global" variable.
 // We don't want to include the whole node.d.ts this this compilation unit so we'll just fake
 // the global "global" var for now.
-declare var global;
+declare var global: any /** TODO #9100 */;
 
 var globalScope: BrowserNodeGlobal;
 if (typeof window === 'undefined') {
@@ -64,7 +64,7 @@ export interface Type extends Function {}
 /**
  * Runtime representation of a type that is constructable (non-abstract).
  */
-export interface ConcreteType extends Type { new (...args): any; }
+export interface ConcreteType extends Type { new (...args: any[] /** TODO #9100 */): any; }
 
 export function getTypeNameForDebugging(type: Type): string {
   if (type['name']) {
@@ -91,6 +91,7 @@ export function lockMode() {
  * One important assertion this disables verifies that a change detection pass
  * does not result in additional changes to any bindings (also known as
  * unidirectional data flow).
+ * @stable
  */
 export function enableProdMode() {
   if (_modeLocked) {
@@ -120,19 +121,19 @@ export function isBlank(obj: any): boolean {
 }
 
 export function isBoolean(obj: any): boolean {
-  return typeof obj === "boolean";
+  return typeof obj === 'boolean';
 }
 
 export function isNumber(obj: any): boolean {
-  return typeof obj === "number";
+  return typeof obj === 'number';
 }
 
 export function isString(obj: any): boolean {
-  return typeof obj === "string";
+  return typeof obj === 'string';
 }
 
 export function isFunction(obj: any): boolean {
-  return typeof obj === "function";
+  return typeof obj === 'function';
 }
 
 export function isType(obj: any): boolean {
@@ -156,13 +157,13 @@ export function isArray(obj: any): boolean {
   return Array.isArray(obj);
 }
 
-export function isDate(obj): boolean {
+export function isDate(obj: any /** TODO #9100 */): boolean {
   return obj instanceof Date && !isNaN(obj.valueOf());
 }
 
 export function noop() {}
 
-export function stringify(token): string {
+export function stringify(token: any /** TODO #9100 */): string {
   if (typeof token === 'string') {
     return token;
   }
@@ -179,22 +180,23 @@ export function stringify(token): string {
   }
 
   var res = token.toString();
-  var newLineIndex = res.indexOf("\n");
+  var newLineIndex = res.indexOf('\n');
   return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
 }
 
 // serialize / deserialize enum exist only for consistency with dart API
 // enums in typescript don't need to be serialized
 
-export function serializeEnum(val): number {
+export function serializeEnum(val: any /** TODO #9100 */): number {
   return val;
 }
 
-export function deserializeEnum(val, values: Map<number, any>): any {
+export function deserializeEnum(val: any /** TODO #9100 */, values: Map<number, any>): any {
   return val;
 }
 
-export function resolveEnumToken(enumValue, val): string {
+export function resolveEnumToken(
+    enumValue: any /** TODO #9100 */, val: any /** TODO #9100 */): string {
   return enumValue[val];
 }
 
@@ -244,7 +246,7 @@ export class StringWrapper {
   }
 
   static replaceAllMapped(s: string, from: RegExp, cb: Function): string {
-    return s.replace(from, function(...matches) {
+    return s.replace(from, function(...matches: any[] /** TODO #9100 */) {
       // Remove offset & string from the result array
       matches.splice(-2, 2);
       // The callback receives match, p1, ..., pn
@@ -266,11 +268,11 @@ export class StringWrapper {
 }
 
 export class StringJoiner {
-  constructor(public parts = []) {}
+  constructor(public parts: any[] /** TODO #9100 */ = []) {}
 
   add(part: string): void { this.parts.push(part); }
 
-  toString(): string { return this.parts.join(""); }
+  toString(): string { return this.parts.join(''); }
 }
 
 export class NumberParseError extends Error {
@@ -290,7 +292,7 @@ export class NumberWrapper {
   static parseIntAutoRadix(text: string): number {
     var result: number = parseInt(text);
     if (isNaN(result)) {
-      throw new NumberParseError("Invalid integer literal when parsing " + text);
+      throw new NumberParseError('Invalid integer literal when parsing ' + text);
     }
     return result;
   }
@@ -310,8 +312,8 @@ export class NumberWrapper {
         return result;
       }
     }
-    throw new NumberParseError("Invalid integer literal when parsing " + text + " in base " +
-                               radix);
+    throw new NumberParseError(
+        'Invalid integer literal when parsing ' + text + ' in base ' + radix);
   }
 
   // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
@@ -340,11 +342,7 @@ export class RegExpWrapper {
     regExp.lastIndex = 0;
     return regExp.test(input);
   }
-  static matcher(regExp: RegExp, input: string): {
-    re: RegExp;
-    input: string
-  }
-  {
+  static matcher(regExp: RegExp, input: string): {re: RegExp; input: string} {
     // Reset regex state for the case
     // someone did not loop over all matches
     // last time.
@@ -369,10 +367,7 @@ export class RegExpWrapper {
 }
 
 export class RegExpMatcherWrapper {
-  static next(matcher: {
-    re: RegExp;
-    input: string
-  }): RegExpExecArray {
+  static next(matcher: {re: RegExp; input: string}): RegExpExecArray {
     return matcher.re.exec(matcher.input);
   }
 }
@@ -384,8 +379,8 @@ export class FunctionWrapper {
 }
 
 // JS has NaN !== NaN
-export function looseIdentical(a, b): boolean {
-  return a === b || typeof a === "number" && typeof b === "number" && isNaN(a) && isNaN(b);
+export function looseIdentical(a: any /** TODO #9100 */, b: any /** TODO #9100 */): boolean {
+  return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
 }
 
 // JS considers NaN is the same as NaN for map Key (while NaN !== NaN otherwise)
@@ -403,7 +398,7 @@ export function normalizeBool(obj: boolean): boolean {
 }
 
 export function isJsObject(o: any): boolean {
-  return o !== null && (typeof o === "function" || typeof o === "object");
+  return o !== null && (typeof o === 'function' || typeof o === 'object');
 }
 
 export function print(obj: Error | Object) {
@@ -424,8 +419,9 @@ export class Json {
 }
 
 export class DateWrapper {
-  static create(year: number, month: number = 1, day: number = 1, hour: number = 0,
-                minutes: number = 0, seconds: number = 0, milliseconds: number = 0): Date {
+  static create(
+      year: number, month: number = 1, day: number = 1, hour: number = 0, minutes: number = 0,
+      seconds: number = 0, milliseconds: number = 0): Date {
     return new Date(year, month - 1, day, hour, minutes, seconds, milliseconds);
   }
   static fromISOString(str: string): Date { return new Date(str); }
@@ -453,9 +449,9 @@ export function setValueOnPath(global: any, path: string, value: any) {
 }
 
 // When Symbol.iterator doesn't exist, retrieves the key used in es6-shim
-declare var Symbol;
-var _symbolIterator = null;
-export function getSymbolIterator(): string | symbol {
+declare var Symbol: any /** TODO #9100 */;
+var _symbolIterator: any /** TODO #9100 */ = null;
+export function getSymbolIterator(): string|symbol {
   if (isBlank(_symbolIterator)) {
     if (isPresent((<any>globalScope).Symbol) && isPresent(Symbol.iterator)) {
       _symbolIterator = Symbol.iterator;
@@ -465,7 +461,7 @@ export function getSymbolIterator(): string | symbol {
       for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
         if (key !== 'entries' && key !== 'size' &&
-            Map.prototype[key] === Map.prototype['entries']) {
+            (Map as any /** TODO #9100 */).prototype[key] === Map.prototype['entries']) {
           _symbolIterator = key;
         }
       }
@@ -474,11 +470,11 @@ export function getSymbolIterator(): string | symbol {
   return _symbolIterator;
 }
 
-export function evalExpression(sourceUrl: string, expr: string, declarations: string,
-                               vars: {[key: string]: any}): any {
+export function evalExpression(
+    sourceUrl: string, expr: string, declarations: string, vars: {[key: string]: any}): any {
   var fnBody = `${declarations}\nreturn ${expr}\n//# sourceURL=${sourceUrl}`;
-  var fnArgNames = [];
-  var fnArgValues = [];
+  var fnArgNames: any[] /** TODO #9100 */ = [];
+  var fnArgValues: any[] /** TODO #9100 */ = [];
   for (var argName in vars) {
     fnArgNames.push(argName);
     fnArgValues.push(vars[argName]);

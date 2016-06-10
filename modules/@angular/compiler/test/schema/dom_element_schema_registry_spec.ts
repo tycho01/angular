@@ -1,19 +1,11 @@
-import {
-  beforeEach,
-  ddescribe,
-  xdescribe,
-  describe,
-  expect,
-  iit,
-  inject,
-  it,
-  xit
-} from '@angular/core/testing/testing_internal';
-
+import {HtmlElementAst} from '@angular/compiler/src/html_ast';
+import {HtmlParser} from '@angular/compiler/src/html_parser';
+import {DomElementSchemaRegistry} from '@angular/compiler/src/schema/dom_element_schema_registry';
+import {beforeEach, ddescribe, describe, expect, iit, inject, it, xdescribe, xit} from '@angular/core/testing/testing_internal';
 import {browserDetection} from '@angular/platform-browser/testing';
 
-import {DomElementSchemaRegistry} from '@angular/compiler/src/schema/dom_element_schema_registry';
 import {SecurityContext} from '../../core_private';
+
 import {extractSchema} from './schema_extractor';
 
 export function main() {
@@ -68,18 +60,25 @@ export function main() {
       expect(registry.securityContext('base', 'href')).toBe(SecurityContext.RESOURCE_URL);
     });
 
-    it('should detect properties on namespaced elements',
-       () => { expect(registry.hasProperty('@svg:g', 'id')).toBeTruthy(); });
+    it('should detect properties on namespaced elements', () => {
+      let htmlAst = new HtmlParser().parse('<svg:style>', 'TestComp');
+      let nodeName = (<HtmlElementAst>htmlAst.rootNodes[0]).name;
+      expect(registry.hasProperty(nodeName, 'type')).toBeTruthy();
+    });
+
+    it('should check security contexts case insensitive', () => {
+      expect(registry.securityContext('p', 'iNnErHtMl')).toBe(SecurityContext.HTML);
+      expect(registry.securityContext('p', 'formaction')).toBe(SecurityContext.URL);
+      expect(registry.securityContext('p', 'formAction')).toBe(SecurityContext.URL);
+    });
 
     if (browserDetection.isChromeDesktop) {
       it('generate a new schema', () => {
-        // console.log(JSON.stringify(registry.properties));
-        extractSchema(
-          (descriptors) => {
-            // Uncomment this line to see:
-            // the generated schema which can then be pasted to the DomElementSchemaRegistry
-            // console.log(descriptors);
-          });
+        let schema = '\n';
+        extractSchema().forEach((props, name) => { schema += `'${name}|${props.join(',')}',\n`; });
+        // Uncomment this line to see:
+        // the generated schema which can then be pasted to the DomElementSchemaRegistry
+        // console.log(schema);
       });
     }
 

@@ -1,6 +1,9 @@
-import {Injectable, PipeTransform, WrappedValue, Pipe} from '@angular/core';
-import {isString, isBlank} from '../../src/facade/lang';
+import {Pipe, PipeTransform} from '@angular/core';
+
+import {isBlank, isString} from '../facade/lang';
+
 import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
+
 
 /**
  * Transforms text to lowercase.
@@ -8,10 +11,10 @@ import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
  * ### Example
  *
  * {@example core/pipes/ts/lowerupper_pipe/lowerupper_pipe_example.ts region='LowerUpperPipe'}
+ *
+ * @experimental
  */
-/* @ts2dart_const */
 @Pipe({name: 'lowercase'})
-@Injectable()
 export class LowerCasePipe implements PipeTransform {
   transform(value: string): string {
     if (isBlank(value)) return value;

@@ -1,11 +1,12 @@
-import {ListWrapper} from '../../src/facade/collection';
-import {stringify, isBlank} from '../../src/facade/lang';
-import {BaseException, WrappedException} from '../../src/facade/exceptions';
-import {ReflectiveKey} from './reflective_key';
+import {ListWrapper} from '../facade/collection';
+import {BaseException, WrappedException} from '../facade/exceptions';
+import {isBlank, stringify} from '../facade/lang';
+
 import {ReflectiveInjector} from './reflective_injector';
+import {ReflectiveKey} from './reflective_key';
 
 function findFirstClosedCycle(keys: any[]): any[] {
-  var res = [];
+  var res: any[] /** TODO #9100 */ = [];
   for (var i = 0; i < keys.length; ++i) {
     if (ListWrapper.contains(res, keys[i])) {
       res.push(keys[i]);
@@ -21,15 +22,16 @@ function constructResolvingPath(keys: any[]): string {
   if (keys.length > 1) {
     var reversed = findFirstClosedCycle(ListWrapper.reversed(keys));
     var tokenStrs = reversed.map(k => stringify(k.token));
-    return " (" + tokenStrs.join(' -> ') + ")";
+    return ' (' + tokenStrs.join(' -> ') + ')';
   } else {
-    return "";
+    return '';
   }
 }
 
 
 /**
  * Base class for all errors arising from misconfigured providers.
+ * @stable
  */
 export class AbstractProviderError extends BaseException {
   /** @internal */
@@ -44,9 +46,9 @@ export class AbstractProviderError extends BaseException {
   /** @internal */
   constructResolvingMessage: Function;
 
-  constructor(injector: ReflectiveInjector, key: ReflectiveKey,
-              constructResolvingMessage: Function) {
-    super("DI Exception");
+  constructor(
+      injector: ReflectiveInjector, key: ReflectiveKey, constructResolvingMessage: Function) {
+    super('DI Exception');
     this.keys = [key];
     this.injectors = [injector];
     this.constructResolvingMessage = constructResolvingMessage;
@@ -75,6 +77,7 @@ export class AbstractProviderError extends BaseException {
  *
  * expect(() => Injector.resolveAndCreate([A])).toThrowError();
  * ```
+ * @stable
  */
 export class NoProviderError extends AbstractProviderError {
   constructor(injector: ReflectiveInjector, key: ReflectiveKey) {
@@ -92,14 +95,15 @@ export class NoProviderError extends AbstractProviderError {
  *
  * ```typescript
  * var injector = Injector.resolveAndCreate([
- *   provide("one", {useFactory: (two) => "two", deps: [[new Inject("two")]]}),
- *   provide("two", {useFactory: (one) => "one", deps: [[new Inject("one")]]})
+ *   {provide: "one", useFactory: (two) => "two", deps: [[new Inject("two")]]},
+ *   {provide: "two", useFactory: (one) => "one", deps: [[new Inject("one")]]}
  * ]);
  *
  * expect(() => injector.get("one")).toThrowError();
  * ```
  *
  * Retrieving `A` or `B` throws a `CyclicDependencyError` as the graph above cannot be constructed.
+ * @stable
  */
 export class CyclicDependencyError extends AbstractProviderError {
   constructor(injector: ReflectiveInjector, key: ReflectiveKey) {
@@ -134,6 +138,7 @@ export class CyclicDependencyError extends AbstractProviderError {
  *   expect(e.originalStack).toBeDefined();
  * }
  * ```
+ * @stable
  */
 export class InstantiationError extends WrappedException {
   /** @internal */
@@ -142,8 +147,10 @@ export class InstantiationError extends WrappedException {
   /** @internal */
   injectors: ReflectiveInjector[];
 
-  constructor(injector: ReflectiveInjector, originalException, originalStack, key: ReflectiveKey) {
-    super("DI Exception", originalException, originalStack, null);
+  constructor(
+      injector: ReflectiveInjector, originalException: any /** TODO #9100 */,
+      originalStack: any /** TODO #9100 */, key: ReflectiveKey) {
+    super('DI Exception', originalException, originalStack, null);
     this.keys = [key];
     this.injectors = [injector];
   }
@@ -172,11 +179,11 @@ export class InstantiationError extends WrappedException {
  * ```typescript
  * expect(() => Injector.resolveAndCreate(["not a type"])).toThrowError();
  * ```
+ * @stable
  */
 export class InvalidProviderError extends BaseException {
-  constructor(provider) {
-    super("Invalid provider - only instances of Provider and Type are allowed, got: " +
-          provider.toString());
+  constructor(provider: any /** TODO #9100 */) {
+    super(`Invalid provider - only instances of Provider and Type are allowed, got: ${provider}`);
   }
 }
 
@@ -207,14 +214,15 @@ export class InvalidProviderError extends BaseException {
  *
  * expect(() => Injector.resolveAndCreate([A,B])).toThrowError();
  * ```
+ * @stable
  */
 export class NoAnnotationError extends BaseException {
-  constructor(typeOrFunc, params: any[][]) {
+  constructor(typeOrFunc: any /** TODO #9100 */, params: any[][]) {
     super(NoAnnotationError._genMessage(typeOrFunc, params));
   }
 
-  private static _genMessage(typeOrFunc, params: any[][]) {
-    var signature = [];
+  private static _genMessage(typeOrFunc: any /** TODO #9100 */, params: any[][]) {
+    var signature: any[] /** TODO #9100 */ = [];
     for (var i = 0, ii = params.length; i < ii; i++) {
       var parameter = params[i];
       if (isBlank(parameter) || parameter.length == 0) {
@@ -223,10 +231,10 @@ export class NoAnnotationError extends BaseException {
         signature.push(parameter.map(stringify).join(' '));
       }
     }
-    return "Cannot resolve all parameters for '" + stringify(typeOrFunc) + "'(" +
-           signature.join(', ') + "). " +
-           "Make sure that all the parameters are decorated with Inject or have valid type annotations and that '" +
-           stringify(typeOrFunc) + "' is decorated with Injectable.";
+    return 'Cannot resolve all parameters for \'' + stringify(typeOrFunc) + '\'(' +
+        signature.join(', ') + '). ' +
+        'Make sure that all the parameters are decorated with Inject or have valid type annotations and that \'' +
+        stringify(typeOrFunc) + '\' is decorated with Injectable.';
   }
 }
 
@@ -242,9 +250,10 @@ export class NoAnnotationError extends BaseException {
  *
  * expect(() => injector.getAt(100)).toThrowError();
  * ```
+ * @stable
  */
 export class OutOfBoundsError extends BaseException {
-  constructor(index) { super(`Index ${index} is out-of-bounds.`); }
+  constructor(index: any /** TODO #9100 */) { super(`Index ${index} is out-of-bounds.`); }
 }
 
 // TODO: add a working example after alpha38 is released
@@ -261,8 +270,9 @@ export class OutOfBoundsError extends BaseException {
  * ```
  */
 export class MixingMultiProvidersWithRegularProvidersError extends BaseException {
-  constructor(provider1, provider2) {
-    super("Cannot mix multi providers and regular providers, got: " + provider1.toString() + " " +
-          provider2.toString());
+  constructor(provider1: any /** TODO #9100 */, provider2: any /** TODO #9100 */) {
+    super(
+        'Cannot mix multi providers and regular providers, got: ' + provider1.toString() + ' ' +
+        provider2.toString());
   }
 }

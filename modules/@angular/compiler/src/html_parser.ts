@@ -1,21 +1,10 @@
 import {Injectable} from '@angular/core';
 
-import {
-  isPresent,
-  isBlank,
-} from '../src/facade/lang';
+import {isPresent, isBlank,} from '../src/facade/lang';
 
 import {ListWrapper} from '../src/facade/collection';
 
-import {
-  HtmlAst,
-  HtmlAttrAst,
-  HtmlTextAst,
-  HtmlCommentAst,
-  HtmlElementAst,
-  HtmlExpansionAst,
-  HtmlExpansionCaseAst
-} from './html_ast';
+import {HtmlAst, HtmlAttrAst, HtmlTextAst, HtmlCommentAst, HtmlElementAst, HtmlExpansionAst, HtmlExpansionCaseAst} from './html_ast';
 
 import {HtmlToken, HtmlTokenType, tokenizeHtml} from './html_lexer';
 import {ParseError, ParseSourceSpan} from './parse_util';
@@ -35,12 +24,13 @@ export class HtmlParseTreeResult {
 
 @Injectable()
 export class HtmlParser {
-  parse(sourceContent: string, sourceUrl: string,
-        parseExpansionForms: boolean = false): HtmlParseTreeResult {
+  parse(sourceContent: string, sourceUrl: string, parseExpansionForms: boolean = false):
+      HtmlParseTreeResult {
     var tokensAndErrors = tokenizeHtml(sourceContent, sourceUrl, parseExpansionForms);
     var treeAndErrors = new TreeBuilder(tokensAndErrors.tokens).build();
-    return new HtmlParseTreeResult(treeAndErrors.rootNodes, (<ParseError[]>tokensAndErrors.errors)
-                                                                .concat(treeAndErrors.errors));
+    return new HtmlParseTreeResult(
+        treeAndErrors.rootNodes,
+        (<ParseError[]>tokensAndErrors.errors).concat(treeAndErrors.errors));
   }
 }
 
@@ -67,9 +57,9 @@ class TreeBuilder {
       } else if (this.peek.type === HtmlTokenType.COMMENT_START) {
         this._closeVoidElement();
         this._consumeComment(this._advance());
-      } else if (this.peek.type === HtmlTokenType.TEXT ||
-                 this.peek.type === HtmlTokenType.RAW_TEXT ||
-                 this.peek.type === HtmlTokenType.ESCAPABLE_RAW_TEXT) {
+      } else if (
+          this.peek.type === HtmlTokenType.TEXT || this.peek.type === HtmlTokenType.RAW_TEXT ||
+          this.peek.type === HtmlTokenType.ESCAPABLE_RAW_TEXT) {
         this._closeVoidElement();
         this._consumeText(this._advance());
       } else if (this.peek.type === HtmlTokenType.EXPANSION_FORM_START) {
@@ -115,7 +105,7 @@ class TreeBuilder {
     let switchValue = this._advance();
 
     let type = this._advance();
-    let cases = [];
+    let cases: any[] /** TODO #9100 */ = [];
 
     // read =
     while (this.peek.type === HtmlTokenType.EXPANSION_CASE_VALUE) {
@@ -133,8 +123,8 @@ class TreeBuilder {
     this._advance();
 
     let mainSourceSpan = new ParseSourceSpan(token.sourceSpan.start, this.peek.sourceSpan.end);
-    this._addToParent(new HtmlExpansionAst(switchValue.parts[0], type.parts[0], cases,
-                                           mainSourceSpan, switchValue.sourceSpan));
+    this._addToParent(new HtmlExpansionAst(
+        switchValue.parts[0], type.parts[0], cases, mainSourceSpan, switchValue.sourceSpan));
   }
 
   private _parseExpansionCase(): HtmlExpansionCaseAst {
@@ -142,8 +132,8 @@ class TreeBuilder {
 
     // read {
     if (this.peek.type !== HtmlTokenType.EXPANSION_CASE_EXP_START) {
-      this.errors.push(HtmlTreeError.create(null, this.peek.sourceSpan,
-                                            `Invalid expansion form. Missing '{'.,`));
+      this.errors.push(HtmlTreeError.create(
+          null, this.peek.sourceSpan, `Invalid expansion form. Missing '{'.,`));
       return null;
     }
 
@@ -165,12 +155,12 @@ class TreeBuilder {
 
     let sourceSpan = new ParseSourceSpan(value.sourceSpan.start, end.sourceSpan.end);
     let expSourceSpan = new ParseSourceSpan(start.sourceSpan.start, end.sourceSpan.end);
-    return new HtmlExpansionCaseAst(value.parts[0], parsedExp.rootNodes, sourceSpan,
-                                    value.sourceSpan, expSourceSpan);
+    return new HtmlExpansionCaseAst(
+        value.parts[0], parsedExp.rootNodes, sourceSpan, value.sourceSpan, expSourceSpan);
   }
 
   private _collectExpansionExpTokens(start: HtmlToken): HtmlToken[] {
-    let exp = [];
+    let exp: any[] /** TODO #9100 */ = [];
     let expansionFormStack = [HtmlTokenType.EXPANSION_CASE_EXP_START];
 
     while (true) {
@@ -239,7 +229,7 @@ class TreeBuilder {
   private _consumeStartTag(startTagToken: HtmlToken) {
     var prefix = startTagToken.parts[0];
     var name = startTagToken.parts[1];
-    var attrs = [];
+    var attrs: any[] /** TODO #9100 */ = [];
     while (this.peek.type === HtmlTokenType.ATTR_NAME) {
       attrs.push(this._consumeAttr(this._advance()));
     }
@@ -280,8 +270,8 @@ class TreeBuilder {
     var tagDef = getHtmlTagDefinition(el.name);
     var parentEl = this._getParentElement();
     if (tagDef.requireExtraParent(isPresent(parentEl) ? parentEl.name : null)) {
-      var newParent = new HtmlElementAst(tagDef.parentToAdd, [], [el], el.sourceSpan,
-                                         el.startSourceSpan, el.endSourceSpan);
+      var newParent = new HtmlElementAst(
+          tagDef.parentToAdd, [], [el], el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
       this._addToParent(newParent);
       this.elementStack.push(newParent);
       this.elementStack.push(el);
@@ -295,15 +285,17 @@ class TreeBuilder {
     var fullName =
         getElementFullName(endTagToken.parts[0], endTagToken.parts[1], this._getParentElement());
 
-    this._getParentElement().endSourceSpan = endTagToken.sourceSpan;
+    if (this._getParentElement()) {
+      this._getParentElement().endSourceSpan = endTagToken.sourceSpan;
+    }
 
     if (getHtmlTagDefinition(fullName).isVoid) {
-      this.errors.push(
-          HtmlTreeError.create(fullName, endTagToken.sourceSpan,
-                               `Void elements do not have end tags "${endTagToken.parts[1]}"`));
+      this.errors.push(HtmlTreeError.create(
+          fullName, endTagToken.sourceSpan,
+          `Void elements do not have end tags "${endTagToken.parts[1]}"`));
     } else if (!this._popElement(fullName)) {
-      this.errors.push(HtmlTreeError.create(fullName, endTagToken.sourceSpan,
-                                            `Unexpected closing tag "${endTagToken.parts[1]}"`));
+      this.errors.push(HtmlTreeError.create(
+          fullName, endTagToken.sourceSpan, `Unexpected closing tag "${endTagToken.parts[1]}"`));
     }
   }
 
@@ -348,8 +340,8 @@ class TreeBuilder {
   }
 }
 
-function getElementFullName(prefix: string, localName: string,
-                            parentElement: HtmlElementAst): string {
+function getElementFullName(
+    prefix: string, localName: string, parentElement: HtmlElementAst): string {
   if (isBlank(prefix)) {
     prefix = getHtmlTagDefinition(localName).implicitNamespacePrefix;
     if (isBlank(prefix) && isPresent(parentElement)) {

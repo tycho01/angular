@@ -1,7 +1,9 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {ObservableWrapper} from '../../src/facade/async';
+import {EventEmitter, Injectable} from '@angular/core';
+
+import {ObservableWrapper} from '../facade/async';
 
 import {LocationStrategy} from './location_strategy';
+
 
 /**
  * `Location` is a service that applications can use to interact with a browser's URL.
@@ -42,6 +44,8 @@ import {LocationStrategy} from './location_strategy';
  *
  * bootstrap(AppCmp, [ROUTER_PROVIDERS]);
  * ```
+ *
+ * @stable
  */
 @Injectable()
 export class Location {
@@ -50,10 +54,14 @@ export class Location {
   /** @internal */
   _baseHref: string;
 
-  constructor(public platformStrategy: LocationStrategy) {
-    var browserBaseHref = this.platformStrategy.getBaseHref();
+  /** @internal */
+  _platformStrategy: LocationStrategy;
+
+  constructor(platformStrategy: LocationStrategy) {
+    this._platformStrategy = platformStrategy;
+    var browserBaseHref = this._platformStrategy.getBaseHref();
     this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
-    this.platformStrategy.onPopState((ev) => {
+    this._platformStrategy.onPopState((ev) => {
       ObservableWrapper.callEmit(this._subject, {'url': this.path(), 'pop': true, 'type': ev.type});
     });
   }
@@ -61,7 +69,7 @@ export class Location {
   /**
    * Returns the normalized URL path.
    */
-  path(): string { return this.normalize(this.platformStrategy.path()); }
+  path(): string { return this.normalize(this._platformStrategy.path()); }
 
   /**
    * Normalizes the given path and compares to the current normalized path.
@@ -88,7 +96,7 @@ export class Location {
     if (url.length > 0 && !url.startsWith('/')) {
       url = '/' + url;
     }
-    return this.platformStrategy.prepareExternalUrl(url);
+    return this._platformStrategy.prepareExternalUrl(url);
   }
 
   // TODO: rename this method to pushState
@@ -97,7 +105,7 @@ export class Location {
    * new item onto the platform's history.
    */
   go(path: string, query: string = ''): void {
-    this.platformStrategy.pushState(null, '', path, query);
+    this._platformStrategy.pushState(null, '', path, query);
   }
 
   /**
@@ -105,24 +113,25 @@ export class Location {
    * the top item on the platform's history stack.
    */
   replaceState(path: string, query: string = ''): void {
-    this.platformStrategy.replaceState(null, '', path, query);
+    this._platformStrategy.replaceState(null, '', path, query);
   }
 
   /**
    * Navigates forward in the platform's history.
    */
-  forward(): void { this.platformStrategy.forward(); }
+  forward(): void { this._platformStrategy.forward(); }
 
   /**
    * Navigates back in the platform's history.
    */
-  back(): void { this.platformStrategy.back(); }
+  back(): void { this._platformStrategy.back(); }
 
   /**
    * Subscribe to the platform's `popState` events.
    */
-  subscribe(onNext: (value: any) => void, onThrow: (exception: any) => void = null,
-            onReturn: () => void = null): Object {
+  subscribe(
+      onNext: (value: any) => void, onThrow: (exception: any) => void = null,
+      onReturn: () => void = null): Object {
     return ObservableWrapper.subscribe(this._subject, onNext, onThrow, onReturn);
   }
 

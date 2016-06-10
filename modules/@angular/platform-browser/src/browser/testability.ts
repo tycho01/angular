@@ -1,14 +1,8 @@
-import {
-  Injectable,
-  TestabilityRegistry,
-  Testability,
-  GetTestability,
-  setTestabilityGetter
-} from '@angular/core';
+import {GetTestability, Injectable, Testability, TestabilityRegistry, setTestabilityGetter} from '@angular/core';
 
-import {ListWrapper} from '../../src/facade/collection';
-import {global, isPresent} from '../../src/facade/lang';
 import {getDOM} from '../dom/dom_adapter';
+import {ListWrapper} from '../facade/collection';
+import {global, isPresent} from '../facade/lang';
 
 
 
@@ -50,18 +44,20 @@ export class BrowserGetTestability implements GetTestability {
 
     global.getAllAngularRootElements = () => registry.getAllRootElements();
 
-    var whenAllStable = (callback) => {
+    var whenAllStable = (callback: any /** TODO #9100 */) => {
       var testabilities = global.getAllAngularTestabilities();
       var count = testabilities.length;
       var didWork = false;
-      var decrement = function(didWork_) {
+      var decrement = function(didWork_: any /** TODO #9100 */) {
         didWork = didWork || didWork_;
         count--;
         if (count == 0) {
           callback(didWork);
         }
       };
-      testabilities.forEach(function(testability) { testability.whenStable(decrement); });
+      testabilities.forEach(function(testability: any /** TODO #9100 */) {
+        testability.whenStable(decrement);
+      });
     };
 
     if (!global.frameworkStabilizers) {
@@ -70,8 +66,8 @@ export class BrowserGetTestability implements GetTestability {
     global.frameworkStabilizers.push(whenAllStable);
   }
 
-  findTestabilityInTree(registry: TestabilityRegistry, elem: any,
-                        findInAncestors: boolean): Testability {
+  findTestabilityInTree(registry: TestabilityRegistry, elem: any, findInAncestors: boolean):
+      Testability {
     if (elem == null) {
       return null;
     }

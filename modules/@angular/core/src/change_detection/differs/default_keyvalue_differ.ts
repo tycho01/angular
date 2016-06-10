@@ -1,8 +1,10 @@
-import {MapWrapper, StringMapWrapper} from '../../../src/facade/collection';
-import {stringify, looseIdentical, isJsObject, isBlank} from '../../../src/facade/lang';
-import {BaseException} from '../../../src/facade/exceptions';
+import {MapWrapper, StringMapWrapper} from '../../facade/collection';
+import {BaseException} from '../../facade/exceptions';
+import {isBlank, isJsObject, looseIdentical, stringify} from '../../facade/lang';
 import {ChangeDetectorRef} from '../change_detector_ref';
+
 import {KeyValueDiffer, KeyValueDifferFactory} from './keyvalue_differs';
+
 
 /* @ts2dart_const */
 export class DefaultKeyValueDifferFactory implements KeyValueDifferFactory {
@@ -25,7 +27,7 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
 
   get isDirty(): boolean {
     return this._additionsHead !== null || this._changesHead !== null ||
-           this._removalsHead !== null;
+        this._removalsHead !== null;
   }
 
   forEachItem(fn: Function) {
@@ -86,8 +88,8 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
     var lastNewSeqRecord: KeyValueChangeRecord = null;
     var seqChanged: boolean = false;
 
-    this._forEach(map, (value, key) => {
-      var newSeqRecord;
+    this._forEach(map, (value: any /** TODO #9100 */, key: any /** TODO #9100 */) => {
+      var newSeqRecord: any /** TODO #9100 */;
       if (oldSeqRecord !== null && key === oldSeqRecord.key) {
         newSeqRecord = oldSeqRecord;
         if (!looseIdentical(value, oldSeqRecord.currentValue)) {
@@ -207,7 +209,7 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
   /** @internal */
   _isInRemovals(record: KeyValueChangeRecord) {
     return record === this._removalsHead || record._nextRemoved !== null ||
-           record._prevRemoved !== null;
+        record._prevRemoved !== null;
   }
 
   /** @internal */
@@ -296,11 +298,11 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
   }
 
   toString(): string {
-    var items = [];
-    var previous = [];
-    var changes = [];
-    var additions = [];
-    var removals = [];
+    var items: any[] /** TODO #9100 */ = [];
+    var previous: any[] /** TODO #9100 */ = [];
+    var changes: any[] /** TODO #9100 */ = [];
+    var additions: any[] /** TODO #9100 */ = [];
+    var removals: any[] /** TODO #9100 */ = [];
     var record: KeyValueChangeRecord;
 
     for (record = this._mapHead; record !== null; record = record._next) {
@@ -319,13 +321,15 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
       removals.push(stringify(record));
     }
 
-    return "map: " + items.join(', ') + "\n" + "previous: " + previous.join(', ') + "\n" +
-           "additions: " + additions.join(', ') + "\n" + "changes: " + changes.join(', ') + "\n" +
-           "removals: " + removals.join(', ') + "\n";
+    return 'map: ' + items.join(', ') + '\n' +
+        'previous: ' + previous.join(', ') + '\n' +
+        'additions: ' + additions.join(', ') + '\n' +
+        'changes: ' + changes.join(', ') + '\n' +
+        'removals: ' + removals.join(', ') + '\n';
   }
 
   /** @internal */
-  _forEach(obj, fn: Function) {
+  _forEach(obj: any /** TODO #9100 */, fn: Function) {
     if (obj instanceof Map) {
       (<Map<any, any>>obj).forEach(<any>fn);
     } else {
@@ -335,6 +339,9 @@ export class DefaultKeyValueDiffer implements KeyValueDiffer {
 }
 
 
+/**
+ * @stable
+ */
 export class KeyValueChangeRecord {
   previousValue: any = null;
   currentValue: any = null;
@@ -356,8 +363,8 @@ export class KeyValueChangeRecord {
 
   toString(): string {
     return looseIdentical(this.previousValue, this.currentValue) ?
-               stringify(this.key) :
-               (stringify(this.key) + '[' + stringify(this.previousValue) + '->' +
-                stringify(this.currentValue) + ']');
+        stringify(this.key) :
+        (stringify(this.key) + '[' + stringify(this.previousValue) + '->' +
+         stringify(this.currentValue) + ']');
   }
 }

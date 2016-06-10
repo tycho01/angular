@@ -1,15 +1,16 @@
-import {looseIdentical, isPrimitive} from '../../src/facade/lang';
-import {isListLikeIterable, areIterablesEqual} from '../../src/facade/collection';
+import {areIterablesEqual, isListLikeIterable} from '../facade/collection';
+import {isPrimitive, looseIdentical} from '../facade/lang';
 
-export {looseIdentical} from '../../src/facade/lang';
+export {looseIdentical} from '../facade/lang';
+
 export var uninitialized: Object = /*@ts2dart_const*/ new Object();
 
 export function devModeEqual(a: any, b: any): boolean {
   if (isListLikeIterable(a) && isListLikeIterable(b)) {
     return areIterablesEqual(a, b, devModeEqual);
 
-  } else if (!isListLikeIterable(a) && !isPrimitive(a) && !isListLikeIterable(b) &&
-             !isPrimitive(b)) {
+  } else if (
+      !isListLikeIterable(a) && !isPrimitive(a) && !isListLikeIterable(b) && !isPrimitive(b)) {
     return true;
 
   } else {
@@ -34,6 +35,7 @@ export function devModeEqual(a: any, b: any): boolean {
  *    return WrappedValue.wrap(this._latestValue); // this will force update
  *  }
  * ```
+ * @stable
  */
 export class WrappedValue {
   constructor(public wrapped: any) {}
@@ -60,6 +62,7 @@ export class ValueUnwrapper {
 
 /**
  * Represents a basic change from a previous to a new value.
+ * @stable
  */
 export class SimpleChange {
   constructor(public previousValue: any, public currentValue: any) {}

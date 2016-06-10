@@ -1,6 +1,8 @@
-import {Reflector} from './reflector';
-export {Reflector, ReflectionInfo} from './reflector';
 import {ReflectionCapabilities} from './reflection_capabilities';
+import {Reflector} from './reflector';
+
+export {ReflectionInfo, Reflector} from './reflector';
+
 
 /**
  * The {@link Reflector} used internally in Angular to access metadata

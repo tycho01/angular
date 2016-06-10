@@ -12,7 +12,6 @@ module.exports = function(config) {
       // Sources and specs.
       // Loaded through the System loader, in `test-main.js`.
       {pattern: 'dist/all/@angular/**/*.js', included: false, watched: true},
-      {pattern: 'dist/all/angular2/**/*.js', included: false, watched: true},
 
       'node_modules/es6-shim/es6-shim.js',
       // include Angular v1 for upgrade module testing
@@ -39,7 +38,7 @@ module.exports = function(config) {
     exclude: [
       'dist/all/@angular/**/e2e_test/**',
       'dist/all/@angular/examples/**',
-      'dist/all/@angular/compiler_cli/**',
+      'dist/all/@angular/compiler-cli/**',
       'dist/all/angular1_router.js',
       'dist/all/@angular/platform-browser/testing/e2e_util.js'
     ],
@@ -52,7 +51,6 @@ module.exports = function(config) {
       'karma-sauce-launcher',
       'karma-chrome-launcher',
       'karma-sourcemap-loader',
-      'karma-dart',
       internalAngularReporter
     ],
 

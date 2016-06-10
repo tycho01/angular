@@ -1,8 +1,10 @@
+import {BaseException} from '@angular/core';
+
 import {XHR} from '../index';
+import {PromiseCompleter, PromiseWrapper} from '../src/facade/async';
 import {ListWrapper, Map} from '../src/facade/collection';
 import {isBlank, normalizeBlank} from '../src/facade/lang';
-import {BaseException} from '@angular/core';
-import {PromiseCompleter, PromiseWrapper} from '../src/facade/async';
+
 
 /**
  * A mock implementation of {@link XHR} that allows outgoing requests to be mocked
@@ -61,7 +63,7 @@ export class MockXHR extends XHR {
   verifyNoOutstandingExpectations() {
     if (this._expectations.length === 0) return;
 
-    var urls = [];
+    var urls: any[] /** TODO #9100 */ = [];
     for (var i = 0; i < this._expectations.length; i++) {
       var expectation = this._expectations[i];
       urls.push(expectation.url);
@@ -93,13 +95,9 @@ export class MockXHR extends XHR {
 }
 
 class _PendingRequest {
-  url: string;
   completer: PromiseCompleter<string>;
 
-  constructor(url) {
-    this.url = url;
-    this.completer = PromiseWrapper.completer();
-  }
+  constructor(public url: string) { this.completer = PromiseWrapper.completer(); }
 
   complete(response: string) {
     if (isBlank(response)) {

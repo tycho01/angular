@@ -1,15 +1,4 @@
-import {
-  beforeEach,
-  ddescribe,
-  xdescribe,
-  describe,
-  expect,
-  iit,
-  inject,
-  beforeEachProviders,
-  it,
-  xit,
-} from '@angular/core/testing/testing_internal';
+import {beforeEach, ddescribe, xdescribe, describe, expect, iit, inject, beforeEachProviders, it, xit,} from '@angular/core/testing/testing_internal';
 import {AsyncTestCompleter} from '@angular/core/testing/testing_internal';
 import {TestComponentBuilder} from '@angular/compiler/testing';
 
@@ -39,7 +28,7 @@ class MessageDir {
 
   constructor(logger: Logger) { this.logger = logger; }
 
-  set message(newMessage) { this.logger.add(newMessage); }
+  set message(newMessage: string) { this.logger.add(newMessage); }
 }
 
 @Component({
@@ -175,32 +164,42 @@ class BankAccount {
 @Component({
   selector: 'test-app',
   template: `
-   <bank-account bank="RBC" account="4747"></bank-account>
+   <bank-account bank="RBC"
+                 account="4747"
+                 [style.width.px]="width"
+                 [style.color]="color"
+                 [class.closed]="isClosed"
+                 [class.open]="!isClosed"></bank-account>
  `,
   directives: [BankAccount]
 })
 class TestApp {
+  width = 200;
+  color = 'red';
+  isClosed = true;
 }
 
 export function main() {
   describe('debug element', function() {
     it('should list all child nodes',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
                // The root component has 3 elements and 2 text node children.
                expect(fixture.debugElement.childNodes.length).toEqual(5);
                async.done();
              });
-       }));
+           }));
 
     it('should list all component child elements',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
 
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
                var childEls = fixture.debugElement.children;
@@ -228,12 +227,13 @@ export function main() {
 
                async.done();
              });
-       }));
+           }));
 
     it('should list conditional component child elements',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(ConditionalParentComp)
-             .then((fixture) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(ConditionalParentComp).then((fixture) => {
                fixture.detectChanges();
 
                var childEls = fixture.debugElement.children;
@@ -254,41 +254,73 @@ export function main() {
                expect(conditionalContentComp.children.length).toEqual(1);
                async.done();
              });
-       }));
+           }));
 
     it('should list child elements within viewports',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(UsingFor).then((fixture) => {
-           fixture.detectChanges();
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(UsingFor).then((fixture) => {
+               fixture.detectChanges();
 
-           var childEls = fixture.debugElement.children;
-           expect(childEls.length).toEqual(4);
+               var childEls = fixture.debugElement.children;
+               expect(childEls.length).toEqual(4);
 
-           // The 4th child is the <ul>
-           var list = childEls[3];
+               // The 4th child is the <ul>
+               var list = childEls[3];
 
-           expect(list.children.length).toEqual(3);
+               expect(list.children.length).toEqual(3);
 
-           async.done();
-         });
-       }));
+               async.done();
+             });
+           }));
 
     it('should list element attributes',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(TestApp).then((fixture) => {
-           fixture.detectChanges();
-           var bankElem = fixture.debugElement.children[0];
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(TestApp).then((fixture) => {
+               fixture.detectChanges();
+               var bankElem = fixture.debugElement.children[0];
 
-           expect(bankElem.attributes['bank']).toEqual('RBC');
-           expect(bankElem.attributes['account']).toEqual('4747');
-           async.done();
-         });
-       }));
+               expect(bankElem.attributes['bank']).toEqual('RBC');
+               expect(bankElem.attributes['account']).toEqual('4747');
+               async.done();
+             });
+           }));
+
+    it('should list element classes',
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(TestApp).then((fixture) => {
+               fixture.detectChanges();
+               var bankElem = fixture.debugElement.children[0];
+
+               expect(bankElem.classes['closed']).toBe(true);
+               expect(bankElem.classes['open']).toBe(false);
+               async.done();
+             });
+           }));
+
+    it('should list element styles', inject(
+                                         [TestComponentBuilder, AsyncTestCompleter],
+                                         (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+                                           tcb.createAsync(TestApp).then((fixture) => {
+                                             fixture.detectChanges();
+                                             var bankElem = fixture.debugElement.children[0];
+
+                                             expect(bankElem.styles['width']).toEqual('200px');
+                                             expect(bankElem.styles['color']).toEqual('red');
+                                             async.done();
+                                           });
+                                         }));
 
     it('should query child elements by css',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
                var childTestEls = fixture.debugElement.queryAll(By.css('child-comp'));
@@ -299,12 +331,13 @@ export function main() {
 
                async.done();
              });
-       }));
+           }));
 
     it('should query child elements by directive',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
                var childTestEls = fixture.debugElement.queryAll(By.directive(MessageDir));
@@ -317,52 +350,57 @@ export function main() {
 
                async.done();
              });
-       }));
+           }));
 
     it('should list providerTokens',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
 
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
                expect(fixture.debugElement.providerTokens).toContain(Logger);
 
                async.done();
              });
-       }));
+           }));
 
     it('should list locals',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
-         tcb.createAsync(LocalsComp)
-             .then((fixture) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
+             tcb.createAsync(LocalsComp).then((fixture) => {
                fixture.detectChanges();
 
                expect(fixture.debugElement.children[0].references['alice']).toBeAnInstanceOf(MyDir);
 
                async.done();
              });
-       }));
+           }));
 
     it('should allow injecting from the element injector',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
 
-         tcb.createAsync(ParentComp)
-             .then((fixture) => {
+             tcb.createAsync(ParentComp).then((fixture) => {
                fixture.detectChanges();
 
-               expect((<Logger>(fixture.debugElement.children[0].inject(Logger))).logs)
-                   .toEqual(['parent', 'nestedparent', 'child', 'nestedchild']);
+               expect((<Logger>(fixture.debugElement.children[0].inject(Logger))).logs).toEqual([
+                 'parent', 'nestedparent', 'child', 'nestedchild'
+               ]);
 
                async.done();
              });
-       }));
+           }));
 
     it('should list event listeners',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
 
-         tcb.createAsync(EventsComp)
-             .then((fixture) => {
+             tcb.createAsync(EventsComp).then((fixture) => {
                fixture.detectChanges();
 
                expect(fixture.debugElement.children[0].listeners.length).toEqual(1);
@@ -370,14 +408,15 @@ export function main() {
 
                async.done();
              });
-       }));
+           }));
 
 
     it('should trigger event handlers',
-       inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+       inject(
+           [TestComponentBuilder, AsyncTestCompleter],
+           (tcb: TestComponentBuilder, async: AsyncTestCompleter) => {
 
-         tcb.createAsync(EventsComp)
-             .then((fixture) => {
+             tcb.createAsync(EventsComp).then((fixture) => {
                fixture.detectChanges();
 
                expect(fixture.debugElement.componentInstance.clicked).toBe(false);
@@ -391,6 +430,6 @@ export function main() {
 
                async.done();
              });
-       }));
+           }));
   });
 }

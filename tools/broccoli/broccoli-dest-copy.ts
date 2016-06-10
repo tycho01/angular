@@ -1,6 +1,3 @@
-/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/fs-extra/fs-extra.d.ts" />
-
 import fs = require('fs');
 import fse = require('fs-extra');
 import path = require('path');
@@ -15,14 +12,13 @@ class DestCopy implements DiffingBroccoliPlugin {
 
 
   rebuild(treeDiff: DiffResult) {
-    treeDiff.addedPaths.concat(treeDiff.changedPaths)
-        .forEach((changedFilePath) => {
-          var destFilePath = path.join(this.outputRoot, changedFilePath);
+    treeDiff.addedPaths.concat(treeDiff.changedPaths).forEach((changedFilePath) => {
+      var destFilePath = path.join(this.outputRoot, changedFilePath);
 
-          var destDirPath = path.dirname(destFilePath);
-          fse.mkdirsSync(destDirPath);
-          fse.copySync(path.join(this.inputPath, changedFilePath), destFilePath);
-        });
+      var destDirPath = path.dirname(destFilePath);
+      fse.mkdirsSync(destDirPath);
+      fse.copySync(path.join(this.inputPath, changedFilePath), destFilePath);
+    });
 
     treeDiff.removedPaths.forEach((removedFilePath) => {
       var destFilePath = path.join(this.outputRoot, removedFilePath);

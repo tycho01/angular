@@ -1,21 +1,12 @@
-import {ParseSourceSpan, ParseError} from '../parse_util';
-import {
-  HtmlAst,
-  HtmlAstVisitor,
-  HtmlElementAst,
-  HtmlAttrAst,
-  HtmlTextAst,
-  HtmlCommentAst,
-  HtmlExpansionAst,
-  HtmlExpansionCaseAst,
-  htmlVisitAll
-} from '../html_ast';
-import {isPresent, isBlank, StringWrapper} from '../../src/facade/lang';
-import {Message} from './message';
 import {Parser} from '../expression_parser/parser';
+import {StringWrapper, isBlank, isPresent} from '../facade/lang';
+import {HtmlAst, HtmlAstVisitor, HtmlAttrAst, HtmlCommentAst, HtmlElementAst, HtmlExpansionAst, HtmlExpansionCaseAst, HtmlTextAst, htmlVisitAll} from '../html_ast';
+import {ParseError, ParseSourceSpan} from '../parse_util';
 
-export const I18N_ATTR = "i18n";
-export const I18N_ATTR_PREFIX = "i18n-";
+import {Message} from './message';
+
+export const I18N_ATTR = 'i18n';
+export const I18N_ATTR_PREFIX = 'i18n-';
 var CUSTOM_PH_EXP = /\/\/[\s\S]*i18n[\s\S]*\([\s\S]*ph[\s\S]*=[\s\S]*"([\s\S]*?)"[\s\S]*\)/g;
 
 /**
@@ -27,19 +18,19 @@ export class I18nError extends ParseError {
 
 
 // Man, this is so ugly!
-export function partition(nodes: HtmlAst[], errors: ParseError[]): Part[] {
-  let res = [];
+export function partition(nodes: HtmlAst[], errors: ParseError[], implicitTags: string[]): Part[] {
+  let res: any[] /** TODO #9100 */ = [];
 
   for (let i = 0; i < nodes.length; ++i) {
     let n = nodes[i];
-    let temp = [];
+    let temp: any[] /** TODO #9100 */ = [];
     if (_isOpeningComment(n)) {
       let i18n = (<HtmlCommentAst>n).value.substring(5).trim();
       i++;
       while (!_isClosingComment(nodes[i])) {
         temp.push(nodes[i++]);
         if (i === nodes.length) {
-          errors.push(new I18nError(n.sourceSpan, "Missing closing 'i18n' comment."));
+          errors.push(new I18nError(n.sourceSpan, 'Missing closing \'i18n\' comment.'));
           break;
         }
       }
@@ -47,7 +38,8 @@ export function partition(nodes: HtmlAst[], errors: ParseError[]): Part[] {
 
     } else if (n instanceof HtmlElementAst) {
       let i18n = _findI18nAttr(n);
-      res.push(new Part(n, null, n.children, isPresent(i18n) ? i18n.value : null, isPresent(i18n)));
+      let hasI18n: boolean = isPresent(i18n) || implicitTags.indexOf(n.name) > -1;
+      res.push(new Part(n, null, n.children, isPresent(i18n) ? i18n.value : null, hasI18n));
     } else if (n instanceof HtmlTextAst) {
       res.push(new Part(null, n, null, null, false));
     }
@@ -57,8 +49,9 @@ export function partition(nodes: HtmlAst[], errors: ParseError[]): Part[] {
 }
 
 export class Part {
-  constructor(public rootElement: HtmlElementAst, public rootTextNode: HtmlTextAst,
-              public children: HtmlAst[], public i18n: string, public hasI18n: boolean) {}
+  constructor(
+      public rootElement: HtmlElementAst, public rootTextNode: HtmlTextAst,
+      public children: HtmlAst[], public i18n: string, public hasI18n: boolean) {}
 
   get sourceSpan(): ParseSourceSpan {
     if (isPresent(this.rootElement))
@@ -70,17 +63,17 @@ export class Part {
   }
 
   createMessage(parser: Parser): Message {
-    return new Message(stringifyNodes(this.children, parser), meaning(this.i18n),
-                       description(this.i18n));
+    return new Message(
+        stringifyNodes(this.children, parser), meaning(this.i18n), description(this.i18n));
   }
 }
 
 function _isOpeningComment(n: HtmlAst): boolean {
-  return n instanceof HtmlCommentAst && isPresent(n.value) && n.value.startsWith("i18n:");
+  return n instanceof HtmlCommentAst && isPresent(n.value) && n.value.startsWith('i18n:');
 }
 
 function _isClosingComment(n: HtmlAst): boolean {
-  return n instanceof HtmlCommentAst && isPresent(n.value) && n.value == "/i18n";
+  return n instanceof HtmlCommentAst && isPresent(n.value) && n.value == '/i18n';
 }
 
 function _findI18nAttr(p: HtmlElementAst): HtmlAttrAst {
@@ -89,36 +82,48 @@ function _findI18nAttr(p: HtmlElementAst): HtmlAttrAst {
 }
 
 export function meaning(i18n: string): string {
-  if (isBlank(i18n) || i18n == "") return null;
-  return i18n.split("|")[0];
+  if (isBlank(i18n) || i18n == '') return null;
+  return i18n.split('|')[0];
 }
 
 export function description(i18n: string): string {
-  if (isBlank(i18n) || i18n == "") return null;
-  let parts = i18n.split("|");
+  if (isBlank(i18n) || i18n == '') return null;
+  let parts = i18n.split('|');
   return parts.length > 1 ? parts[1] : null;
 }
 
-export function messageFromAttribute(parser: Parser, p: HtmlElementAst,
-                                     attr: HtmlAttrAst): Message {
-  let expectedName = attr.name.substring(5);
+/**
+ * Extract a translation string given an `i18n-` prefixed attribute.
+ *
+ * @internal
+ */
+export function messageFromI18nAttribute(
+    parser: Parser, p: HtmlElementAst, i18nAttr: HtmlAttrAst): Message {
+  let expectedName = i18nAttr.name.substring(5);
   let matching = p.attrs.filter(a => a.name == expectedName);
 
   if (matching.length > 0) {
-    let value = removeInterpolation(matching[0].value, matching[0].sourceSpan, parser);
-    return new Message(value, meaning(attr.value), description(attr.value));
-  } else {
-    throw new I18nError(p.sourceSpan, `Missing attribute '${expectedName}'.`);
+    return messageFromAttribute(
+        parser, matching[0], meaning(i18nAttr.value), description(i18nAttr.value));
   }
+
+  throw new I18nError(p.sourceSpan, `Missing attribute '${expectedName}'.`);
 }
 
-export function removeInterpolation(value: string, source: ParseSourceSpan,
-                                    parser: Parser): string {
+export function messageFromAttribute(
+    parser: Parser, attr: HtmlAttrAst, meaning: string = null,
+    description: string = null): Message {
+  let value = removeInterpolation(attr.value, attr.sourceSpan, parser);
+  return new Message(value, meaning, description);
+}
+
+export function removeInterpolation(
+    value: string, source: ParseSourceSpan, parser: Parser): string {
   try {
     let parsed = parser.splitInterpolation(value, source.toString());
     let usedNames = new Map<string, number>();
     if (isPresent(parsed)) {
-      let res = "";
+      let res = '';
       for (let i = 0; i < parsed.strings.length; ++i) {
         res += parsed.strings[i];
         if (i != parsed.strings.length - 1) {
@@ -154,7 +159,7 @@ export function dedupePhName(usedNames: Map<string, number>, name: string): stri
 
 export function stringifyNodes(nodes: HtmlAst[], parser: Parser): string {
   let visitor = new _StringifyVisitor(parser);
-  return htmlVisitAll(visitor, nodes).join("");
+  return htmlVisitAll(visitor, nodes).join('');
 }
 
 class _StringifyVisitor implements HtmlAstVisitor {
@@ -163,7 +168,7 @@ class _StringifyVisitor implements HtmlAstVisitor {
 
   visitElement(ast: HtmlElementAst, context: any): any {
     let name = this._index++;
-    let children = this._join(htmlVisitAll(this, ast.children), "");
+    let children = this._join(htmlVisitAll(this, ast.children), '');
     return `<ph name="e${name}">${children}</ph>`;
   }
 
@@ -179,7 +184,7 @@ class _StringifyVisitor implements HtmlAstVisitor {
     }
   }
 
-  visitComment(ast: HtmlCommentAst, context: any): any { return ""; }
+  visitComment(ast: HtmlCommentAst, context: any): any { return ''; }
 
   visitExpansion(ast: HtmlExpansionAst, context: any): any { return null; }
 

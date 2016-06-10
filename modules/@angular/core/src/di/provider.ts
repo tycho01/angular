@@ -1,5 +1,6 @@
-import {normalizeBool, Type, isType, isBlank, isFunction, stringify} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
+import {BaseException} from '../facade/exceptions';
+import {Type, isBlank, isFunction, isType, normalizeBool, stringify} from '../facade/lang';
+
 
 /**
  * Describes how the {@link Injector} should instantiate a given token.
@@ -16,12 +17,13 @@ import {BaseException} from '../../src/facade/exceptions';
  * expect(injector.get("message")).toEqual('Hello');
  * ```
  * @ts2dart_const
+ * @deprecated
  */
 export class Provider {
   /**
    * Token used when retrieving this provider. Usually, it is a type {@link Type}.
    */
-  token;
+  token: any /** TODO #9100 */;
 
   /**
    * Binds a DI token to an implementation class.
@@ -67,7 +69,7 @@ export class Provider {
    * expect(injector.get("message")).toEqual('Hello');
    * ```
    */
-  useValue;
+  useValue: any /** TODO #9100 */;
 
   /**
    * Binds a DI token to an existing token.
@@ -101,7 +103,7 @@ export class Provider {
    * expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
    * ```
    */
-  useExisting;
+  useExisting: any /** TODO #9100 */;
 
   /**
    * Binds a DI token to a function which computes the value.
@@ -147,14 +149,15 @@ export class Provider {
   /** @internal */
   _multi: boolean;
 
-  constructor(token, {useClass, useValue, useExisting, useFactory, deps, multi}: {
-    useClass?: Type,
-    useValue?: any,
-    useExisting?: any,
-    useFactory?: Function,
-    deps?: Object[],
-    multi?: boolean
-  }) {
+  constructor(
+      token: any /** TODO #9100 */, {useClass, useValue, useExisting, useFactory, deps, multi}: {
+        useClass?: Type,
+        useValue?: any,
+        useExisting?: any,
+        useFactory?: Function,
+        deps?: Object[],
+        multi?: boolean
+      }) {
     this.token = token;
     this.useClass = useClass;
     this.useValue = useValue;
@@ -204,7 +207,7 @@ export class Provider {
  * @ts2dart_const
  */
 export class Binding extends Provider {
-  constructor(token, {toClass, toValue, toAlias, toFactory, deps, multi}: {
+  constructor(token: any /** TODO #9100 */, {toClass, toValue, toAlias, toFactory, deps, multi}: {
     toClass?: Type,
     toValue?: any,
     toAlias?: any,
@@ -253,15 +256,16 @@ export class Binding extends Provider {
  *
  * @deprecated
  */
-export function bind(token): ProviderBuilder {
+export function bind(token: any /** TODO #9100 */): ProviderBuilder {
   return new ProviderBuilder(token);
 }
 
 /**
  * Helper class for the {@link bind} function.
+ * @deprecated
  */
 export class ProviderBuilder {
-  constructor(public token) {}
+  constructor(public token: any /** TODO #9100 */) {}
 
   /**
    * Binds a DI token to a class.
@@ -278,11 +282,11 @@ export class ProviderBuilder {
    *
    * var injectorClass = Injector.resolveAndCreate([
    *   Car,
-   *   provide(Vehicle, {useClass: Car})
+   *   {provide: Vehicle, useClass: Car}
    * ]);
    * var injectorAlias = Injector.resolveAndCreate([
    *   Car,
-   *   provide(Vehicle, {useExisting: Car})
+   *   {provide: Vehicle, useExisting: Car}
    * ]);
    *
    * expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
@@ -307,7 +311,7 @@ export class ProviderBuilder {
    *
    * ```typescript
    * var injector = Injector.resolveAndCreate([
-   *   provide('message', {useValue: 'Hello'})
+   *   {provide: 'message', useValue: 'Hello'}
    * ]);
    *
    * expect(injector.get('message')).toEqual('Hello');
@@ -333,11 +337,11 @@ export class ProviderBuilder {
    *
    * var injectorAlias = Injector.resolveAndCreate([
    *   Car,
-   *   provide(Vehicle, {useExisting: Car})
+   *   {provide: Vehicle, useExisting: Car}
    * ]);
    * var injectorClass = Injector.resolveAndCreate([
    *   Car,
-   *   provide(Vehicle, {useClass: Car})
+   *   {provide: Vehicle, useClass: Car})
    * ]);
    *
    * expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
@@ -361,8 +365,8 @@ export class ProviderBuilder {
    *
    * ```typescript
    * var injector = Injector.resolveAndCreate([
-   *   provide(Number, {useFactory: () => { return 1+2; }}),
-   *   provide(String, {useFactory: (v) => { return "Value: " + v; }, deps: [Number]})
+   *   {provide: Number, useFactory: () => { return 1+2; }},
+   *   {provide: String, useFactory: (v) => { return "Value: " + v; }, deps: [Number]}
    * ]);
    *
    * expect(injector.get(Number)).toEqual(3);
@@ -384,15 +388,17 @@ export class ProviderBuilder {
  * See {@link Provider} for more details.
  *
  * <!-- TODO: improve the docs -->
+ * @deprecated
  */
-export function provide(token, {useClass, useValue, useExisting, useFactory, deps, multi}: {
-  useClass?: Type,
-  useValue?: any,
-  useExisting?: any,
-  useFactory?: Function,
-  deps?: Object[],
-  multi?: boolean
-}): Provider {
+export function provide(
+    token: any /** TODO #9100 */, {useClass, useValue, useExisting, useFactory, deps, multi}: {
+      useClass?: Type,
+      useValue?: any,
+      useExisting?: any,
+      useFactory?: Function,
+      deps?: Object[],
+      multi?: boolean
+    }): Provider {
   return new Provider(token, {
     useClass: useClass,
     useValue: useValue,

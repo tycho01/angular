@@ -1,12 +1,7 @@
-import {provide, Component, ComponentRef} from '@angular/core';
-import {bootstrap} from '@angular/platform-browser';
-import {
-  CanActivate,
-  RouteConfig,
-  ComponentInstruction,
-  ROUTER_DIRECTIVES
-} from '@angular/router-deprecated';
 import {APP_BASE_HREF} from '@angular/common';
+import {Component, ComponentRef} from '@angular/core';
+import {bootstrap} from '@angular/platform-browser';
+import {CanActivate, ComponentInstruction, ROUTER_DIRECTIVES, RouteConfig} from '@angular/router-deprecated';
 
 function checkIfWeHavePermission(instruction: ComponentInstruction) {
   return instruction.params['id'] == '1';
@@ -53,5 +48,5 @@ export class AppCmp {
 
 export function main(): Promise<ComponentRef<AppCmp>> {
   return bootstrap(
-      AppCmp, [provide(APP_BASE_HREF, {useValue: '/@angular/examples/router/ts/can_activate'})]);
+      AppCmp, [{provide: APP_BASE_HREF, useValue: '/@angular/examples/router/ts/can_activate'}]);
 }

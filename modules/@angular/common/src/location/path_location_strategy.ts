@@ -1,10 +1,12 @@
-import {Injectable, Inject, Optional} from '@angular/core';
-import {isBlank} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
+import {Inject, Injectable, Optional} from '@angular/core';
 
-import {PlatformLocation, UrlChangeListener} from './platform_location';
-import {LocationStrategy, APP_BASE_HREF} from './location_strategy';
+import {BaseException} from '../facade/exceptions';
+import {isBlank} from '../facade/lang';
+
 import {Location} from './location';
+import {APP_BASE_HREF, LocationStrategy} from './location_strategy';
+import {PlatformLocation, UrlChangeListener} from './platform_location';
+
 
 /**
  * `PathLocationStrategy` is a {@link LocationStrategy} used to configure the
@@ -26,7 +28,7 @@ import {Location} from './location';
  * ### Example
  *
  * ```
- * import {Component, provide} from '@angular/core';
+ * import {Component} from '@angular/core';
  * import {bootstrap} from '@angular/platform-browser/browser';
  * import {
  *   Location,
@@ -50,16 +52,19 @@ import {Location} from './location';
  *
  * bootstrap(AppCmp, [
  *   ROUTER_PROVIDERS, // includes binding to PathLocationStrategy
- *   provide(APP_BASE_HREF, {useValue: '/my/app'})
+ *   {provide: APP_BASE_HREF, useValue: '/my/app'}
  * ]);
  * ```
+ *
+ * @stable
  */
 @Injectable()
 export class PathLocationStrategy extends LocationStrategy {
   private _baseHref: string;
 
-  constructor(private _platformLocation: PlatformLocation,
-              @Optional() @Inject(APP_BASE_HREF) href?: string) {
+  constructor(
+      private _platformLocation: PlatformLocation,
+      @Optional() @Inject(APP_BASE_HREF) href?: string) {
     super();
 
     if (isBlank(href)) {
@@ -87,7 +92,7 @@ export class PathLocationStrategy extends LocationStrategy {
 
   path(): string {
     return this._platformLocation.pathname +
-           Location.normalizeQueryParams(this._platformLocation.search);
+        Location.normalizeQueryParams(this._platformLocation.search);
   }
 
   pushState(state: any, title: string, url: string, queryParams: string) {

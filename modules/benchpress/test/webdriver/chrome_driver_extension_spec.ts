@@ -19,8 +19,6 @@ import {
   ChromeDriverExtension,
   WebDriverAdapter,
   ReflectiveInjector,
-  bind,
-  provide,
   Options
 } from 'benchpress/common';
 
@@ -59,10 +57,9 @@ export function main() {
       log = [];
       extension =
           ReflectiveInjector.resolveAndCreate([
-                              ChromeDriverExtension.BINDINGS,
-                              bind(WebDriverAdapter)
-                                  .toValue(new MockDriverAdapter(log, perfRecords, messageMethod)),
-                              bind(Options.USER_AGENT).toValue(userAgent)
+                              ChromeDriverExtension.PROVIDERS,
+                              {provide: WebDriverAdapter, useValue: new MockDriverAdapter(log, perfRecords, messageMethod)},
+                              {provide: Options.USER_AGENT, useValue(userAgent)}
                             ])
               .get(ChromeDriverExtension);
       return extension;

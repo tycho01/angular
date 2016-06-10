@@ -1,17 +1,10 @@
-import {BaseException} from '../../../src/facade/exceptions';
-import {isListLikeIterable, iterateListLike} from '../../../src/facade/collection';
-
-import {
-  isBlank,
-  isPresent,
-  stringify,
-  getMapKey,
-  looseIdentical,
-  isArray
-} from '../../../src/facade/lang';
-
+import {isListLikeIterable, iterateListLike} from '../../facade/collection';
+import {BaseException} from '../../facade/exceptions';
+import {getMapKey, isArray, isBlank, isPresent, looseIdentical, stringify} from '../../facade/lang';
 import {ChangeDetectorRef} from '../change_detector_ref';
+
 import {IterableDiffer, IterableDifferFactory, TrackByFn} from './iterable_differs';
+
 
 /* @ts2dart_const */
 export class DefaultIterableDifferFactory implements IterableDifferFactory {
@@ -24,9 +17,12 @@ export class DefaultIterableDifferFactory implements IterableDifferFactory {
 
 var trackByIdentity = (index: number, item: any) => item;
 
+/**
+ * @stable
+ */
 export class DefaultIterableDiffer implements IterableDiffer {
   private _length: number = null;
-  private _collection = null;
+  private _collection: any /** TODO #9100 */ = null;
   // Keeps track of the used records at any point in time (during & across `_check()` calls)
   private _linkedRecords: _DuplicateMap = null;
   // Keeps track of the removed records at any point in time during `_check()` calls.
@@ -116,8 +112,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
     var record: CollectionChangeRecord = this._itHead;
     var mayBeDirty: boolean = false;
     var index: number;
-    var item;
-    var itemTrackBy;
+    var item: any /** TODO #9100 */;
+    var itemTrackBy: any /** TODO #9100 */;
     if (isArray(collection)) {
       var list = collection;
       this._length = collection.length;
@@ -140,7 +136,7 @@ export class DefaultIterableDiffer implements IterableDiffer {
       }
     } else {
       index = 0;
-      iterateListLike(collection, (item) => {
+      iterateListLike(collection, (item: any /** TODO #9100 */) => {
         itemTrackBy = this._trackByFn(index, item);
         if (record === null || !looseIdentical(record.trackById, itemTrackBy)) {
           record = this._mismatch(record, item, itemTrackBy, index);
@@ -168,7 +164,7 @@ export class DefaultIterableDiffer implements IterableDiffer {
    */
   get isDirty(): boolean {
     return this._additionsHead !== null || this._movesHead !== null ||
-           this._removalsHead !== null || this._identityChangesHead !== null;
+        this._removalsHead !== null || this._identityChangesHead !== null;
   }
 
   /**
@@ -216,8 +212,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
    *
    * @internal
    */
-  _mismatch(record: CollectionChangeRecord, item: any, itemTrackBy: any,
-            index: number): CollectionChangeRecord {
+  _mismatch(record: CollectionChangeRecord, item: any, itemTrackBy: any, index: number):
+      CollectionChangeRecord {
     // The previous record after which we will append the current one.
     var previousRecord: CollectionChangeRecord;
 
@@ -282,8 +278,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
    *
    * @internal
    */
-  _verifyReinsertion(record: CollectionChangeRecord, item: any, itemTrackBy: any,
-                     index: number): CollectionChangeRecord {
+  _verifyReinsertion(record: CollectionChangeRecord, item: any, itemTrackBy: any, index: number):
+      CollectionChangeRecord {
     var reinsertRecord: CollectionChangeRecord =
         this._unlinkedRecords === null ? null : this._unlinkedRecords.get(itemTrackBy);
     if (reinsertRecord !== null) {
@@ -331,8 +327,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
   }
 
   /** @internal */
-  _reinsertAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord,
-                 index: number): CollectionChangeRecord {
+  _reinsertAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord, index: number):
+      CollectionChangeRecord {
     if (this._unlinkedRecords !== null) {
       this._unlinkedRecords.remove(record);
     }
@@ -356,8 +352,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
   }
 
   /** @internal */
-  _moveAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord,
-             index: number): CollectionChangeRecord {
+  _moveAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord, index: number):
+      CollectionChangeRecord {
     this._unlink(record);
     this._insertAfter(record, prevRecord, index);
     this._addToMoves(record, index);
@@ -365,8 +361,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
   }
 
   /** @internal */
-  _addAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord,
-            index: number): CollectionChangeRecord {
+  _addAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord, index: number):
+      CollectionChangeRecord {
     this._insertAfter(record, prevRecord, index);
 
     if (this._additionsTail === null) {
@@ -383,8 +379,8 @@ export class DefaultIterableDiffer implements IterableDiffer {
   }
 
   /** @internal */
-  _insertAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord,
-               index: number): CollectionChangeRecord {
+  _insertAfter(record: CollectionChangeRecord, prevRecord: CollectionChangeRecord, index: number):
+      CollectionChangeRecord {
     // todo(vicb)
     // assert(record != prevRecord);
     // assert(record._next === null);
@@ -507,31 +503,36 @@ export class DefaultIterableDiffer implements IterableDiffer {
 
 
   toString(): string {
-    var list = [];
-    this.forEachItem((record) => list.push(record));
+    var list: any[] /** TODO #9100 */ = [];
+    this.forEachItem((record: any /** TODO #9100 */) => list.push(record));
 
-    var previous = [];
-    this.forEachPreviousItem((record) => previous.push(record));
+    var previous: any[] /** TODO #9100 */ = [];
+    this.forEachPreviousItem((record: any /** TODO #9100 */) => previous.push(record));
 
-    var additions = [];
-    this.forEachAddedItem((record) => additions.push(record));
+    var additions: any[] /** TODO #9100 */ = [];
+    this.forEachAddedItem((record: any /** TODO #9100 */) => additions.push(record));
 
-    var moves = [];
-    this.forEachMovedItem((record) => moves.push(record));
+    var moves: any[] /** TODO #9100 */ = [];
+    this.forEachMovedItem((record: any /** TODO #9100 */) => moves.push(record));
 
-    var removals = [];
-    this.forEachRemovedItem((record) => removals.push(record));
+    var removals: any[] /** TODO #9100 */ = [];
+    this.forEachRemovedItem((record: any /** TODO #9100 */) => removals.push(record));
 
-    var identityChanges = [];
-    this.forEachIdentityChange((record) => identityChanges.push(record));
+    var identityChanges: any[] /** TODO #9100 */ = [];
+    this.forEachIdentityChange((record: any /** TODO #9100 */) => identityChanges.push(record));
 
-    return "collection: " + list.join(', ') + "\n" + "previous: " + previous.join(', ') + "\n" +
-           "additions: " + additions.join(', ') + "\n" + "moves: " + moves.join(', ') + "\n" +
-           "removals: " + removals.join(', ') + "\n" + "identityChanges: " +
-           identityChanges.join(', ') + "\n";
+    return 'collection: ' + list.join(', ') + '\n' +
+        'previous: ' + previous.join(', ') + '\n' +
+        'additions: ' + additions.join(', ') + '\n' +
+        'moves: ' + moves.join(', ') + '\n' +
+        'removals: ' + removals.join(', ') + '\n' +
+        'identityChanges: ' + identityChanges.join(', ') + '\n';
   }
 }
 
+/**
+ * @stable
+ */
 export class CollectionChangeRecord {
   currentIndex: number = null;
   previousIndex: number = null;
@@ -561,10 +562,9 @@ export class CollectionChangeRecord {
   constructor(public item: any, public trackById: any) {}
 
   toString(): string {
-    return this.previousIndex === this.currentIndex ?
-               stringify(this.item) :
-               stringify(this.item) + '[' + stringify(this.previousIndex) + '->' +
-                   stringify(this.currentIndex) + ']';
+    return this.previousIndex === this.currentIndex ? stringify(this.item) :
+                                                      stringify(this.item) + '[' +
+            stringify(this.previousIndex) + '->' + stringify(this.currentIndex) + ']';
   }
 }
 

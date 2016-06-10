@@ -1,10 +1,13 @@
-import {isPresent} from '../../src/facade/lang';
-import {Predicate, ListWrapper, MapWrapper} from '../../src/facade/collection';
 import {Injector} from '../di';
+import {ListWrapper, MapWrapper, Predicate} from '../facade/collection';
+import {isPresent} from '../facade/lang';
 import {RenderDebugInfo} from '../render/api';
 
 export class EventListener { constructor(public name: string, public callback: Function){}; }
 
+/**
+ * @experimental
+ */
 export class DebugNode {
   nativeNode: any;
   listeners: EventListener[];
@@ -46,10 +49,15 @@ export class DebugNode {
   inject(token: any): any { return this.injector.get(token); }
 }
 
+/**
+ * @experimental
+ */
 export class DebugElement extends DebugNode {
   name: string;
-  properties: {[key: string]: string};
+  properties: {[key: string]: any};
   attributes: {[key: string]: string};
+  classes: {[key: string]: boolean};
+  styles: {[key: string]: string};
   childNodes: DebugNode[];
   nativeElement: any;
 
@@ -57,6 +65,8 @@ export class DebugElement extends DebugNode {
     super(nativeNode, parent, _debugInfo);
     this.properties = {};
     this.attributes = {};
+    this.classes = {};
+    this.styles = {};
     this.childNodes = [];
     this.nativeElement = nativeNode;
   }
@@ -129,12 +139,15 @@ export class DebugElement extends DebugNode {
   }
 }
 
+/**
+ * @experimental
+ */
 export function asNativeElements(debugEls: DebugElement[]): any {
   return debugEls.map((el) => el.nativeElement);
 }
 
-function _queryElementChildren(element: DebugElement, predicate: Predicate<DebugElement>,
-                               matches: DebugElement[]) {
+function _queryElementChildren(
+    element: DebugElement, predicate: Predicate<DebugElement>, matches: DebugElement[]) {
   element.childNodes.forEach(node => {
     if (node instanceof DebugElement) {
       if (predicate(node)) {
@@ -145,8 +158,8 @@ function _queryElementChildren(element: DebugElement, predicate: Predicate<Debug
   });
 }
 
-function _queryNodeChildren(parentNode: DebugNode, predicate: Predicate<DebugNode>,
-                            matches: DebugNode[]) {
+function _queryNodeChildren(
+    parentNode: DebugNode, predicate: Predicate<DebugNode>, matches: DebugNode[]) {
   if (parentNode instanceof DebugElement) {
     parentNode.childNodes.forEach(node => {
       if (predicate(node)) {
@@ -162,6 +175,9 @@ function _queryNodeChildren(parentNode: DebugNode, predicate: Predicate<DebugNod
 // Need to keep the nodes in a global Map so that multiple angular apps are supported.
 var _nativeNodeToDebugNode = new Map<any, DebugNode>();
 
+/**
+ * @experimental
+ */
 export function getDebugNode(nativeNode: any): DebugNode {
   return _nativeNodeToDebugNode.get(nativeNode);
 }

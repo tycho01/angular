@@ -1,5 +1,5 @@
 import {getDOM} from '../dom/dom_adapter';
-import {assertionsEnabled} from '../../src/facade/lang';
+import {assertionsEnabled} from '../facade/lang';
 
 /**
  * A pattern that recognizes a commonly useful subset of URLs that are safe.
@@ -30,7 +30,8 @@ import {assertionsEnabled} from '../../src/facade/lang';
 const SAFE_URL_PATTERN = /^(?:(?:https?|mailto|ftp|tel|file):|[^&:/?#]*(?:[/?#]|$))/gi;
 
 /** A pattern that matches safe data URLs. Only matches image and video types. */
-const DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm));base64,[a-z0-9+\/]+=*$/i;
+const DATA_URL_PATTERN =
+    /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm));base64,[a-z0-9+\/]+=*$/i;
 
 export function sanitizeUrl(url: string): string {
   url = String(url);

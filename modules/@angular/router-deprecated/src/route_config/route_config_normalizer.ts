@@ -1,8 +1,10 @@
-import {AsyncRoute, AuxRoute, Route, Redirect, RouteDefinition} from './route_config_decorator';
+import {BaseException} from '../facade/exceptions';
+import {Type, isType} from '../facade/lang';
 import {ComponentDefinition} from '../route_definition';
-import {isType, Type} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
 import {RouteRegistry} from '../route_registry';
+
+import {AsyncRoute, AuxRoute, Redirect, Route, RouteDefinition} from './route_config_decorator';
+
 
 
 /**
@@ -12,8 +14,8 @@ import {RouteRegistry} from '../route_registry';
  * Also wraps an AsyncRoute's loader function to add the loaded component's route config to the
  * `RouteRegistry`.
  */
-export function normalizeRouteConfig(config: RouteDefinition,
-                                     registry: RouteRegistry): RouteDefinition {
+export function normalizeRouteConfig(
+    config: RouteDefinition, registry: RouteRegistry): RouteDefinition {
   if (config instanceof AsyncRoute) {
     var wrappedLoader = wrapLoaderToReconfigureRegistry(config.loader, registry);
     return new AsyncRoute({
@@ -32,12 +34,7 @@ export function normalizeRouteConfig(config: RouteDefinition,
     throw new BaseException(
         `Route config should contain exactly one "component", "loader", or "redirectTo" property.`);
   }
-  if (config.as && config.name) {
-    throw new BaseException(`Route config should contain exactly one "as" or "name" property.`);
-  }
-  if (config.as) {
-    config.name = config.as;
-  }
+
   if (config.loader) {
     var wrappedLoader = wrapLoaderToReconfigureRegistry(config.loader, registry);
     return new AsyncRoute({
@@ -49,7 +46,7 @@ export function normalizeRouteConfig(config: RouteDefinition,
     });
   }
   if (config.aux) {
-    return new AuxRoute({path: config.aux, component:<Type>config.component, name: config.name});
+    return new AuxRoute({path: config.aux, component: <Type>config.component, name: config.name});
   }
   if (config.component) {
     if (typeof config.component == 'object') {
@@ -57,7 +54,7 @@ export function normalizeRouteConfig(config: RouteDefinition,
       if (componentDefinitionObject.type == 'constructor') {
         return new Route({
           path: config.path,
-          component:<Type>componentDefinitionObject.constructor,
+          component: <Type>componentDefinitionObject.constructor,
           name: config.name,
           data: config.data,
           useAsDefault: config.useAsDefault
@@ -95,7 +92,7 @@ export function normalizeRouteConfig(config: RouteDefinition,
 function wrapLoaderToReconfigureRegistry(loader: Function, registry: RouteRegistry): () =>
     Promise<Type> {
   return () => {
-    return loader().then((componentType) => {
+    return loader().then((componentType: any /** TODO #9100 */) => {
       registry.configFromComponent(componentType);
       return componentType;
     });

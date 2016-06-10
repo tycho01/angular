@@ -1,17 +1,9 @@
-import {
-  ResolvedReflectiveProvider,
-  Directive,
-  DynamicComponentLoader,
-  ViewContainerRef,
-  Attribute,
-  ComponentRef,
-  ComponentFactory,
-  ReflectiveInjector,
-  OnInit
-} from '@angular/core';
-import {RouterOutletMap} from '../router';
+import {Attribute, ComponentFactory, ComponentRef, Directive, ReflectiveInjector, ResolvedReflectiveProvider, ViewContainerRef} from '@angular/core';
+
 import {DEFAULT_OUTLET_NAME} from '../constants';
-import {isPresent, isBlank} from '../facade/lang';
+import {isBlank, isPresent} from '../facade/lang';
+import {RouterOutletMap} from '../router';
+
 
 /**
  * A router outlet is a placeholder that Angular dynamically fills based on the application's route.
@@ -33,8 +25,9 @@ export class RouterOutlet {
   private _activated: ComponentRef<any>;
   public outletMap: RouterOutletMap;
 
-  constructor(parentOutletMap: RouterOutletMap, private _location: ViewContainerRef,
-              @Attribute('name') name: string) {
+  constructor(
+      parentOutletMap: RouterOutletMap, private _location: ViewContainerRef,
+      @Attribute('name') name: string) {
     parentOutletMap.registerOutlet(isBlank(name) ? DEFAULT_OUTLET_NAME : name, this);
   }
 
@@ -56,8 +49,9 @@ export class RouterOutlet {
   /**
    * Called by the Router to instantiate a new component.
    */
-  activate(factory: ComponentFactory<any>, providers: ResolvedReflectiveProvider[],
-           outletMap: RouterOutletMap): ComponentRef<any> {
+  activate(
+      factory: ComponentFactory<any>, providers: ResolvedReflectiveProvider[],
+      outletMap: RouterOutletMap): ComponentRef<any> {
     this.outletMap = outletMap;
     let inj = ReflectiveInjector.fromResolvedProviders(providers, this._location.parentInjector);
     this._activated = this._location.createComponent(factory, this._location.length, inj, []);

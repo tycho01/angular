@@ -1,14 +1,13 @@
-import {global, noop} from './lang';
-export {PromiseWrapper, PromiseCompleter} from './promise';
-
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
-
 import {PromiseObservable} from 'rxjs/observable/PromiseObservable';
 import {toPromise} from 'rxjs/operator/toPromise';
 
+import {global, noop} from './lang';
+
 export {Observable} from 'rxjs/Observable';
 export {Subject} from 'rxjs/Subject';
+export {PromiseCompleter, PromiseWrapper} from './promise';
 
 export class TimerWrapper {
   static setTimeout(fn: (...args: any[]) => void, millis: number): number {
@@ -24,10 +23,11 @@ export class TimerWrapper {
 
 export class ObservableWrapper {
   // TODO(vsavkin): when we use rxnext, try inferring the generic type from the first arg
-  static subscribe<T>(emitter: any, onNext: (value: T) => void, onError?: (exception: any) => void,
-                      onComplete: () => void = () => {}): Object {
-    onError = (typeof onError === "function") && onError || noop;
-    onComplete = (typeof onComplete === "function") && onComplete || noop;
+  static subscribe<T>(
+      emitter: any, onNext: (value: T) => void, onError?: (exception: any) => void,
+      onComplete: () => void = () => {}): Object {
+    onError = (typeof onError === 'function') && onError || noop;
+    onComplete = (typeof onComplete === 'function') && onComplete || noop;
     return emitter.subscribe({next: onNext, error: onError, complete: onComplete});
   }
 
@@ -92,23 +92,32 @@ export class ObservableWrapper {
  * }
  * ```
  *
- * Use Rx.Observable but provides an adapter to make it work as specified here:
+ * The events payload can be accessed by the parameter `$event` on the components output event
+ * handler:
+ *
+ * ```
+ * <zippy (open)="onOpen($event)" (close)="onClose($event)"></zippy>
+ * ```
+ *
+ * Uses Rx.Observable but provides an adapter to make it work as specified here:
  * https://github.com/jhusain/observable-spec
  *
  * Once a reference implementation of the spec is available, switch to it.
+ * @stable
  */
 export class EventEmitter<T> extends Subject<T> {
   // TODO: mark this as internal once all the facades are gone
   // we can't mark it as internal now because EventEmitter exported via @angular/core would not
   // contain this property making it incompatible with all the code that uses EventEmitter via
   // facades, which are local to the code and do not have this property stripped.
+  // tslint:disable-next-line
   __isAsync: boolean;
 
   /**
    * Creates an instance of [EventEmitter], which depending on [isAsync],
    * delivers events synchronously or asynchronously.
    */
-  constructor(isAsync: boolean = true) {
+  constructor(isAsync: boolean = false) {
     super();
     this.__isAsync = isAsync;
   }
@@ -121,26 +130,28 @@ export class EventEmitter<T> extends Subject<T> {
   next(value: any) { super.next(value); }
 
   subscribe(generatorOrNext?: any, error?: any, complete?: any): any {
-    let schedulerFn;
-    let errorFn = (err: any) => null;
-    let completeFn = () => null;
+    let schedulerFn: any /** TODO #9100 */;
+    let errorFn = (err: any): any /** TODO #9100 */ => null;
+    let completeFn = (): any /** TODO #9100 */ => null;
 
     if (generatorOrNext && typeof generatorOrNext === 'object') {
-      schedulerFn = this.__isAsync ? (value) => { setTimeout(() => generatorOrNext.next(value)); } :
-                                    (value) => { generatorOrNext.next(value); };
+      schedulerFn = this.__isAsync ? (value: any /** TODO #9100 */) => {
+        setTimeout(() => generatorOrNext.next(value));
+      } : (value: any /** TODO #9100 */) => { generatorOrNext.next(value); };
 
       if (generatorOrNext.error) {
         errorFn = this.__isAsync ? (err) => { setTimeout(() => generatorOrNext.error(err)); } :
-                                  (err) => { generatorOrNext.error(err); };
+                                   (err) => { generatorOrNext.error(err); };
       }
 
       if (generatorOrNext.complete) {
         completeFn = this.__isAsync ? () => { setTimeout(() => generatorOrNext.complete()); } :
-                                     () => { generatorOrNext.complete(); };
+                                      () => { generatorOrNext.complete(); };
       }
     } else {
-      schedulerFn = this.__isAsync ? (value) => { setTimeout(() => generatorOrNext(value)); } :
-                                    (value) => { generatorOrNext(value); };
+      schedulerFn = this.__isAsync ? (value: any /** TODO #9100 */) => {
+        setTimeout(() => generatorOrNext(value));
+      } : (value: any /** TODO #9100 */) => { generatorOrNext(value); };
 
       if (error) {
         errorFn =

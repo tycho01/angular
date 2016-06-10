@@ -1,16 +1,8 @@
-import {Headers} from '../src/headers';
-import {Json} from '../src/facade/lang';
+import {beforeEach, ddescribe, describe, expect, iit, inject, it, xit} from '@angular/core/testing/testing_internal';
+
 import {Map, StringMapWrapper} from '../src/facade/collection';
-import {
-  beforeEach,
-  ddescribe,
-  describe,
-  expect,
-  iit,
-  inject,
-  it,
-  xit
-} from '@angular/core/testing/testing_internal';
+import {Json} from '../src/facade/lang';
+import {Headers} from '../src/headers';
 
 export function main() {
   describe('Headers', () => {
@@ -65,9 +57,9 @@ export function main() {
 
 
     describe('.toJSON()', () => {
-      let headers = null;
-      let inputArr = null;
-      let obj = null;
+      let headers: any /** TODO #9100 */ = null;
+      let inputArr: any /** TODO #9100 */ = null;
+      let obj: any /** TODO #9100 */ = null;
 
       beforeEach(() => {
         headers = new Headers();

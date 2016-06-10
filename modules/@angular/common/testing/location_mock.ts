@@ -1,6 +1,9 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {ObservableWrapper} from '../src/facade/async';
+import {EventEmitter, Injectable} from '@angular/core';
+
 import {Location} from '../index';
+import {ObservableWrapper} from '../src/facade/async';
+import {LocationStrategy} from '../src/location/location_strategy';
+
 
 /**
  * A spy for {@link Location} that allows tests to fire simulated location events.
@@ -16,6 +19,8 @@ export class SpyLocation implements Location {
   _subject: EventEmitter<any> = new EventEmitter();
   /** @internal */
   _baseHref: string = '';
+  /** @internal */
+  _platformStrategy: LocationStrategy = null;
 
   setInitialPath(url: string) { this._history[this._historyIndex].path = url; }
 
@@ -59,7 +64,7 @@ export class SpyLocation implements Location {
     this._historyIndex = this._history.length - 1;
 
     var locationState = this._history[this._historyIndex - 1];
-    if(locationState.path == path && locationState.query == query) {
+    if (locationState.path == path && locationState.query == query) {
       return;
     }
 
@@ -85,24 +90,23 @@ export class SpyLocation implements Location {
   forward() {
     if (this._historyIndex < (this._history.length - 1)) {
       this._historyIndex++;
-      ObservableWrapper.callEmit(this._subject, {'url': this.path(), 'pop': true})
+      ObservableWrapper.callEmit(this._subject, {'url': this.path(), 'pop': true});
     }
   }
 
   back() {
     if (this._historyIndex > 0) {
       this._historyIndex--;
-      ObservableWrapper.callEmit(this._subject, {'url': this.path(), 'pop': true})
+      ObservableWrapper.callEmit(this._subject, {'url': this.path(), 'pop': true});
     }
   }
 
-  subscribe(onNext: (value: any) => void, onThrow: (error: any) => void = null,
-            onReturn: () => void = null): Object {
+  subscribe(
+      onNext: (value: any) => void, onThrow: (error: any) => void = null,
+      onReturn: () => void = null): Object {
     return ObservableWrapper.subscribe(this._subject, onNext, onThrow, onReturn);
   }
 
-  // TODO: remove these once Location is an interface, and can be implemented cleanly
-  platformStrategy: any = null;
   normalize(url: string): string { return null; }
 }
 

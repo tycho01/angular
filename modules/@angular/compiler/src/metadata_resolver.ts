@@ -1,46 +1,18 @@
-import {
-  AttributeMetadata,
-  ReflectiveDependency,
-  OptionalMetadata,
-  ComponentMetadata,
-  SelfMetadata,
-  HostMetadata,
-  SkipSelfMetadata,
-  Provider,
-  PLATFORM_DIRECTIVES,
-  PLATFORM_PIPES,
-  reflector,
-  Injectable,
-  Inject,
-  Optional,
-  ViewMetadata,
-  NoAnnotationError,
-  QueryMetadata,
-  resolveForwardRef,
-  InjectMetadata,
-  ViewQueryMetadata
-} from '@angular/core';
-import {constructDependencies, LIFECYCLE_HOOKS_VALUES, ReflectorReader} from '../core_private';
-import {
-  Type,
-  isBlank,
-  isPresent,
-  isArray,
-  stringify,
-  isString,
-  isStringMap
-} from '../src/facade/lang';
+import {AnimationAnimateMetadata, AnimationEntryMetadata, AnimationGroupMetadata, AnimationKeyframesSequenceMetadata, AnimationMetadata, AnimationStateDeclarationMetadata, AnimationStateMetadata, AnimationStateTransitionMetadata, AnimationStyleMetadata, AnimationWithStepsMetadata, AttributeMetadata, ComponentMetadata, HostMetadata, Inject, InjectMetadata, Injectable, Optional, OptionalMetadata, PLATFORM_DIRECTIVES, PLATFORM_PIPES, Provider, QueryMetadata, SelfMetadata, SkipSelfMetadata, ViewMetadata, ViewQueryMetadata, resolveForwardRef} from '@angular/core';
+
+import {LIFECYCLE_HOOKS_VALUES, ReflectorReader, createProvider, isProviderLiteral, reflector} from '../core_private';
 import {StringMapWrapper} from '../src/facade/collection';
 import {BaseException} from '../src/facade/exceptions';
+import {Type, isArray, isBlank, isPresent, isString, isStringMap, stringify} from '../src/facade/lang';
+
+import {assertArrayOfStrings} from './assertions';
 import * as cpl from './compile_metadata';
+import {hasLifecycleHook} from './directive_lifecycle_reflector';
 import {DirectiveResolver} from './directive_resolver';
 import {PipeResolver} from './pipe_resolver';
-import {ViewResolver} from './view_resolver';
-import {hasLifecycleHook} from './directive_lifecycle_reflector';
-import {MODULE_SUFFIX, sanitizeIdentifier, ValueTransformer, visitValue} from './util';
-import {assertArrayOfStrings} from './assertions';
 import {getUrlScheme} from './url_resolver';
-import {createProvider, isProviderLiteral} from "../core_private";
+import {MODULE_SUFFIX, ValueTransformer, sanitizeIdentifier, visitValue} from './util';
+import {ViewResolver} from './view_resolver';
 
 
 @Injectable()
@@ -51,11 +23,12 @@ export class CompileMetadataResolver {
   private _anonymousTypeIndex = 0;
   private _reflector: ReflectorReader;
 
-  constructor(private _directiveResolver: DirectiveResolver, private _pipeResolver: PipeResolver,
-              private _viewResolver: ViewResolver,
-              @Optional() @Inject(PLATFORM_DIRECTIVES) private _platformDirectives: Type[],
-              @Optional() @Inject(PLATFORM_PIPES) private _platformPipes: Type[],
-              _reflector?: ReflectorReader) {
+  constructor(
+      private _directiveResolver: DirectiveResolver, private _pipeResolver: PipeResolver,
+      private _viewResolver: ViewResolver,
+      @Optional() @Inject(PLATFORM_DIRECTIVES) private _platformDirectives: Type[],
+      @Optional() @Inject(PLATFORM_PIPES) private _platformPipes: Type[],
+      _reflector?: ReflectorReader) {
     if (isPresent(_reflector)) {
       this._reflector = _reflector;
     } else {
@@ -77,25 +50,72 @@ export class CompileMetadataResolver {
     return sanitizeIdentifier(identifier);
   }
 
+  getAnimationEntryMetadata(entry: AnimationEntryMetadata): cpl.CompileAnimationEntryMetadata {
+    var defs = entry.definitions.map(def => this.getAnimationStateMetadata(def));
+    return new cpl.CompileAnimationEntryMetadata(entry.name, defs);
+  }
+
+  getAnimationStateMetadata(value: AnimationStateMetadata): cpl.CompileAnimationStateMetadata {
+    if (value instanceof AnimationStateDeclarationMetadata) {
+      var styles = this.getAnimationStyleMetadata(value.styles);
+      return new cpl.CompileAnimationStateDeclarationMetadata(value.stateNameExpr, styles);
+    } else if (value instanceof AnimationStateTransitionMetadata) {
+      return new cpl.CompileAnimationStateTransitionMetadata(
+          value.stateChangeExpr, this.getAnimationMetadata(value.steps));
+    }
+    return null;
+  }
+
+  getAnimationStyleMetadata(value: AnimationStyleMetadata): cpl.CompileAnimationStyleMetadata {
+    return new cpl.CompileAnimationStyleMetadata(value.offset, value.styles);
+  }
+
+  getAnimationMetadata(value: AnimationMetadata): cpl.CompileAnimationMetadata {
+    if (value instanceof AnimationStyleMetadata) {
+      return this.getAnimationStyleMetadata(value);
+    } else if (value instanceof AnimationKeyframesSequenceMetadata) {
+      return new cpl.CompileAnimationKeyframesSequenceMetadata(
+          value.steps.map(entry => this.getAnimationStyleMetadata(entry)));
+    } else if (value instanceof AnimationAnimateMetadata) {
+      let animateData =
+          <cpl.CompileAnimationStyleMetadata|cpl.CompileAnimationKeyframesSequenceMetadata>this
+              .getAnimationMetadata(value.styles);
+      return new cpl.CompileAnimationAnimateMetadata(value.timings, animateData);
+    } else if (value instanceof AnimationWithStepsMetadata) {
+      var steps = value.steps.map(step => this.getAnimationMetadata(step));
+      if (value instanceof AnimationGroupMetadata) {
+        return new cpl.CompileAnimationGroupMetadata(steps);
+      } else {
+        return new cpl.CompileAnimationSequenceMetadata(steps);
+      }
+    }
+    return null;
+  }
+
   getDirectiveMetadata(directiveType: Type): cpl.CompileDirectiveMetadata {
     var meta = this._directiveCache.get(directiveType);
     if (isBlank(meta)) {
       var dirMeta = this._directiveResolver.resolve(directiveType);
-      var templateMeta = null;
-      var changeDetectionStrategy = null;
-      var viewProviders = [];
+      var templateMeta: any /** TODO #9100 */ = null;
+      var changeDetectionStrategy: any /** TODO #9100 */ = null;
+      var viewProviders: any[] /** TODO #9100 */ = [];
       var moduleUrl = staticTypeModuleUrl(directiveType);
       if (dirMeta instanceof ComponentMetadata) {
         assertArrayOfStrings('styles', dirMeta.styles);
         var cmpMeta = <ComponentMetadata>dirMeta;
         var viewMeta = this._viewResolver.resolve(directiveType);
         assertArrayOfStrings('styles', viewMeta.styles);
+        var animations = isPresent(viewMeta.animations) ?
+            viewMeta.animations.map(e => this.getAnimationEntryMetadata(e)) :
+            null;
+
         templateMeta = new cpl.CompileTemplateMetadata({
           encapsulation: viewMeta.encapsulation,
           template: viewMeta.template,
           templateUrl: viewMeta.templateUrl,
           styles: viewMeta.styles,
-          styleUrls: viewMeta.styleUrls
+          styleUrls: viewMeta.styleUrls,
+          animations: animations
         });
         changeDetectionStrategy = cmpMeta.changeDetection;
         if (isPresent(dirMeta.viewProviders)) {
@@ -104,15 +124,15 @@ export class CompileMetadataResolver {
         moduleUrl = componentModuleUrl(this._reflector, directiveType, cmpMeta);
       }
 
-      var providers = [];
+      var providers: any[] /** TODO #9100 */ = [];
       if (isPresent(dirMeta.providers)) {
         providers = this.getProvidersMetadata(dirMeta.providers);
       }
-      var queries = [];
-      var viewQueries = [];
+      var queries: any[] /** TODO #9100 */ = [];
+      var viewQueries: any[] /** TODO #9100 */ = [];
       if (isPresent(dirMeta.queries)) {
-        queries = this.getQueriesMetadata(dirMeta.queries, false);
-        viewQueries = this.getQueriesMetadata(dirMeta.queries, true);
+        queries = this.getQueriesMetadata(dirMeta.queries, false, directiveType);
+        viewQueries = this.getQueriesMetadata(dirMeta.queries, true, directiveType);
       }
       meta = cpl.CompileDirectiveMetadata.create({
         selector: dirMeta.selector,
@@ -208,13 +228,14 @@ export class CompileMetadataResolver {
     return pipes.map(type => this.getPipeMetadata(type));
   }
 
-  getDependenciesMetadata(typeOrFunc: Type | Function,
-                          dependencies: any[]): cpl.CompileDiDependencyMetadata[] {
+  getDependenciesMetadata(typeOrFunc: Type|Function, dependencies: any[]):
+      cpl.CompileDiDependencyMetadata[] {
+    let hasUnknownDeps = false;
     let params = isPresent(dependencies) ? dependencies : this._reflector.parameters(typeOrFunc);
     if (isBlank(params)) {
       params = [];
     }
-    return params.map((param) => {
+    let dependenciesMetadata: cpl.CompileDiDependencyMetadata[] = params.map((param) => {
       if (isBlank(param)) {
         return null;
       }
@@ -225,37 +246,37 @@ export class CompileMetadataResolver {
       let isOptional = false;
       let query: QueryMetadata = null;
       let viewQuery: ViewQueryMetadata = null;
-      var token = null;
+      var token: any /** TODO #9100 */ = null;
       if (isArray(param)) {
-        (<any[]>param)
-            .forEach((paramEntry) => {
-              if (paramEntry instanceof HostMetadata) {
-                isHost = true;
-              } else if (paramEntry instanceof SelfMetadata) {
-                isSelf = true;
-              } else if (paramEntry instanceof SkipSelfMetadata) {
-                isSkipSelf = true;
-              } else if (paramEntry instanceof OptionalMetadata) {
-                isOptional = true;
-              } else if (paramEntry instanceof AttributeMetadata) {
-                isAttribute = true;
-                token = paramEntry.attributeName;
-              } else if (paramEntry instanceof QueryMetadata) {
-                if (paramEntry.isViewQuery) {
-                  viewQuery = paramEntry;
-                } else {
-                  query = paramEntry;
-                }
-              } else if (paramEntry instanceof InjectMetadata) {
-                token = paramEntry.token;
-              } else if (isValidType(paramEntry) && isBlank(token)) {
-                token = paramEntry;
-              }
-            });
+        (<any[]>param).forEach((paramEntry) => {
+          if (paramEntry instanceof HostMetadata) {
+            isHost = true;
+          } else if (paramEntry instanceof SelfMetadata) {
+            isSelf = true;
+          } else if (paramEntry instanceof SkipSelfMetadata) {
+            isSkipSelf = true;
+          } else if (paramEntry instanceof OptionalMetadata) {
+            isOptional = true;
+          } else if (paramEntry instanceof AttributeMetadata) {
+            isAttribute = true;
+            token = paramEntry.attributeName;
+          } else if (paramEntry instanceof QueryMetadata) {
+            if (paramEntry.isViewQuery) {
+              viewQuery = paramEntry;
+            } else {
+              query = paramEntry;
+            }
+          } else if (paramEntry instanceof InjectMetadata) {
+            token = paramEntry.token;
+          } else if (isValidType(paramEntry) && isBlank(token)) {
+            token = paramEntry;
+          }
+        });
       } else {
         token = param;
       }
       if (isBlank(token)) {
+        hasUnknownDeps = true;
         return null;
       }
       return new cpl.CompileDiDependencyMetadata({
@@ -264,17 +285,27 @@ export class CompileMetadataResolver {
         isSelf: isSelf,
         isSkipSelf: isSkipSelf,
         isOptional: isOptional,
-        query: isPresent(query) ? this.getQueryMetadata(query, null) : null,
-        viewQuery: isPresent(viewQuery) ? this.getQueryMetadata(viewQuery, null) : null,
+        query: isPresent(query) ? this.getQueryMetadata(query, null, typeOrFunc) : null,
+        viewQuery: isPresent(viewQuery) ? this.getQueryMetadata(viewQuery, null, typeOrFunc) : null,
         token: this.getTokenMetadata(token)
       });
 
     });
+
+    if (hasUnknownDeps) {
+      let depsTokens =
+          dependenciesMetadata.map((dep) => { return dep ? stringify(dep.token) : '?'; })
+              .join(', ');
+      throw new BaseException(
+          `Can't resolve all parameters for ${stringify(typeOrFunc)}: (${depsTokens}).`);
+    }
+
+    return dependenciesMetadata;
   }
 
   getTokenMetadata(token: any): cpl.CompileTokenMetadata {
     token = resolveForwardRef(token);
-    var compileToken;
+    var compileToken: any /** TODO #9100 */;
     if (isString(token)) {
       compileToken = new cpl.CompileTokenMetadata({value: token});
     } else {
@@ -290,7 +321,7 @@ export class CompileMetadataResolver {
   }
 
   getProvidersMetadata(providers: any[]):
-      Array<cpl.CompileProviderMetadata | cpl.CompileTypeMetadata | any[]> {
+      Array<cpl.CompileProviderMetadata|cpl.CompileTypeMetadata|any[]> {
     return providers.map((provider) => {
       provider = resolveForwardRef(provider);
       if (isArray(provider)) {
@@ -306,7 +337,7 @@ export class CompileMetadataResolver {
   }
 
   getProviderMetadata(provider: Provider): cpl.CompileProviderMetadata {
-    var compileDeps;
+    var compileDeps: any /** TODO #9100 */;
     if (isPresent(provider.useClass)) {
       compileDeps = this.getDependenciesMetadata(provider.useClass, provider.dependencies);
     } else if (isPresent(provider.useFactory)) {
@@ -314,15 +345,13 @@ export class CompileMetadataResolver {
     }
     return new cpl.CompileProviderMetadata({
       token: this.getTokenMetadata(provider.token),
-      useClass:
-          isPresent(provider.useClass) ?
-              this.getTypeMetadata(provider.useClass, staticTypeModuleUrl(provider.useClass)) :
-              null,
+      useClass: isPresent(provider.useClass) ?
+          this.getTypeMetadata(provider.useClass, staticTypeModuleUrl(provider.useClass)) :
+          null,
       useValue: convertToCompileValue(provider.useValue),
       useFactory: isPresent(provider.useFactory) ?
-                      this.getFactoryMetadata(provider.useFactory,
-                                              staticTypeModuleUrl(provider.useFactory)) :
-                      null,
+          this.getFactoryMetadata(provider.useFactory, staticTypeModuleUrl(provider.useFactory)) :
+          null,
       useExisting: isPresent(provider.useExisting) ? this.getTokenMetadata(provider.useExisting) :
                                                      null,
       deps: compileDeps,
@@ -330,22 +359,29 @@ export class CompileMetadataResolver {
     });
   }
 
-  getQueriesMetadata(queries: {[key: string]: QueryMetadata},
-                     isViewQuery: boolean): cpl.CompileQueryMetadata[] {
-    var compileQueries = [];
-    StringMapWrapper.forEach(queries, (query, propertyName) => {
-      if (query.isViewQuery === isViewQuery) {
-        compileQueries.push(this.getQueryMetadata(query, propertyName));
-      }
-    });
+  getQueriesMetadata(
+      queries: {[key: string]: QueryMetadata}, isViewQuery: boolean,
+      directiveType: Type): cpl.CompileQueryMetadata[] {
+    var compileQueries: any[] /** TODO #9100 */ = [];
+    StringMapWrapper.forEach(
+        queries, (query: any /** TODO #9100 */, propertyName: any /** TODO #9100 */) => {
+          if (query.isViewQuery === isViewQuery) {
+            compileQueries.push(this.getQueryMetadata(query, propertyName, directiveType));
+          }
+        });
     return compileQueries;
   }
 
-  getQueryMetadata(q: QueryMetadata, propertyName: string): cpl.CompileQueryMetadata {
-    var selectors;
+  getQueryMetadata(q: QueryMetadata, propertyName: string, typeOrFunc: Type|Function):
+      cpl.CompileQueryMetadata {
+    var selectors: any /** TODO #9100 */;
     if (q.isVarBindingQuery) {
       selectors = q.varBindings.map(varName => this.getTokenMetadata(varName));
     } else {
+      if (!isPresent(q.selector)) {
+        throw new BaseException(
+            `Can't construct a query for the property "${propertyName}" of "${stringify(typeOrFunc)}" since the query selector wasn't defined.`);
+      }
       selectors = [this.getTokenMetadata(q.selector)];
     }
     return new cpl.CompileQueryMetadata({
@@ -359,7 +395,7 @@ export class CompileMetadataResolver {
 }
 
 function flattenDirectives(view: ViewMetadata, platformDirectives: any[]): Type[] {
-  let directives = [];
+  let directives: any[] /** TODO #9100 */ = [];
   if (isPresent(platformDirectives)) {
     flattenArray(platformDirectives, directives);
   }
@@ -370,7 +406,7 @@ function flattenDirectives(view: ViewMetadata, platformDirectives: any[]): Type[
 }
 
 function flattenPipes(view: ViewMetadata, platformPipes: any[]): Type[] {
-  let pipes = [];
+  let pipes: any[] /** TODO #9100 */ = [];
   if (isPresent(platformPipes)) {
     flattenArray(platformPipes, pipes);
   }
@@ -380,7 +416,7 @@ function flattenPipes(view: ViewMetadata, platformPipes: any[]): Type[] {
   return pipes;
 }
 
-function flattenArray(tree: any[], out: Array<Type | any[]>): void {
+function flattenArray(tree: any[], out: Array<Type|any[]>): void {
   for (var i = 0; i < tree.length; i++) {
     var item = resolveForwardRef(tree[i]);
     if (isArray(item)) {
@@ -403,8 +439,8 @@ function staticTypeModuleUrl(value: any): string {
   return isStaticType(value) ? value['filePath'] : null;
 }
 
-function componentModuleUrl(reflector: ReflectorReader, type: any,
-                            cmpMetadata: ComponentMetadata): string {
+function componentModuleUrl(
+    reflector: ReflectorReader, type: any, cmpMetadata: ComponentMetadata): string {
   if (isStaticType(type)) {
     return staticTypeModuleUrl(type);
   }

@@ -1,15 +1,10 @@
-import * as o from './output_ast';
-import {
-  isPresent,
-  isBlank,
-  isString,
-  evalExpression,
-  RegExpWrapper,
-  StringWrapper
-} from '../facade/lang';
 import {BaseException} from '@angular/core';
-import {OutputEmitter, EmitterVisitorContext} from './abstract_emitter';
+
+import {RegExpWrapper, StringWrapper, evalExpression, isBlank, isPresent, isString} from '../facade/lang';
+
+import {EmitterVisitorContext, OutputEmitter} from './abstract_emitter';
 import {AbstractJsEmitterVisitor} from './abstract_js_emitter';
+import * as o from './output_ast';
 import {ImportGenerator} from './path_util';
 
 export class JavaScriptEmitter implements OutputEmitter {
@@ -18,7 +13,7 @@ export class JavaScriptEmitter implements OutputEmitter {
     var converter = new JsEmitterVisitor(moduleUrl);
     var ctx = EmitterVisitorContext.createRoot(exportedVars);
     converter.visitAllStatements(stmts, ctx);
-    var srcParts = [];
+    var srcParts: any[] /** TODO #9100 */ = [];
     converter.importsWithPrefixes.forEach((prefix, importedModuleUrl) => {
       // Note: can't write the real word for import as it screws up system.js auto detection...
       srcParts.push(

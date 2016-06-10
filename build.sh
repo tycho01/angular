@@ -13,7 +13,7 @@ mkdir -p ./dist/all/
 TSCONFIG=./tools/tsconfig.json
 echo "====== (all)COMPILING: \$(npm bin)/tsc -p ${TSCONFIG} ====="
 $(npm bin)/tsc -p ${TSCONFIG}
-
+cp ./tools/@angular/tsc-wrapped/package.json ./dist/tools/@angular/tsc-wrapped
 
 echo "====== Copying files needed for e2e tests ====="
 cp -r ./modules/playground ./dist/all/
@@ -35,14 +35,8 @@ cd -
 TSCONFIG=./modules/tsconfig.json
 echo "====== (all)COMPILING: \$(npm bin)/tsc -p ${TSCONFIG} ====="
 # compile ts code
-# TODO: Right now we have a cycle in that the compiler_cli depends on Angular
-# but we need it to compile Angular.
-# The solution right now is to do 2 compilation runs.
-# Fix this by separating the metadata extraction into a separate binary that does
-# not depend on Angular.
-$(npm bin)/tsc -p ${TSCONFIG}
-NG_TC="node dist/all/@angular/compiler_cli/src/main"
-$NG_TC -p modules/tsconfig.json
+TSC="node dist/tools/@angular/tsc-wrapped/src/main"
+$TSC -p modules/tsconfig.json
 
 rm -rf ./dist/packages-dist
 
@@ -51,12 +45,13 @@ for PACKAGE in \
   compiler \
   common \
   platform-browser \
+  platform-browser-dynamic \
   platform-server \
   http \
   router \
   router-deprecated \
   upgrade \
-  compiler_cli
+  compiler-cli
 do
   SRCDIR=./modules/@angular/${PACKAGE}
   DESTDIR=./dist/packages-dist/${PACKAGE}
@@ -68,8 +63,8 @@ do
     echo "======      COMPILING: \$(npm bin)/tsc -p ${SRCDIR}/tsconfig-es5.json        ====="
     $(npm bin)/tsc -p ${SRCDIR}/tsconfig-es5.json
   else
-    echo "======      COMPILING: ${NG_TC} -p ${SRCDIR}/tsconfig-es5.json        ====="
-    $NG_TC -p ${SRCDIR}/tsconfig-es5.json
+    echo "======      COMPILING: ${TSC} -p ${SRCDIR}/tsconfig-es5.json        ====="
+    $TSC -p ${SRCDIR}/tsconfig-es5.json
   fi
 
   cp ${SRCDIR}/package.json ${DESTDIR}/
@@ -85,14 +80,14 @@ do
     find ${DESTDIR} -type f -name '*.d.ts' -print0 | xargs -0 sed -i '' -E 's/^( +)abstract ([[:alnum:]]+\:)/\1\2/g'
   fi
 
-  if [[ ${PACKAGE} != compiler_cli ]]; then
+  if [[ ${PACKAGE} != compiler-cli ]]; then
 
     if [[ ${PACKAGE} == "router-deprecated" ]]; then
       echo "====== (esm)COMPILING: \$(npm bin)/tsc -p ${SRCDIR}/tsconfig-es2015.json ====="
       $(npm bin)/tsc -p ${SRCDIR}/tsconfig-es2015.json
     else
-      echo "====== (esm)COMPILING: $NG_TC -p ${SRCDIR}/tsconfig-es2015.json ====="
-      $NG_TC -p ${SRCDIR}/tsconfig-es2015.json
+      echo "====== (esm)COMPILING: $TSC -p ${SRCDIR}/tsconfig-es2015.json ====="
+      $TSC -p ${SRCDIR}/tsconfig-es2015.json
     fi
 
     echo "======      BUNDLING: ${SRCDIR} ====="
@@ -107,11 +102,10 @@ do
     $(npm bin)/tsc  \
         --out ${UMD_ES5_PATH} \
         --target es5 \
+        --lib "es6,dom" \
         --allowJs \
-        ${UMD_ES6_PATH} \
-        modules/\@angular/manual_typings/globals.d.ts \
-        modules/\@angular/typings/es6-collections/es6-collections.d.ts \
-        modules/\@angular/typings/es6-promise/es6-promise.d.ts
+        ${UMD_ES6_PATH}
+
     rm ${UMD_ES6_PATH}
 
     cat ./modules/@angular/license-banner.txt > ${UMD_ES5_PATH}.tmp

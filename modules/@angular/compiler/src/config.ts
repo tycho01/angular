@@ -1,16 +1,26 @@
-import {isBlank} from '../src/facade/lang';
+import {ViewEncapsulation} from '@angular/core';
+
 import {unimplemented} from '../src/facade/exceptions';
-import {Identifiers} from './identifiers';
+import {isBlank} from '../src/facade/lang';
+
 import {CompileIdentifierMetadata} from './compile_metadata';
+import {Identifiers} from './identifiers';
 
 export class CompilerConfig {
   public renderTypes: RenderTypes;
-  constructor(public genDebugInfo: boolean, public logBindingUpdate: boolean,
-              public useJit: boolean, renderTypes: RenderTypes = null) {
+  public defaultEncapsulation: ViewEncapsulation;
+
+  constructor(
+      public genDebugInfo: boolean, public logBindingUpdate: boolean, public useJit: boolean,
+      renderTypes: RenderTypes = null, defaultEncapsulation: ViewEncapsulation = null) {
     if (isBlank(renderTypes)) {
       renderTypes = new DefaultRenderTypes();
     }
     this.renderTypes = renderTypes;
+    if (isBlank(defaultEncapsulation)) {
+      defaultEncapsulation = ViewEncapsulation.Emulated;
+    }
+    this.defaultEncapsulation = defaultEncapsulation;
   }
 }
 
@@ -30,9 +40,9 @@ export abstract class RenderTypes {
 
 export class DefaultRenderTypes implements RenderTypes {
   renderer = Identifiers.Renderer;
-  renderText = null;
-  renderElement = null;
-  renderComment = null;
-  renderNode = null;
-  renderEvent = null;
+  renderText: any /** TODO #9100 */ = null;
+  renderElement: any /** TODO #9100 */ = null;
+  renderComment: any /** TODO #9100 */ = null;
+  renderNode: any /** TODO #9100 */ = null;
+  renderEvent: any /** TODO #9100 */ = null;
 }

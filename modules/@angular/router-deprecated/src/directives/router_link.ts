@@ -1,8 +1,10 @@
-import {Directive} from '@angular/core';
 import {Location} from '@angular/common';
-import {isString} from '../../src/facade/lang';
-import {Router} from '../router';
+import {Directive} from '@angular/core';
+
+import {isString} from '../facade/lang';
 import {Instruction} from '../instruction';
+import {Router} from '../router';
+
 
 /**
  * The RouterLink directive lets you link to specific parts of your app.
@@ -11,7 +13,7 @@ import {Instruction} from '../instruction';
 
  * ```
  * @RouteConfig([
- *   { path: '/user', component: UserCmp, as: 'User' }
+ *   { path: '/user', component: UserCmp, name: 'User' }
  * ]);
  * class MyComp {}
  * ```

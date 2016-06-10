@@ -1,25 +1,27 @@
-import {isPresent, isBlank} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
-import {PromiseWrapper} from '../../src/facade/promise';
-import {Map} from '../../src/facade/collection';
-import {RouteHandler} from './route_handlers/route_handler';
-import {Url, convertUrlParamsToArray} from '../url_parser';
+import {Map} from '../facade/collection';
+import {BaseException} from '../facade/exceptions';
+import {isBlank, isPresent} from '../facade/lang';
+import {PromiseWrapper} from '../facade/promise';
 import {ComponentInstruction} from '../instruction';
-import {RoutePath, GeneratedUrl} from './route_paths/route_path';
+import {Url, convertUrlParamsToArray} from '../url_parser';
+
+import {RouteHandler} from './route_handlers/route_handler';
+import {GeneratedUrl, RoutePath} from './route_paths/route_path';
+
 
 
 // RouteMatch objects hold information about a match between a rule and a URL
 export abstract class RouteMatch {}
 
 export class PathMatch extends RouteMatch {
-  constructor(public instruction: ComponentInstruction, public remaining: Url,
-              public remainingAux: Url[]) {
+  constructor(
+      public instruction: ComponentInstruction, public remaining: Url, public remainingAux: Url[]) {
     super();
   }
 }
 
 export class RedirectMatch extends RouteMatch {
-  constructor(public redirectTo: any[], public specificity) { super(); }
+  constructor(public redirectTo: any[], public specificity: any /** TODO #9100 */) { super(); }
 }
 
 // Rules are responsible for recognizing URL segments and generating instructions
@@ -44,7 +46,7 @@ export class RedirectRule implements AbstractRule {
    * Returns `null` or a `ParsedUrl` representing the new path to match
    */
   recognize(beginningSegment: Url): Promise<RouteMatch> {
-    var match = null;
+    var match: any /** TODO #9100 */ = null;
     if (isPresent(this._pathRecognizer.matchUrl(beginningSegment))) {
       match = new RedirectMatch(this.redirectTo, this._pathRecognizer.specificity);
     }
@@ -67,8 +69,8 @@ export class RouteRule implements AbstractRule {
 
   // TODO: cache component instruction instances by params and by ParsedUrl instance
 
-  constructor(private _routePath: RoutePath, public handler: RouteHandler,
-              private _routeName: string) {
+  constructor(
+      private _routePath: RoutePath, public handler: RouteHandler, private _routeName: string) {
     this.specificity = this._routePath.specificity;
     this.hash = this._routePath.hash;
     this.terminal = this._routePath.terminal;
@@ -100,8 +102,8 @@ export class RouteRule implements AbstractRule {
     return this._routePath.generateUrl(params);
   }
 
-  private _getInstruction(urlPath: string, urlParams: string[],
-                          params: {[key: string]: any}): ComponentInstruction {
+  private _getInstruction(urlPath: string, urlParams: string[], params: {[key: string]: any}):
+      ComponentInstruction {
     if (isBlank(this.handler.componentType)) {
       throw new BaseException(`Tried to get instruction before the type was loaded.`);
     }
@@ -109,9 +111,9 @@ export class RouteRule implements AbstractRule {
     if (this._cache.has(hashKey)) {
       return this._cache.get(hashKey);
     }
-    var instruction =
-        new ComponentInstruction(urlPath, urlParams, this.handler.data, this.handler.componentType,
-                                 this.terminal, this.specificity, params, this._routeName);
+    var instruction = new ComponentInstruction(
+        urlPath, urlParams, this.handler.data, this.handler.componentType, this.terminal,
+        this.specificity, params, this._routeName);
     this._cache.set(hashKey, instruction);
 
     return instruction;

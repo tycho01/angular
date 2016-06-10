@@ -1,7 +1,10 @@
-import {isPresent, Type} from '../../src/facade/lang';
-import {InjectableMetadata} from '../di/metadata';
-import {ViewEncapsulation} from './view';
+import {AnimationEntryMetadata} from '../animation/metadata';
 import {ChangeDetectionStrategy} from '../change_detection/constants';
+import {InjectableMetadata} from '../di/metadata';
+import {Type, isPresent} from '../facade/lang';
+
+import {ViewEncapsulation} from './view';
+
 
 /**
  * Directives allow you to attach behavior to elements in the DOM.
@@ -381,6 +384,7 @@ import {ChangeDetectionStrategy} from '../change_detection/constants';
  * the instantiated
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
  * @ts2dart_const
+ * @stable
  */
 export class DirectiveMetadata extends InjectableMetadata {
   /**
@@ -468,6 +472,11 @@ export class DirectiveMetadata extends InjectableMetadata {
     return isPresent(this._properties) && this._properties.length > 0 ? this._properties :
                                                                         this._inputs;
   }
+  /**
+   * Use `inputs` instead
+   *
+   * @deprecated
+   */
   get properties(): string[] { return this.inputs; }
   private _inputs: string[];
   private _properties: string[];
@@ -520,6 +529,11 @@ export class DirectiveMetadata extends InjectableMetadata {
   get outputs(): string[] {
     return isPresent(this._events) && this._events.length > 0 ? this._events : this._outputs;
   }
+  /**
+   * Use `outputs` instead
+   *
+   * @deprecated
+   */
   get events(): string[] { return this.outputs; }
   private _outputs: string[];
   private _events: string[];
@@ -649,7 +663,7 @@ export class DirectiveMetadata extends InjectableMetadata {
    *
    * @Directive({
    *   selector: 'greet',
-   *   bindings: [
+   *   providers: [
    *     Greeter
    *   ]
    * })
@@ -662,14 +676,8 @@ export class DirectiveMetadata extends InjectableMetadata {
    * }
    * ```
    */
-  get providers(): any[] {
-    return isPresent(this._bindings) && this._bindings.length > 0 ? this._bindings :
-                                                                    this._providers;
-  }
-  /** @deprecated */
-  get bindings(): any[] { return this.providers; }
+  get providers(): any[] { return this._providers; }
   private _providers: any[];
-  private _bindings: any[];
 
   /**
    * Defines the name that can be used in the template to assign this directive to a variable.
@@ -731,16 +739,14 @@ export class DirectiveMetadata extends InjectableMetadata {
    */
   queries: {[key: string]: any};
 
-  constructor({selector, inputs, outputs, properties, events, host, bindings, providers, exportAs,
-               queries}: {
+  constructor({selector, inputs, outputs, properties, events, host, providers, exportAs, queries}: {
     selector?: string,
     inputs?: string[],
     outputs?: string[],
-    properties?: string[],
-    events?: string[],
+    /** @deprecated */ properties?: string[],
+    /** @deprecated */ events?: string[],
     host?: {[key: string]: string},
     providers?: any[],
-    /** @deprecated */ bindings?: any[],
     exportAs?: string,
     queries?: {[key: string]: any}
   } = {}) {
@@ -754,7 +760,6 @@ export class DirectiveMetadata extends InjectableMetadata {
     this.exportAs = exportAs;
     this.queries = queries;
     this._providers = providers;
-    this._bindings = bindings;
   }
 }
 
@@ -784,6 +789,7 @@ export class DirectiveMetadata extends InjectableMetadata {
  *
  * {@example core/ts/metadata/metadata.ts region='component'}
  * @ts2dart_const
+ * @stable
  */
 export class ComponentMetadata extends DirectiveMetadata {
   /**
@@ -835,19 +841,17 @@ export class ComponentMetadata extends DirectiveMetadata {
    *
    * ```
    */
-  get viewProviders(): any[] {
-    return isPresent(this._viewBindings) && this._viewBindings.length > 0 ? this._viewBindings :
-                                                                            this._viewProviders;
-  }
-  get viewBindings(): any[] { return this.viewProviders; }
+  get viewProviders(): any[] { return this._viewProviders; }
   private _viewProviders: any[];
-  private _viewBindings: any[];
 
   /**
    * The module id of the module that contains the component.
    * Needed to be able to resolve relative urls for templates and styles.
+   * In CommonJS, this can always be set to `module.id`, similarly SystemJS exposes `__moduleName`
+   * variable within each module.
+   *
    * In Dart, this can be determined automatically and does not need to be set.
-   * In CommonJS, this can always be set to `module.id`.
+
    *
    * ## Simple Example
    *
@@ -871,27 +875,114 @@ export class ComponentMetadata extends DirectiveMetadata {
 
   styles: string[];
 
-  directives: Array<Type | any[]>;
+  /**
+   * Animations are defined on components via an animation-like DSL. This DSL approach to describing
+   * animations allows for a flexibility that both benefits developers and the framework.
+   *
+   * Animations work by listening on state changes that occur on an element within
+   * the template. When a state change occurs, Angular can then take advantage and animate the
+   * arc in between. This works similar to how CSS transitions work, however, by having a
+   * programmatic DSL, animations are not limited to environments that are DOM-specific.
+   * (Angular can also perform optimizations behind the scenes to make animations more performant.)
+   *
+   * For animations to be available for use, animation state changes are placed within
+   * {@link trigger animation triggers} which are housed inside of the `animations` annotation
+   * metadata. Within a trigger both {@link state state} and {@link transition transition} entries
+   * can be placed.
+   *
+   * ```typescript
+   * @Component({
+   *   selector: 'animation-cmp',
+   *   templateUrl: 'animation-cmp.html',
+   *   animations: [
+   *     // this here is our animation trigger that
+   *     // will contain our state change animations.
+   *     trigger('myTriggerName', [
+   *       // the styles defined for the `on` and `off`
+   *       // states declared below are persisted on the
+   *       // element once the animation completes.
+   *       state('on', style({ opacity: 1 }),
+   *       state('off', style({ opacity: 0 }),
+   *
+   *       // this here is our animation that kicks off when
+   *       // this state change jump is true
+   *       transition('on => off', [
+   *         animate("1s")
+   *       ])
+   *     ])
+   *   ]
+   * })
+   * ```
+   *
+   * As depicted in the code above, a group of related animation states are all contained within
+   * an animation `trigger` (the code example above called the trigger `myTriggerName`).
+   * When a trigger is created then it can be bound onto an element within the component's
+   * template via a property prefixed by an `@` symbol followed by trigger name and an expression
+   * that
+   * is used to determine the state value for that trigger.
+   *
+   * ```html
+   * <!-- animation-cmp.html -->
+   * <div @myTriggerName="expression">...</div>
+   * ```
+   *
+   * For state changes to be executed, the `expression` value must change value from its existing
+   * value
+   * to something that we have set an animation to animate on (in the example above we are listening
+   * to a change of state between `on` and `off`). The `expression` value attached to the trigger
+   * must be something that can be evaluated with the template/component context.
+   *
+   * ### DSL Animation Functions
+   *
+   * Please visit each of the animation DSL functions listed below to gain a better understanding
+   * of how and why they are used for crafting animations in Angular2:
+   *
+   * - {@link trigger trigger()}
+   * - {@link state state()}
+   * - {@link transition transition()}
+   * - {@link group group()}
+   * - {@link sequence sequence()}
+   * - {@link style style()}
+   * - {@link animate animate()}
+   * - {@link keyframes keyframes()}
+   */
+  animations: AnimationEntryMetadata[];
 
-  pipes: Array<Type | any[]>;
+  directives: Array<Type|any[]>;
+
+  pipes: Array<Type|any[]>;
 
   encapsulation: ViewEncapsulation;
 
-  constructor({selector, inputs, outputs, properties, events, host, exportAs, moduleId, bindings,
-               providers, viewBindings, viewProviders,
-               changeDetection = ChangeDetectionStrategy.Default, queries, templateUrl, template,
-               styleUrls, styles, directives, pipes, encapsulation}: {
+  constructor({selector,
+               inputs,
+               outputs,
+               properties,
+               events,
+               host,
+               exportAs,
+               moduleId,
+               providers,
+               viewProviders,
+               changeDetection = ChangeDetectionStrategy.Default,
+               queries,
+               templateUrl,
+               template,
+               styleUrls,
+               styles,
+               animations,
+               directives,
+               pipes,
+               encapsulation}: {
     selector?: string,
     inputs?: string[],
     outputs?: string[],
-    properties?: string[],
-    events?: string[],
+    /** @deprecated */ properties?: string[],
+    /** @deprecated */ events?: string[],
     host?: {[key: string]: string},
-    /** @deprecated */ bindings?: any[],
     providers?: any[],
     exportAs?: string,
     moduleId?: string,
-    /** @deprecated */ viewBindings?: any[],
     viewProviders?: any[],
     queries?: {[key: string]: any},
     changeDetection?: ChangeDetectionStrategy,
@@ -899,8 +990,9 @@ export class ComponentMetadata extends DirectiveMetadata {
     template?: string,
     styleUrls?: string[],
     styles?: string[],
-    directives?: Array<Type | any[]>,
-    pipes?: Array<Type | any[]>,
+    animations?: AnimationEntryMetadata[],
+    directives?: Array<Type|any[]>,
+    pipes?: Array<Type|any[]>,
     encapsulation?: ViewEncapsulation
   } = {}) {
     super({
@@ -911,14 +1003,12 @@ export class ComponentMetadata extends DirectiveMetadata {
       events: events,
       host: host,
       exportAs: exportAs,
-      bindings: bindings,
       providers: providers,
       queries: queries
     });
 
     this.changeDetection = changeDetection;
     this._viewProviders = viewProviders;
-    this._viewBindings = viewBindings;
     this.templateUrl = templateUrl;
     this.template = template;
     this.styleUrls = styleUrls;
@@ -927,6 +1017,7 @@ export class ComponentMetadata extends DirectiveMetadata {
     this.pipes = pipes;
     this.encapsulation = encapsulation;
     this.moduleId = moduleId;
+    this.animations = animations;
   }
 }
 
@@ -941,6 +1032,7 @@ export class ComponentMetadata extends DirectiveMetadata {
  *
  * {@example core/ts/metadata/metadata.ts region='pipe'}
  * @ts2dart_const
+ * @stable
  */
 export class PipeMetadata extends InjectableMetadata {
   name: string;
@@ -997,6 +1089,7 @@ export class PipeMetadata extends InjectableMetadata {
  * bootstrap(App);
  * ```
  * @ts2dart_const
+ * @stable
  */
 export class InputMetadata {
   constructor(
@@ -1047,6 +1140,7 @@ export class InputMetadata {
  * bootstrap(App);
  * ```
  * @ts2dart_const
+ * @stable
  */
 export class OutputMetadata {
   constructor(public bindingPropertyName?: string) {}
@@ -1087,6 +1181,7 @@ export class OutputMetadata {
  * bootstrap(App);
  * ```
  * @ts2dart_const
+ * @stable
  */
 export class HostBindingMetadata {
   constructor(public hostPropertyName?: string) {}
@@ -1126,6 +1221,7 @@ export class HostBindingMetadata {
  * bootstrap(App);
  * ```
  * @ts2dart_const
+ * @stable
  */
 export class HostListenerMetadata {
   constructor(public eventName: string, public args?: string[]) {}

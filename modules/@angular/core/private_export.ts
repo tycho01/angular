@@ -1,25 +1,36 @@
+import {Provider} from './index';
+import {ANY_STATE as ANY_STATE_, DEFAULT_STATE as DEFAULT_STATE_, EMPTY_STATE as EMPTY_STATE_, FILL_STYLE_FLAG as FILL_STYLE_FLAG_} from './src/animation/animation_constants';
+import {AnimationDriver as AnimationDriver_, NoOpAnimationDriver as NoOpAnimationDriver_} from './src/animation/animation_driver';
+import {AnimationGroupPlayer as AnimationGroupPlayer_} from './src/animation/animation_group_player';
+import {AnimationKeyframe as AnimationKeyframe_} from './src/animation/animation_keyframe';
+import {AnimationPlayer as AnimationPlayer_, NoOpAnimationPlayer as NoOpAnimationPlayer_} from './src/animation/animation_player';
+import {AnimationSequencePlayer as AnimationSequencePlayer_} from './src/animation/animation_sequence_player';
+import * as animationUtils from './src/animation/animation_style_util';
+import {AnimationStyles as AnimationStyles_} from './src/animation/animation_styles';
+import * as change_detection_util from './src/change_detection/change_detection_util';
 import * as constants from './src/change_detection/constants';
-import * as security from './src/security';
+import * as console from './src/console';
+import * as debug from './src/debug/debug_renderer';
+import * as provider_util from './src/di/provider_util';
 import * as reflective_provider from './src/di/reflective_provider';
-import * as lifecycle_hooks from './src/metadata/lifecycle_hooks';
-import * as reflector_reader from './src/reflection/reflector_reader';
 import * as component_resolver from './src/linker/component_resolver';
+import * as debug_context from './src/linker/debug_context';
 import * as element from './src/linker/element';
+import * as template_ref from './src/linker/template_ref';
 import * as view from './src/linker/view';
 import * as view_type from './src/linker/view_type';
 import * as view_utils from './src/linker/view_utils';
+import * as lifecycle_hooks from './src/metadata/lifecycle_hooks';
 import * as metadata_view from './src/metadata/view';
-import * as debug_context from './src/linker/debug_context';
-import * as change_detection_util from './src/change_detection/change_detection_util';
-import * as api from './src/render/api';
-import * as template_ref from './src/linker/template_ref';
 import * as wtf_init from './src/profile/wtf_init';
+import * as reflection from './src/reflection/reflection';
+// We need to import this name separately from the above wildcard, because this symbol is exposed.
+import {Reflector} from './src/reflection/reflection'; // tslint:disable-line
 import * as reflection_capabilities from './src/reflection/reflection_capabilities';
+import * as reflector_reader from './src/reflection/reflector_reader';
+import * as api from './src/render/api';
+import * as security from './src/security';
 import * as decorators from './src/util/decorators';
-import * as debug from './src/debug/debug_renderer';
-import * as provider_util from './src/di/provider_util';
-import * as console from './src/console';
-import {Provider} from './index';
 
 export declare namespace __core_private_types__ {
   export var isDefaultChangeDetectionStrategy: typeof constants.isDefaultChangeDetectionStrategy;
@@ -82,6 +93,35 @@ export declare namespace __core_private_types__ {
   export var castByValue: typeof view_utils.castByValue;
   export type Console = console.Console;
   export var Console: typeof console.Console;
+  export var reflector: typeof reflection.reflector;
+  export type Reflector = reflection.Reflector;
+  export var Reflector: typeof reflection.Reflector;
+  export type NoOpAnimationPlayer = NoOpAnimationPlayer_;
+  export var NoOpAnimationPlayer: typeof NoOpAnimationPlayer_;
+  export type AnimationPlayer = AnimationPlayer_;
+  export var AnimationPlayer: typeof AnimationPlayer_;
+  export type NoOpAnimationDriver = NoOpAnimationDriver_;
+  export var NoOpAnimationDriver: typeof NoOpAnimationDriver_;
+  export type AnimationDriver = AnimationDriver_;
+  export var AnimationDriver: typeof AnimationDriver_;
+  export type AnimationSequencePlayer = AnimationSequencePlayer_;
+  export var AnimationSequencePlayer: typeof AnimationSequencePlayer_;
+  export type AnimationGroupPlayer = AnimationGroupPlayer_;
+  export var AnimationGroupPlayer: typeof AnimationGroupPlayer_;
+  export type AnimationKeyframe = AnimationKeyframe_;
+  export var AnimationKeyframe: typeof AnimationKeyframe_;
+  export var balanceAnimationStyles: typeof animationUtils.balanceAnimationStyles;
+  export var balanceAnimationKeyframes: typeof animationUtils.balanceAnimationKeyframes;
+  export var flattenStyles: typeof animationUtils.flattenStyles;
+  export var clearStyles: typeof animationUtils.clearStyles;
+  export var renderStyles: typeof animationUtils.renderStyles;
+  export var collectAndResolveStyles: typeof animationUtils.collectAndResolveStyles;
+  export type AnimationStyles = AnimationStyles_;
+  export var AnimationStyles: typeof AnimationStyles_;
+  export var ANY_STATE: typeof ANY_STATE_;
+  export var DEFAULT_STATE: typeof DEFAULT_STATE_;
+  export var EMPTY_STATE: typeof EMPTY_STATE_;
+  export var FILL_STYLE_FLAG: typeof FILL_STYLE_FLAG_;
 }
 
 export var __core_private__ = {
@@ -132,4 +172,24 @@ export var __core_private__ = {
   pureProxy10: view_utils.pureProxy10,
   castByValue: view_utils.castByValue,
   Console: console.Console,
+  reflector: reflection.reflector,
+  Reflector: reflection.Reflector,
+  NoOpAnimationPlayer: NoOpAnimationPlayer_,
+  AnimationPlayer: AnimationPlayer_,
+  NoOpAnimationDriver: NoOpAnimationDriver_,
+  AnimationDriver: AnimationDriver_,
+  AnimationSequencePlayer: AnimationSequencePlayer_,
+  AnimationGroupPlayer: AnimationGroupPlayer_,
+  AnimationKeyframe: AnimationKeyframe_,
+  balanceAnimationStyles: animationUtils.balanceAnimationStyles,
+  balanceAnimationKeyframes: animationUtils.balanceAnimationKeyframes,
+  flattenStyles: animationUtils.flattenStyles,
+  clearStyles: animationUtils.clearStyles,
+  renderStyles: animationUtils.renderStyles,
+  collectAndResolveStyles: animationUtils.collectAndResolveStyles,
+  AnimationStyles: AnimationStyles_,
+  ANY_STATE: ANY_STATE_,
+  DEFAULT_STATE: DEFAULT_STATE_,
+  EMPTY_STATE: EMPTY_STATE_,
+  FILL_STYLE_FLAG: FILL_STYLE_FLAG_
 };

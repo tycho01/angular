@@ -1,13 +1,15 @@
 import {Injectable} from '@angular/core';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subject} from 'rxjs/Subject';
+import {take} from 'rxjs/operator/take';
+
+import {ReadyState} from '../src/enums';
+import {BaseException} from '../src/facade/exceptions';
+import {isPresent} from '../src/facade/lang';
+import {Connection, ConnectionBackend} from '../src/interfaces';
 import {Request} from '../src/static_request';
 import {Response} from '../src/static_response';
-import {ReadyState} from '../src/enums';
-import {Connection, ConnectionBackend} from '../src/interfaces';
-import {isPresent} from '../src/facade/lang';
-import {BaseException} from '../src/facade/exceptions';
-import {Subject} from 'rxjs/Subject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {take} from 'rxjs/operator/take';
+
 
 /**
  *
@@ -50,7 +52,8 @@ export class MockConnection implements Connection {
    * var connection;
    * backend.connections.subscribe(c => connection = c);
    * http.request('data.json').subscribe(res => console.log(res.text()));
-   * connection.mockRespond(new Response(new ResponseOptions({ body: 'fake response' }))); //logs 'fake response'
+   * connection.mockRespond(new Response(new ResponseOptions({ body: 'fake response' }))); //logs
+   * 'fake response'
    * ```
    *
    */
@@ -81,6 +84,16 @@ export class MockConnection implements Connection {
    * Emits the provided error object as an error to the {@link Response} {@link EventEmitter}
    * returned
    * from {@link Http}.
+   *
+   * ### Example
+   *
+   * ```
+   * var connection;
+   * backend.connections.subscribe(c => connection = c);
+   * http.request('data.json').subscribe(res => res, err => console.log(err)));
+   * connection.mockError(new Error('error'));
+   * ```
+   *
    */
   mockError(err?: Error) {
     // Matches XHR semantics
@@ -104,9 +117,9 @@ export class MockConnection implements Connection {
  *   var connection;
  *   var injector = Injector.resolveAndCreate([
  *     MockBackend,
- *     provide(Http, {useFactory: (backend, options) => {
+ *     {provide: Http, useFactory: (backend, options) => {
  *       return new Http(backend, options);
- *     }, deps: [MockBackend, BaseRequestOptions]})]);
+ *     }, deps: [MockBackend, BaseRequestOptions]}]);
  *   var http = injector.get(Http);
  *   var backend = injector.get(MockBackend);
  *   //Assign any newly-created connection to local variable
@@ -131,16 +144,16 @@ export class MockBackend implements ConnectionBackend {
    * ### Example
    *
    * ```
-   * import {Http, BaseRequestOptions} from '@angular/http';
+   * import {Http, BaseRequestOptions, Response} from '@angular/http';
    * import {MockBackend} from '@angular/http/testing';
-   * import {Injector} from '@angular/core';
+   * import {Injector, provide} from '@angular/core';
    *
    * it('should get a response', () => {
    *   var connection; //this will be set when a new connection is emitted from the backend.
    *   var text; //this will be set from mock response
    *   var injector = Injector.resolveAndCreate([
    *     MockBackend,
-   *     provide(Http, {useFactory: (backend, options) => {
+   *     {provide: Http, useFactory: (backend, options) => {
    *       return new Http(backend, options);
    *     }, deps: [MockBackend, BaseRequestOptions]}]);
    *   var backend = injector.get(MockBackend);
@@ -177,8 +190,8 @@ export class MockBackend implements ConnectionBackend {
   constructor() {
     this.connectionsArray = [];
     this.connections = new Subject();
-    this.connections.subscribe((connection: MockConnection) =>
-                                   this.connectionsArray.push(connection));
+    this.connections.subscribe(
+        (connection: MockConnection) => this.connectionsArray.push(connection));
     this.pendingConnections = new Subject();
   }
 

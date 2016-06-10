@@ -1,7 +1,9 @@
+import {ComponentMetadata, DirectiveMetadata, Injectable} from '@angular/core';
+
+import {DirectiveResolver} from '../src/directive_resolver';
 import {Map} from '../src/facade/collection';
 import {Type, isPresent} from '../src/facade/lang';
-import {DirectiveMetadata, ComponentMetadata, Injectable} from '@angular/core';
-import {DirectiveResolver} from '../src/directive_resolver';
+
 
 /**
  * An implementation of {@link DirectiveResolver} that allows overriding
@@ -54,20 +56,6 @@ export class MockDirectiveResolver extends DirectiveResolver {
       exportAs: dm.exportAs,
       queries: dm.queries
     });
-  }
-
-  /**
-   * @deprecated
-   */
-  setBindingsOverride(type: Type, bindings: any[]): void {
-    this._providerOverrides.set(type, bindings);
-  }
-
-  /**
-   * @deprecated
-   */
-  setViewBindingsOverride(type: Type, viewBindings: any[]): void {
-    this.viewProviderOverrides.set(type, viewBindings);
   }
 
   setProvidersOverride(type: Type, providers: any[]): void {

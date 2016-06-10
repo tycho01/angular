@@ -1,5 +1,5 @@
+import {ListWrapper, Map, isListLikeIterable} from '../src/facade/collection';
 import {isPresent} from '../src/facade/lang';
-import {Map, ListWrapper, isListLikeIterable} from '../src/facade/collection';
 
 function paramParser(rawParams: string = ''): Map<string, string[]> {
   var map = new Map<string, string[]>();
@@ -122,7 +122,8 @@ export class URLSearchParams {
 
   toString(): string {
     var paramsList: string[] = [];
-    this.paramsMap.forEach((values, k) => { values.forEach(v => paramsList.push(k + '=' + v)); });
+    this.paramsMap.forEach(
+        (values, k) => { values.forEach(v => paramsList.push(k + '=' + encodeURIComponent(v))); });
     return paramsList.join('&');
   }
 

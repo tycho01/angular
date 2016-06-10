@@ -7,9 +7,9 @@ import {BaseException} from '../src/facade/exceptions';
 import {SelectorMatcher, CssSelector} from '../compiler_private';
 import {XHR} from '@angular/compiler';
 
-var parser = null;
-var serializer = null;
-var treeAdapter = null;
+var parser: any /** TODO #9100 */ = null;
+var serializer: any /** TODO #9100 */ = null;
+var treeAdapter: any /** TODO #9100 */ = null;
 
 var _attrToPropMap: {[key: string]: string} = {
   'class': 'className',
@@ -17,11 +17,11 @@ var _attrToPropMap: {[key: string]: string} = {
   'readonly': 'readOnly',
   'tabindex': 'tabIndex',
 };
-var defDoc = null;
+var defDoc: any /** TODO #9100 */ = null;
 
 var mapProps = ['attribs', 'x-attribsNamespace', 'x-attribsPrefix'];
 
-function _notImplemented(methodName) {
+function _notImplemented(methodName: any /** TODO #9100 */) {
   return new BaseException('This method is not implemented in Parse5DomAdapter: ' + methodName);
 }
 
@@ -34,7 +34,7 @@ export class Parse5DomAdapter extends DomAdapter {
     setRootDomAdapter(new Parse5DomAdapter());
   }
 
-  hasProperty(element, name: string): boolean {
+  hasProperty(element: any /** TODO #9100 */, name: string): boolean {
     return _HTMLElementPropertyList.indexOf(name) > -1;
   }
   // TODO(tbosch): don't even call this method when we run the tests on server side
@@ -43,7 +43,7 @@ export class Parse5DomAdapter extends DomAdapter {
     if (name === 'innerHTML') {
       this.setInnerHTML(el, value);
     } else if (name === 'className') {
-      el.attribs["class"] = el.className = value;
+      el.attribs['class'] = el.className = value;
     } else {
       el[name] = value;
     }
@@ -52,11 +52,11 @@ export class Parse5DomAdapter extends DomAdapter {
   // by not using the DomRenderer in tests. Keeping this for now to make tests happy...
   getProperty(el: /*element*/ any, name: string): any { return el[name]; }
 
-  logError(error) { console.error(error); }
+  logError(error: any /** TODO #9100 */) { console.error(error); }
 
-  log(error) { console.log(error); }
+  log(error: any /** TODO #9100 */) { console.log(error); }
 
-  logGroup(error) { console.error(error); }
+  logGroup(error: any /** TODO #9100 */) { console.error(error); }
 
   logGroupEnd() {}
 
@@ -64,33 +64,39 @@ export class Parse5DomAdapter extends DomAdapter {
 
   get attrToPropMap() { return _attrToPropMap; }
 
-  query(selector) { throw _notImplemented('query'); }
-  querySelector(el, selector: string): any { return this.querySelectorAll(el, selector)[0]; }
-  querySelectorAll(el, selector: string): any[] {
-    var res = [];
-    var _recursive = (result, node, selector, matcher) => {
-      var cNodes = node.childNodes;
-      if (cNodes && cNodes.length > 0) {
-        for (var i = 0; i < cNodes.length; i++) {
-          var childNode = cNodes[i];
-          if (this.elementMatches(childNode, selector, matcher)) {
-            result.push(childNode);
+  query(selector: any /** TODO #9100 */) { throw _notImplemented('query'); }
+  querySelector(el: any /** TODO #9100 */, selector: string): any {
+    return this.querySelectorAll(el, selector)[0];
+  }
+  querySelectorAll(el: any /** TODO #9100 */, selector: string): any[] {
+    var res: any[] /** TODO #9100 */ = [];
+    var _recursive =
+        (result: any /** TODO #9100 */, node: any /** TODO #9100 */,
+         selector: any /** TODO #9100 */, matcher: any /** TODO #9100 */) => {
+          var cNodes = node.childNodes;
+          if (cNodes && cNodes.length > 0) {
+            for (var i = 0; i < cNodes.length; i++) {
+              var childNode = cNodes[i];
+              if (this.elementMatches(childNode, selector, matcher)) {
+                result.push(childNode);
+              }
+              _recursive(result, childNode, selector, matcher);
+            }
           }
-          _recursive(result, childNode, selector, matcher);
-        }
-      }
-    };
+        };
     var matcher = new SelectorMatcher();
     matcher.addSelectables(CssSelector.parse(selector));
     _recursive(res, el, selector, matcher);
     return res;
   }
-  elementMatches(node, selector: string, matcher = null): boolean {
+  elementMatches(
+      node: any /** TODO #9100 */, selector: string,
+      matcher: any /** TODO #9100 */ = null): boolean {
     if (this.isElementNode(node) && selector === '*') {
       return true;
     }
     var result = false;
-    if (selector && selector.charAt(0) == "#") {
+    if (selector && selector.charAt(0) == '#') {
       result = this.getAttribute(node, 'id') == selector.substring(1);
     } else if (selector) {
       var result = false;
@@ -111,11 +117,13 @@ export class Parse5DomAdapter extends DomAdapter {
         cssSelector.addClassName(classList[i]);
       }
 
-      matcher.match(cssSelector, function(selector, cb) { result = true; });
+      matcher.match(
+          cssSelector,
+          function(selector: any /** TODO #9100 */, cb: any /** TODO #9100 */) { result = true; });
     }
     return result;
   }
-  on(el, evt, listener) {
+  on(el: any /** TODO #9100 */, evt: any /** TODO #9100 */, listener: any /** TODO #9100 */) {
     var listenersMap: {[k: /*any*/ string]: any} = el._eventListenersMap;
     if (isBlank(listenersMap)) {
       var listenersMap: {[k: /*any*/ string]: any} = StringMapWrapper.create();
@@ -128,13 +136,15 @@ export class Parse5DomAdapter extends DomAdapter {
     listeners.push(listener);
     StringMapWrapper.set(listenersMap, evt, listeners);
   }
-  onAndCancel(el, evt, listener): Function {
+  onAndCancel(
+      el: any /** TODO #9100 */, evt: any /** TODO #9100 */,
+      listener: any /** TODO #9100 */): Function {
     this.on(el, evt, listener);
     return () => {
       ListWrapper.remove(StringMapWrapper.get<any[]>(el._eventListenersMap, evt), listener);
     };
   }
-  dispatchEvent(el, evt) {
+  dispatchEvent(el: any /** TODO #9100 */, evt: any /** TODO #9100 */) {
     if (isBlank(evt.target)) {
       evt.target = el;
     }
@@ -153,7 +163,7 @@ export class Parse5DomAdapter extends DomAdapter {
       this.dispatchEvent(el._window, evt);
     }
   }
-  createMouseEvent(eventType): Event { return this.createEvent(eventType); }
+  createMouseEvent(eventType: any /** TODO #9100 */): Event { return this.createEvent(eventType); }
   createEvent(eventType: string): Event {
     var evt = <Event>{
       type: eventType,
@@ -162,26 +172,30 @@ export class Parse5DomAdapter extends DomAdapter {
     };
     return evt;
   }
-  preventDefault(evt) { evt.returnValue = false; }
-  isPrevented(evt): boolean { return isPresent(evt.returnValue) && !evt.returnValue; }
-  getInnerHTML(el): string { return serializer.serialize(this.templateAwareRoot(el)); }
-  getTemplateContent(el): Node {
+  preventDefault(evt: any /** TODO #9100 */) { evt.returnValue = false; }
+  isPrevented(evt: any /** TODO #9100 */): boolean {
+    return isPresent(evt.returnValue) && !evt.returnValue;
+  }
+  getInnerHTML(el: any /** TODO #9100 */): string {
+    return serializer.serialize(this.templateAwareRoot(el));
+  }
+  getTemplateContent(el: any /** TODO #9100 */): Node {
     return null;  // no <template> support in parse5.
   }
-  getOuterHTML(el): string {
+  getOuterHTML(el: any /** TODO #9100 */): string {
     serializer.html = '';
     serializer._serializeElement(el);
     return serializer.html;
   }
-  nodeName(node): string { return node.tagName; }
-  nodeValue(node): string { return node.nodeValue; }
+  nodeName(node: any /** TODO #9100 */): string { return node.tagName; }
+  nodeValue(node: any /** TODO #9100 */): string { return node.nodeValue; }
   type(node: any): string { throw _notImplemented('type'); }
-  content(node): string { return node.childNodes[0]; }
-  firstChild(el): Node { return el.firstChild; }
-  nextSibling(el): Node { return el.nextSibling; }
-  parentElement(el): Node { return el.parent; }
-  childNodes(el): Node[] { return el.childNodes; }
-  childNodesAsList(el): any[] {
+  content(node: any /** TODO #9100 */): string { return node.childNodes[0]; }
+  firstChild(el: any /** TODO #9100 */): Node { return el.firstChild; }
+  nextSibling(el: any /** TODO #9100 */): Node { return el.nextSibling; }
+  parentElement(el: any /** TODO #9100 */): Node { return el.parent; }
+  childNodes(el: any /** TODO #9100 */): Node[] { return el.childNodes; }
+  childNodesAsList(el: any /** TODO #9100 */): any[] {
     var childNodes = el.childNodes;
     var res = ListWrapper.createFixedSize(childNodes.length);
     for (var i = 0; i < childNodes.length; i++) {
@@ -189,21 +203,21 @@ export class Parse5DomAdapter extends DomAdapter {
     }
     return res;
   }
-  clearNodes(el) {
+  clearNodes(el: any /** TODO #9100 */) {
     while (el.childNodes.length > 0) {
       this.remove(el.childNodes[0]);
     }
   }
-  appendChild(el, node) {
+  appendChild(el: any /** TODO #9100 */, node: any /** TODO #9100 */) {
     this.remove(node);
     treeAdapter.appendChild(this.templateAwareRoot(el), node);
   }
-  removeChild(el, node) {
+  removeChild(el: any /** TODO #9100 */, node: any /** TODO #9100 */) {
     if (ListWrapper.contains(el.childNodes, node)) {
       this.remove(node);
     }
   }
-  remove(el): HTMLElement {
+  remove(el: any /** TODO #9100 */): HTMLElement {
     var parent = el.parent;
     if (parent) {
       var index = parent.childNodes.indexOf(el);
@@ -222,26 +236,28 @@ export class Parse5DomAdapter extends DomAdapter {
     el.parent = null;
     return el;
   }
-  insertBefore(el, node) {
+  insertBefore(el: any /** TODO #9100 */, node: any /** TODO #9100 */) {
     this.remove(node);
     treeAdapter.insertBefore(el.parent, node, el);
   }
-  insertAllBefore(el, nodes) { nodes.forEach(n => this.insertBefore(el, n)); }
-  insertAfter(el, node) {
+  insertAllBefore(el: any /** TODO #9100 */, nodes: any /** TODO #9100 */) {
+    nodes.forEach((n: any /** TODO #9100 */) => this.insertBefore(el, n));
+  }
+  insertAfter(el: any /** TODO #9100 */, node: any /** TODO #9100 */) {
     if (el.nextSibling) {
       this.insertBefore(el.nextSibling, node);
     } else {
       this.appendChild(el.parent, node);
     }
   }
-  setInnerHTML(el, value) {
+  setInnerHTML(el: any /** TODO #9100 */, value: any /** TODO #9100 */) {
     this.clearNodes(el);
     var content = parser.parseFragment(value);
     for (var i = 0; i < content.childNodes.length; i++) {
       treeAdapter.appendChild(el, content.childNodes[i]);
     }
   }
-  getText(el, isRecursive?: boolean): string {
+  getText(el: any /** TODO #9100 */, isRecursive?: boolean): string {
     if (this.isTextNode(el)) {
       return el.data;
     } else if (this.isCommentNode(el)) {
@@ -249,16 +265,16 @@ export class Parse5DomAdapter extends DomAdapter {
       // However, comment node instances return the comment content for textContent getter
       return isRecursive ? '' : el.data;
     } else if (isBlank(el.childNodes) || el.childNodes.length == 0) {
-      return "";
+      return '';
     } else {
-      var textContent = "";
+      var textContent = '';
       for (var i = 0; i < el.childNodes.length; i++) {
         textContent += this.getText(el.childNodes[i], true);
       }
       return textContent;
     }
   }
-  setText(el, value: string) {
+  setText(el: any /** TODO #9100 */, value: string) {
     if (this.isTextNode(el) || this.isCommentNode(el)) {
       el.data = value;
     } else {
@@ -266,45 +282,47 @@ export class Parse5DomAdapter extends DomAdapter {
       if (value !== '') treeAdapter.insertText(el, value);
     }
   }
-  getValue(el): string { return el.value; }
-  setValue(el, value: string) { el.value = value; }
-  getChecked(el): boolean { return el.checked; }
-  setChecked(el, value: boolean) { el.checked = value; }
+  getValue(el: any /** TODO #9100 */): string { return el.value; }
+  setValue(el: any /** TODO #9100 */, value: string) { el.value = value; }
+  getChecked(el: any /** TODO #9100 */): boolean { return el.checked; }
+  setChecked(el: any /** TODO #9100 */, value: boolean) { el.checked = value; }
   createComment(text: string): Comment { return treeAdapter.createCommentNode(text); }
-  createTemplate(html): HTMLElement {
-    var template = treeAdapter.createElement("template", 'http://www.w3.org/1999/xhtml', []);
+  createTemplate(html: any /** TODO #9100 */): HTMLElement {
+    var template = treeAdapter.createElement('template', 'http://www.w3.org/1999/xhtml', []);
     var content = parser.parseFragment(html);
     treeAdapter.appendChild(template, content);
     return template;
   }
-  createElement(tagName): HTMLElement {
+  createElement(tagName: any /** TODO #9100 */): HTMLElement {
     return treeAdapter.createElement(tagName, 'http://www.w3.org/1999/xhtml', []);
   }
-  createElementNS(ns, tagName): HTMLElement { return treeAdapter.createElement(tagName, ns, []); }
+  createElementNS(ns: any /** TODO #9100 */, tagName: any /** TODO #9100 */): HTMLElement {
+    return treeAdapter.createElement(tagName, ns, []);
+  }
   createTextNode(text: string): Text {
     var t = <any>this.createComment(text);
     t.type = 'text';
     return t;
   }
   createScriptTag(attrName: string, attrValue: string): HTMLElement {
-    return treeAdapter.createElement("script", 'http://www.w3.org/1999/xhtml',
-                                     [{name: attrName, value: attrValue}]);
+    return treeAdapter.createElement(
+        'script', 'http://www.w3.org/1999/xhtml', [{name: attrName, value: attrValue}]);
   }
   createStyleElement(css: string): HTMLStyleElement {
     var style = this.createElement('style');
     this.setText(style, css);
     return <HTMLStyleElement>style;
   }
-  createShadowRoot(el): HTMLElement {
+  createShadowRoot(el: any /** TODO #9100 */): HTMLElement {
     el.shadowRoot = treeAdapter.createDocumentFragment();
     el.shadowRoot.parent = el;
     return el.shadowRoot;
   }
-  getShadowRoot(el): Element { return el.shadowRoot; }
-  getHost(el): string { return el.host; }
+  getShadowRoot(el: any /** TODO #9100 */): Element { return el.shadowRoot; }
+  getHost(el: any /** TODO #9100 */): string { return el.host; }
   getDistributedNodes(el: any): Node[] { throw _notImplemented('getDistributedNodes'); }
   clone(node: Node): Node {
-    var _recursive = (node) => {
+    var _recursive = (node: any /** TODO #9100 */) => {
       var nodeClone = Object.create(Object.getPrototypeOf(node));
       for (var prop in node) {
         var desc = Object.getOwnPropertyDescriptor(node, prop);
@@ -344,82 +362,86 @@ export class Parse5DomAdapter extends DomAdapter {
     };
     return _recursive(node);
   }
-  getElementsByClassName(element, name: string): HTMLElement[] {
-    return this.querySelectorAll(element, "." + name);
+  getElementsByClassName(element: any /** TODO #9100 */, name: string): HTMLElement[] {
+    return this.querySelectorAll(element, '.' + name);
   }
   getElementsByTagName(element: any, name: string): HTMLElement[] {
     throw _notImplemented('getElementsByTagName');
   }
-  classList(element): string[] {
-    var classAttrValue = null;
+  classList(element: any /** TODO #9100 */): string[] {
+    var classAttrValue: any /** TODO #9100 */ = null;
     var attributes = element.attribs;
-    if (attributes && attributes.hasOwnProperty("class")) {
-      classAttrValue = attributes["class"];
+    if (attributes && attributes.hasOwnProperty('class')) {
+      classAttrValue = attributes['class'];
     }
     return classAttrValue ? classAttrValue.trim().split(/\s+/g) : [];
   }
-  addClass(element, className: string) {
+  addClass(element: any /** TODO #9100 */, className: string) {
     var classList = this.classList(element);
     var index = classList.indexOf(className);
     if (index == -1) {
       classList.push(className);
-      element.attribs["class"] = element.className = classList.join(" ");
+      element.attribs['class'] = element.className = classList.join(' ');
     }
   }
-  removeClass(element, className: string) {
+  removeClass(element: any /** TODO #9100 */, className: string) {
     var classList = this.classList(element);
     var index = classList.indexOf(className);
     if (index > -1) {
       classList.splice(index, 1);
-      element.attribs["class"] = element.className = classList.join(" ");
+      element.attribs['class'] = element.className = classList.join(' ');
     }
   }
-  hasClass(element, className: string): boolean {
+  hasClass(element: any /** TODO #9100 */, className: string): boolean {
     return ListWrapper.contains(this.classList(element), className);
   }
-  hasStyle(element, styleName: string, styleValue: string = null): boolean {
+  hasStyle(element: any /** TODO #9100 */, styleName: string, styleValue: string = null): boolean {
     var value = this.getStyle(element, styleName) || '';
     return styleValue ? value == styleValue : value.length > 0;
   }
   /** @internal */
-  _readStyleAttribute(element) {
+  _readStyleAttribute(element: any /** TODO #9100 */) {
     var styleMap = {};
     var attributes = element.attribs;
-    if (attributes && attributes.hasOwnProperty("style")) {
-      var styleAttrValue = attributes["style"];
+    if (attributes && attributes.hasOwnProperty('style')) {
+      var styleAttrValue = attributes['style'];
       var styleList = styleAttrValue.split(/;+/g);
       for (var i = 0; i < styleList.length; i++) {
         if (styleList[i].length > 0) {
           var elems = styleList[i].split(/:+/g);
-          styleMap[elems[0].trim()] = elems[1].trim();
+          (styleMap as any /** TODO #9100 */)[elems[0].trim()] = elems[1].trim();
         }
       }
     }
     return styleMap;
   }
   /** @internal */
-  _writeStyleAttribute(element, styleMap) {
-    var styleAttrValue = "";
+  _writeStyleAttribute(element: any /** TODO #9100 */, styleMap: any /** TODO #9100 */) {
+    var styleAttrValue = '';
     for (var key in styleMap) {
       var newValue = styleMap[key];
       if (newValue && newValue.length > 0) {
-        styleAttrValue += key + ":" + styleMap[key] + ";";
+        styleAttrValue += key + ':' + styleMap[key] + ';';
       }
     }
-    element.attribs["style"] = styleAttrValue;
+    element.attribs['style'] = styleAttrValue;
   }
-  setStyle(element, styleName: string, styleValue: string) {
+  setStyle(element: any /** TODO #9100 */, styleName: string, styleValue: string) {
     var styleMap = this._readStyleAttribute(element);
-    styleMap[styleName] = styleValue;
+    (styleMap as any /** TODO #9100 */)[styleName] = styleValue;
     this._writeStyleAttribute(element, styleMap);
   }
-  removeStyle(element, styleName: string) { this.setStyle(element, styleName, null); }
-  getStyle(element, styleName: string): string {
-    var styleMap = this._readStyleAttribute(element);
-    return styleMap.hasOwnProperty(styleName) ? styleMap[styleName] : "";
+  removeStyle(element: any /** TODO #9100 */, styleName: string) {
+    this.setStyle(element, styleName, null);
   }
-  tagName(element): string { return element.tagName == "style" ? "STYLE" : element.tagName; }
-  attributeMap(element): Map<string, string> {
+  getStyle(element: any /** TODO #9100 */, styleName: string): string {
+    var styleMap = this._readStyleAttribute(element);
+    return styleMap.hasOwnProperty(styleName) ? (styleMap as any /** TODO #9100 */)[styleName] : '';
+  }
+  tagName(element: any /** TODO #9100 */): string {
+    return element.tagName == 'style' ? 'STYLE' : element.tagName;
+  }
+  attributeMap(element: any /** TODO #9100 */): Map<string, string> {
     var res = new Map<string, string>();
     var elAttrs = treeAdapter.getAttrList(element);
     for (var i = 0; i < elAttrs.length; i++) {
@@ -428,17 +450,21 @@ export class Parse5DomAdapter extends DomAdapter {
     }
     return res;
   }
-  hasAttribute(element, attribute: string): boolean {
+  hasAttribute(element: any /** TODO #9100 */, attribute: string): boolean {
     return element.attribs && element.attribs.hasOwnProperty(attribute);
   }
-  hasAttributeNS(element, ns: string, attribute: string): boolean { throw 'not implemented'; }
-  getAttribute(element, attribute: string): string {
-    return element.attribs && element.attribs.hasOwnProperty(attribute) ?
-               element.attribs[attribute] :
-               null;
+  hasAttributeNS(element: any /** TODO #9100 */, ns: string, attribute: string): boolean {
+    throw 'not implemented';
   }
-  getAttributeNS(element, ns: string, attribute: string): string { throw 'not implemented'; }
-  setAttribute(element, attribute: string, value: string) {
+  getAttribute(element: any /** TODO #9100 */, attribute: string): string {
+    return element.attribs && element.attribs.hasOwnProperty(attribute) ?
+        element.attribs[attribute] :
+        null;
+  }
+  getAttributeNS(element: any /** TODO #9100 */, ns: string, attribute: string): string {
+    throw 'not implemented';
+  }
+  setAttribute(element: any /** TODO #9100 */, attribute: string, value: string) {
     if (attribute) {
       element.attribs[attribute] = value;
       if (attribute === 'class') {
@@ -446,24 +472,30 @@ export class Parse5DomAdapter extends DomAdapter {
       }
     }
   }
-  setAttributeNS(element, ns: string, attribute: string, value: string) { throw 'not implemented'; }
-  removeAttribute(element, attribute: string) {
+  setAttributeNS(element: any /** TODO #9100 */, ns: string, attribute: string, value: string) {
+    throw 'not implemented';
+  }
+  removeAttribute(element: any /** TODO #9100 */, attribute: string) {
     if (attribute) {
       StringMapWrapper.delete(element.attribs, attribute);
     }
   }
-  removeAttributeNS(element, ns: string, name: string) { throw 'not implemented'; }
-  templateAwareRoot(el): any { return this.isTemplateElement(el) ? this.content(el) : el; }
+  removeAttributeNS(element: any /** TODO #9100 */, ns: string, name: string) {
+    throw 'not implemented';
+  }
+  templateAwareRoot(el: any /** TODO #9100 */): any {
+    return this.isTemplateElement(el) ? this.content(el) : el;
+  }
   createHtmlDocument(): Document {
     var newDoc = treeAdapter.createDocument();
-    newDoc.title = "fake title";
-    var head = treeAdapter.createElement("head", null, []);
-    var body = treeAdapter.createElement("body", 'http://www.w3.org/1999/xhtml', []);
+    newDoc.title = 'fake title';
+    var head = treeAdapter.createElement('head', null, []);
+    var body = treeAdapter.createElement('body', 'http://www.w3.org/1999/xhtml', []);
     this.appendChild(newDoc, head);
     this.appendChild(newDoc, body);
-    StringMapWrapper.set(newDoc, "head", head);
-    StringMapWrapper.set(newDoc, "body", body);
-    StringMapWrapper.set(newDoc, "_window", StringMapWrapper.create());
+    StringMapWrapper.set(newDoc, 'head', head);
+    StringMapWrapper.set(newDoc, 'body', body);
+    StringMapWrapper.set(newDoc, '_window', StringMapWrapper.create());
     return newDoc;
   }
   defaultDoc(): Document {
@@ -472,21 +504,25 @@ export class Parse5DomAdapter extends DomAdapter {
     }
     return defDoc;
   }
-  getBoundingClientRect(el): any { return {left: 0, top: 0, width: 0, height: 0}; }
-  getTitle(): string { return this.defaultDoc().title || ""; }
+  getBoundingClientRect(el: any /** TODO #9100 */): any {
+    return {left: 0, top: 0, width: 0, height: 0};
+  }
+  getTitle(): string { return this.defaultDoc().title || ''; }
   setTitle(newTitle: string) { this.defaultDoc().title = newTitle; }
   isTemplateElement(el: any): boolean {
-    return this.isElementNode(el) && this.tagName(el) === "template";
+    return this.isElementNode(el) && this.tagName(el) === 'template';
   }
-  isTextNode(node): boolean { return treeAdapter.isTextNode(node); }
-  isCommentNode(node): boolean { return treeAdapter.isCommentNode(node); }
-  isElementNode(node): boolean { return node ? treeAdapter.isElementNode(node) : false; }
-  hasShadowRoot(node): boolean { return isPresent(node.shadowRoot); }
-  isShadowRoot(node): boolean { return this.getShadowRoot(node) == node; }
-  importIntoDoc(node): any { return this.clone(node); }
-  adoptNode(node): any { return node; }
-  getHref(el): string { return el.href; }
-  resolveAndSetHref(el, baseUrl: string, href: string) {
+  isTextNode(node: any /** TODO #9100 */): boolean { return treeAdapter.isTextNode(node); }
+  isCommentNode(node: any /** TODO #9100 */): boolean { return treeAdapter.isCommentNode(node); }
+  isElementNode(node: any /** TODO #9100 */): boolean {
+    return node ? treeAdapter.isElementNode(node) : false;
+  }
+  hasShadowRoot(node: any /** TODO #9100 */): boolean { return isPresent(node.shadowRoot); }
+  isShadowRoot(node: any /** TODO #9100 */): boolean { return this.getShadowRoot(node) == node; }
+  importIntoDoc(node: any /** TODO #9100 */): any { return this.clone(node); }
+  adoptNode(node: any /** TODO #9100 */): any { return node; }
+  getHref(el: any /** TODO #9100 */): string { return el.href; }
+  resolveAndSetHref(el: any /** TODO #9100 */, baseUrl: string, href: string) {
     if (href == null) {
       el.href = baseUrl;
     } else {
@@ -494,36 +530,37 @@ export class Parse5DomAdapter extends DomAdapter {
     }
   }
   /** @internal */
-  _buildRules(parsedRules, css?) {
-    var rules = [];
+  _buildRules(parsedRules: any /** TODO #9100 */, css?: any /** TODO #9100 */) {
+    var rules: any[] /** TODO #9100 */ = [];
     for (var i = 0; i < parsedRules.length; i++) {
       var parsedRule = parsedRules[i];
       var rule: {[key: string]: any} = StringMapWrapper.create();
-      StringMapWrapper.set(rule, "cssText", css);
-      StringMapWrapper.set(rule, "style", {content: "", cssText: ""});
-      if (parsedRule.type == "rule") {
-        StringMapWrapper.set(rule, "type", 1);
-        StringMapWrapper.set(rule, "selectorText", parsedRule.selectors.join(", ")
-                                                       .replace(/\s{2,}/g, " ")
-                                                       .replace(/\s*~\s*/g, " ~ ")
-                                                       .replace(/\s*\+\s*/g, " + ")
-                                                       .replace(/\s*>\s*/g, " > ")
-                                                       .replace(/\[(\w+)=(\w+)\]/g, '[$1="$2"]'));
+      StringMapWrapper.set(rule, 'cssText', css);
+      StringMapWrapper.set(rule, 'style', {content: '', cssText: ''});
+      if (parsedRule.type == 'rule') {
+        StringMapWrapper.set(rule, 'type', 1);
+        StringMapWrapper.set(
+            rule, 'selectorText', parsedRule.selectors.join(', ')
+                                      .replace(/\s{2,}/g, ' ')
+                                      .replace(/\s*~\s*/g, ' ~ ')
+                                      .replace(/\s*\+\s*/g, ' + ')
+                                      .replace(/\s*>\s*/g, ' > ')
+                                      .replace(/\[(\w+)=(\w+)\]/g, '[$1="$2"]'));
         if (isBlank(parsedRule.declarations)) {
           continue;
         }
         for (var j = 0; j < parsedRule.declarations.length; j++) {
           var declaration = parsedRule.declarations[j];
-          StringMapWrapper.set(StringMapWrapper.get(rule, "style"), declaration.property,
-                               declaration.value);
-          StringMapWrapper.get(rule, "style").cssText +=
-              declaration.property + ": " + declaration.value + ";";
+          StringMapWrapper.set(
+              StringMapWrapper.get(rule, 'style'), declaration.property, declaration.value);
+          StringMapWrapper.get(rule, 'style').cssText +=
+              declaration.property + ': ' + declaration.value + ';';
         }
-      } else if (parsedRule.type == "media") {
-        StringMapWrapper.set(rule, "type", 4);
-        StringMapWrapper.set(rule, "media", {mediaText: parsedRule.media});
+      } else if (parsedRule.type == 'media') {
+        StringMapWrapper.set(rule, 'type', 4);
+        StringMapWrapper.set(rule, 'media', {mediaText: parsedRule.media});
         if (parsedRule.rules) {
-          StringMapWrapper.set(rule, "cssRules", this._buildRules(parsedRule.rules));
+          StringMapWrapper.set(rule, 'cssRules', this._buildRules(parsedRule.rules));
         }
       }
       rules.push(rule);
@@ -533,11 +570,11 @@ export class Parse5DomAdapter extends DomAdapter {
   supportsDOMEvents(): boolean { return false; }
   supportsNativeShadowDOM(): boolean { return false; }
   getGlobalEventTarget(target: string): any {
-    if (target == "window") {
+    if (target == 'window') {
       return (<any>this.defaultDoc())._window;
-    } else if (target == "document") {
+    } else if (target == 'document') {
       return this.defaultDoc();
-    } else if (target == "body") {
+    } else if (target == 'body') {
       return this.defaultDoc().body;
     }
   }
@@ -545,207 +582,220 @@ export class Parse5DomAdapter extends DomAdapter {
   resetBaseElement(): void { throw 'not implemented'; }
   getHistory(): History { throw 'not implemented'; }
   getLocation(): Location { throw 'not implemented'; }
-  getUserAgent(): string { return "Fake user agent"; }
-  getData(el, name: string): string { return this.getAttribute(el, 'data-' + name); }
-  getComputedStyle(el): any { throw 'not implemented'; }
-  setData(el, name: string, value: string) { this.setAttribute(el, 'data-' + name, value); }
+  getUserAgent(): string { return 'Fake user agent'; }
+  getData(el: any /** TODO #9100 */, name: string): string {
+    return this.getAttribute(el, 'data-' + name);
+  }
+  getComputedStyle(el: any /** TODO #9100 */): any { throw 'not implemented'; }
+  setData(el: any /** TODO #9100 */, name: string, value: string) {
+    this.setAttribute(el, 'data-' + name, value);
+  }
   // TODO(tbosch): move this into a separate environment class once we have it
   setGlobalVar(path: string, value: any) { setValueOnPath(global, path, value); }
-  requestAnimationFrame(callback): number { return setTimeout(callback, 0); }
+  requestAnimationFrame(callback: any /** TODO #9100 */): number { return setTimeout(callback, 0); }
   cancelAnimationFrame(id: number) { clearTimeout(id); }
+  supportsWebAnimation(): boolean { return false; }
   performanceNow(): number { return DateWrapper.toMillis(DateWrapper.now()); }
   getAnimationPrefix(): string { return ''; }
   getTransitionEnd(): string { return 'transitionend'; }
   supportsAnimation(): boolean { return true; }
 
-  replaceChild(el, newNode, oldNode) { throw new Error('not implemented'); }
+  replaceChild(
+      el: any /** TODO #9100 */, newNode: any /** TODO #9100 */, oldNode: any /** TODO #9100 */) {
+    throw new Error('not implemented');
+  }
   parse(templateHtml: string) { throw new Error('not implemented'); }
   invoke(el: Element, methodName: string, args: any[]): any { throw new Error('not implemented'); }
-  getEventKey(event): string { throw new Error('not implemented'); }
+  getEventKey(event: any /** TODO #9100 */): string { throw new Error('not implemented'); }
+
+  supportsCookies(): boolean { return false; }
+  getCookie(name: string): string { throw new Error('not implemented'); }
+  setCookie(name: string, value: string) { throw new Error('not implemented'); }
+  animate(element: any, keyframes: any[], options: any): any { throw new Error('not implemented'); }
 }
 
 // TODO: build a proper list, this one is all the keys of a HTMLInputElement
 var _HTMLElementPropertyList = [
-  "webkitEntries",
-  "incremental",
-  "webkitdirectory",
-  "selectionDirection",
-  "selectionEnd",
-  "selectionStart",
-  "labels",
-  "validationMessage",
-  "validity",
-  "willValidate",
-  "width",
-  "valueAsNumber",
-  "valueAsDate",
-  "value",
-  "useMap",
-  "defaultValue",
-  "type",
-  "step",
-  "src",
-  "size",
-  "required",
-  "readOnly",
-  "placeholder",
-  "pattern",
-  "name",
-  "multiple",
-  "min",
-  "minLength",
-  "maxLength",
-  "max",
-  "list",
-  "indeterminate",
-  "height",
-  "formTarget",
-  "formNoValidate",
-  "formMethod",
-  "formEnctype",
-  "formAction",
-  "files",
-  "form",
-  "disabled",
-  "dirName",
-  "checked",
-  "defaultChecked",
-  "autofocus",
-  "autocomplete",
-  "alt",
-  "align",
-  "accept",
-  "onautocompleteerror",
-  "onautocomplete",
-  "onwaiting",
-  "onvolumechange",
-  "ontoggle",
-  "ontimeupdate",
-  "onsuspend",
-  "onsubmit",
-  "onstalled",
-  "onshow",
-  "onselect",
-  "onseeking",
-  "onseeked",
-  "onscroll",
-  "onresize",
-  "onreset",
-  "onratechange",
-  "onprogress",
-  "onplaying",
-  "onplay",
-  "onpause",
-  "onmousewheel",
-  "onmouseup",
-  "onmouseover",
-  "onmouseout",
-  "onmousemove",
-  "onmouseleave",
-  "onmouseenter",
-  "onmousedown",
-  "onloadstart",
-  "onloadedmetadata",
-  "onloadeddata",
-  "onload",
-  "onkeyup",
-  "onkeypress",
-  "onkeydown",
-  "oninvalid",
-  "oninput",
-  "onfocus",
-  "onerror",
-  "onended",
-  "onemptied",
-  "ondurationchange",
-  "ondrop",
-  "ondragstart",
-  "ondragover",
-  "ondragleave",
-  "ondragenter",
-  "ondragend",
-  "ondrag",
-  "ondblclick",
-  "oncuechange",
-  "oncontextmenu",
-  "onclose",
-  "onclick",
-  "onchange",
-  "oncanplaythrough",
-  "oncanplay",
-  "oncancel",
-  "onblur",
-  "onabort",
-  "spellcheck",
-  "isContentEditable",
-  "contentEditable",
-  "outerText",
-  "innerText",
-  "accessKey",
-  "hidden",
-  "webkitdropzone",
-  "draggable",
-  "tabIndex",
-  "dir",
-  "translate",
-  "lang",
-  "title",
-  "childElementCount",
-  "lastElementChild",
-  "firstElementChild",
-  "children",
-  "onwebkitfullscreenerror",
-  "onwebkitfullscreenchange",
-  "nextElementSibling",
-  "previousElementSibling",
-  "onwheel",
-  "onselectstart",
-  "onsearch",
-  "onpaste",
-  "oncut",
-  "oncopy",
-  "onbeforepaste",
-  "onbeforecut",
-  "onbeforecopy",
-  "shadowRoot",
-  "dataset",
-  "classList",
-  "className",
-  "outerHTML",
-  "innerHTML",
-  "scrollHeight",
-  "scrollWidth",
-  "scrollTop",
-  "scrollLeft",
-  "clientHeight",
-  "clientWidth",
-  "clientTop",
-  "clientLeft",
-  "offsetParent",
-  "offsetHeight",
-  "offsetWidth",
-  "offsetTop",
-  "offsetLeft",
-  "localName",
-  "prefix",
-  "namespaceURI",
-  "id",
-  "style",
-  "attributes",
-  "tagName",
-  "parentElement",
-  "textContent",
-  "baseURI",
-  "ownerDocument",
-  "nextSibling",
-  "previousSibling",
-  "lastChild",
-  "firstChild",
-  "childNodes",
-  "parentNode",
-  "nodeType",
-  "nodeValue",
-  "nodeName",
-  "closure_lm_714617",
-  "__jsaction"
+  'webkitEntries',
+  'incremental',
+  'webkitdirectory',
+  'selectionDirection',
+  'selectionEnd',
+  'selectionStart',
+  'labels',
+  'validationMessage',
+  'validity',
+  'willValidate',
+  'width',
+  'valueAsNumber',
+  'valueAsDate',
+  'value',
+  'useMap',
+  'defaultValue',
+  'type',
+  'step',
+  'src',
+  'size',
+  'required',
+  'readOnly',
+  'placeholder',
+  'pattern',
+  'name',
+  'multiple',
+  'min',
+  'minLength',
+  'maxLength',
+  'max',
+  'list',
+  'indeterminate',
+  'height',
+  'formTarget',
+  'formNoValidate',
+  'formMethod',
+  'formEnctype',
+  'formAction',
+  'files',
+  'form',
+  'disabled',
+  'dirName',
+  'checked',
+  'defaultChecked',
+  'autofocus',
+  'autocomplete',
+  'alt',
+  'align',
+  'accept',
+  'onautocompleteerror',
+  'onautocomplete',
+  'onwaiting',
+  'onvolumechange',
+  'ontoggle',
+  'ontimeupdate',
+  'onsuspend',
+  'onsubmit',
+  'onstalled',
+  'onshow',
+  'onselect',
+  'onseeking',
+  'onseeked',
+  'onscroll',
+  'onresize',
+  'onreset',
+  'onratechange',
+  'onprogress',
+  'onplaying',
+  'onplay',
+  'onpause',
+  'onmousewheel',
+  'onmouseup',
+  'onmouseover',
+  'onmouseout',
+  'onmousemove',
+  'onmouseleave',
+  'onmouseenter',
+  'onmousedown',
+  'onloadstart',
+  'onloadedmetadata',
+  'onloadeddata',
+  'onload',
+  'onkeyup',
+  'onkeypress',
+  'onkeydown',
+  'oninvalid',
+  'oninput',
+  'onfocus',
+  'onerror',
+  'onended',
+  'onemptied',
+  'ondurationchange',
+  'ondrop',
+  'ondragstart',
+  'ondragover',
+  'ondragleave',
+  'ondragenter',
+  'ondragend',
+  'ondrag',
+  'ondblclick',
+  'oncuechange',
+  'oncontextmenu',
+  'onclose',
+  'onclick',
+  'onchange',
+  'oncanplaythrough',
+  'oncanplay',
+  'oncancel',
+  'onblur',
+  'onabort',
+  'spellcheck',
+  'isContentEditable',
+  'contentEditable',
+  'outerText',
+  'innerText',
+  'accessKey',
+  'hidden',
+  'webkitdropzone',
+  'draggable',
+  'tabIndex',
+  'dir',
+  'translate',
+  'lang',
+  'title',
+  'childElementCount',
+  'lastElementChild',
+  'firstElementChild',
+  'children',
+  'onwebkitfullscreenerror',
+  'onwebkitfullscreenchange',
+  'nextElementSibling',
+  'previousElementSibling',
+  'onwheel',
+  'onselectstart',
+  'onsearch',
+  'onpaste',
+  'oncut',
+  'oncopy',
+  'onbeforepaste',
+  'onbeforecut',
+  'onbeforecopy',
+  'shadowRoot',
+  'dataset',
+  'classList',
+  'className',
+  'outerHTML',
+  'innerHTML',
+  'scrollHeight',
+  'scrollWidth',
+  'scrollTop',
+  'scrollLeft',
+  'clientHeight',
+  'clientWidth',
+  'clientTop',
+  'clientLeft',
+  'offsetParent',
+  'offsetHeight',
+  'offsetWidth',
+  'offsetTop',
+  'offsetLeft',
+  'localName',
+  'prefix',
+  'namespaceURI',
+  'id',
+  'style',
+  'attributes',
+  'tagName',
+  'parentElement',
+  'textContent',
+  'baseURI',
+  'ownerDocument',
+  'nextSibling',
+  'previousSibling',
+  'lastChild',
+  'firstChild',
+  'childNodes',
+  'parentNode',
+  'nodeType',
+  'nodeValue',
+  'nodeName',
+  'closure_lm_714617',
+  '__jsaction'
 ];

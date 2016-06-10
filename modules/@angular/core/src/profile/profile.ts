@@ -1,6 +1,7 @@
+import * as impl from './wtf_impl';
+
 export {WtfScopeFn} from './wtf_impl';
 
-import * as impl from './wtf_impl';
 
 // Change exports to const once https://github.com/angular/ts2dart/issues/150
 
@@ -41,6 +42,7 @@ function noopScope(arg0?: any, arg1?: any): any {
  * needs to be fixed before the app should be profiled. Add try-finally only when you expect that
  * an exception is expected during normal execution while profiling.
  *
+ * @experimental
  */
 export var wtfCreateScope: (signature: string, flags?: any) => impl.WtfScopeFn =
     wtfEnabled ? impl.createScope : (signature: string, flags?: any) => noopScope;
@@ -52,8 +54,9 @@ export var wtfCreateScope: (signature: string, flags?: any) => impl.WtfScopeFn =
  * - `returnValue` (optional) to be passed to the WTF.
  *
  * Returns the `returnValue for easy chaining.
+ * @experimental
  */
-export var wtfLeave:<T>(scope: any, returnValue?: T) => T =
+export var wtfLeave: <T>(scope: any, returnValue?: T) => T =
     wtfEnabled ? impl.leave : (s: any, r?: any) => r;
 
 /**
@@ -67,6 +70,7 @@ export var wtfLeave:<T>(scope: any, returnValue?: T) => T =
  *          wtfEndTimeRange(s);
  *        });
  *     }
+ * @experimental
  */
 export var wtfStartTimeRange: (rangeType: string, action: string) => any =
     wtfEnabled ? impl.startTimeRange : (rangeType: string, action: string) => null;
@@ -75,6 +79,7 @@ export var wtfStartTimeRange: (rangeType: string, action: string) => any =
  * Ends a async time range operation.
  * [range] is the return value from [wtfStartTimeRange] Async ranges only work if WTF has been
  * enabled.
+ * @experimental
  */
-export var wtfEndTimeRange: (range: any) => void = wtfEnabled ? impl.endTimeRange : (r: any) =>
-                                                                                        null;
+export var wtfEndTimeRange: (range: any) => void =
+    wtfEnabled ? impl.endTimeRange : (r: any) => null;

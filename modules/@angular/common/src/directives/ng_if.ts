@@ -1,5 +1,7 @@
-import {Directive, ViewContainerRef, TemplateRef} from '@angular/core';
-import {isBlank} from '../../src/facade/lang';
+import {Directive, TemplateRef, ViewContainerRef} from '@angular/core';
+
+import {isBlank} from '../facade/lang';
+
 
 /**
  * Removes or recreates a portion of the DOM tree based on an {expression}.
@@ -22,6 +24,8 @@ import {isBlank} from '../../src/facade/lang';
  * - `<div *ngIf="condition">...</div>`
  * - `<div template="ngIf condition">...</div>`
  * - `<template [ngIf]="condition"><div>...</div></template>`
+ *
+ * @stable
  */
 @Directive({selector: '[ngIf]', inputs: ['ngIf']})
 export class NgIf {

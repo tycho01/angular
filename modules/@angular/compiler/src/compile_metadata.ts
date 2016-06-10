@@ -1,33 +1,15 @@
-import {ChangeDetectionStrategy, ViewEncapsulation, reflector} from '@angular/core';
-import {
-  CHANGE_DETECTION_STRATEGY_VALUES,
-  VIEW_ENCAPSULATION_VALUES,
-  LifecycleHooks,
-  LIFECYCLE_HOOKS_VALUES
-} from '../core_private';
+import {ChangeDetectionStrategy, ViewEncapsulation} from '@angular/core';
 
-import {
-  isPresent,
-  isBlank,
-  isNumber,
-  isBoolean,
-  normalizeBool,
-  normalizeBlank,
-  serializeEnum,
-  Type,
-  isString,
-  RegExpWrapper,
-  isArray
-} from '../src/facade/lang';
-import {unimplemented, BaseException} from '../src/facade/exceptions';
-import {
-  StringMapWrapper,
-} from '../src/facade/collection';
+import {CHANGE_DETECTION_STRATEGY_VALUES, LIFECYCLE_HOOKS_VALUES, LifecycleHooks, VIEW_ENCAPSULATION_VALUES, reflector} from '../core_private';
+import {ListWrapper, StringMapWrapper} from '../src/facade/collection';
+import {BaseException, unimplemented} from '../src/facade/exceptions';
+import {NumberWrapper, RegExpWrapper, StringWrapper, Type, isArray, isBlank, isBoolean, isNumber, isPresent, isString, normalizeBlank, normalizeBool, serializeEnum} from '../src/facade/lang';
+
 import {CssSelector} from './selector';
-import {splitAtColon, sanitizeIdentifier} from './util';
 import {getUrlScheme} from './url_resolver';
+import {sanitizeIdentifier, splitAtColon} from './util';
 
-// group 1: "property" from "[property]"
+
 // group 2: "event" from "(event)"
 var HOST_REG_EXP = /^(?:(?:\[([^\]]+)\])|(?:\(([^\)]+)\)))$/g;
 
@@ -46,7 +28,152 @@ export abstract class CompileMetadataWithType extends CompileMetadataWithIdentif
 }
 
 export function metadataFromJson(data: {[key: string]: any}): any {
-  return _COMPILE_METADATA_FROM_JSON[data['class']](data);
+  return (_COMPILE_METADATA_FROM_JSON as any /** TODO #9100 */)[data['class']](data);
+}
+
+export class CompileAnimationEntryMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationEntryMetadata {
+    var value = data['value'];
+    var defs = _arrayFromJson(value['definitions'], metadataFromJson);
+    return new CompileAnimationEntryMetadata(value['name'], defs);
+  }
+
+  constructor(
+      public name: string = null, public definitions: CompileAnimationStateMetadata[] = null) {}
+
+  toJson(): {[key: string]: any} {
+    return {
+      'class': 'AnimationEntryMetadata',
+      'value': {'name': this.name, 'definitions': _arrayToJson(this.definitions)}
+    };
+  }
+}
+
+export abstract class CompileAnimationStateMetadata {}
+
+export class CompileAnimationStateDeclarationMetadata extends CompileAnimationStateMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationStateDeclarationMetadata {
+    var value = data['value'];
+    var styles = _objFromJson(value['styles'], metadataFromJson);
+    return new CompileAnimationStateDeclarationMetadata(value['stateNameExpr'], styles);
+  }
+
+  constructor(public stateNameExpr: string, public styles: CompileAnimationStyleMetadata) {
+    super();
+  }
+
+  toJson(): {[key: string]: any} {
+    return {
+      'class': 'AnimationStateDeclarationMetadata',
+      'value': {'stateNameExpr': this.stateNameExpr, 'styles': this.styles.toJson()}
+    };
+  }
+}
+
+export class CompileAnimationStateTransitionMetadata extends CompileAnimationStateMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationStateTransitionMetadata {
+    var value = data['value'];
+    var steps = _objFromJson(value['steps'], metadataFromJson);
+    return new CompileAnimationStateTransitionMetadata(value['stateChangeExpr'], steps);
+  }
+
+  constructor(public stateChangeExpr: string, public steps: CompileAnimationMetadata) { super(); }
+
+  toJson(): {[key: string]: any} {
+    return {
+      'class': 'AnimationStateTransitionMetadata',
+      'value': {'stateChangeExpr': this.stateChangeExpr, 'steps': this.steps.toJson()}
+    };
+  }
+}
+
+export abstract class CompileAnimationMetadata { abstract toJson(): {[key: string]: any}; }
+
+export class CompileAnimationKeyframesSequenceMetadata extends CompileAnimationMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationKeyframesSequenceMetadata {
+    var steps = _arrayFromJson(data['value'], metadataFromJson);
+    return new CompileAnimationKeyframesSequenceMetadata(<CompileAnimationStyleMetadata[]>steps);
+  }
+
+  constructor(public steps: CompileAnimationStyleMetadata[] = []) { super(); }
+
+  toJson(): {[key: string]: any} {
+    return {'class': 'AnimationKeyframesSequenceMetadata', 'value': _arrayToJson(this.steps)};
+  }
+}
+
+export class CompileAnimationStyleMetadata extends CompileAnimationMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationStyleMetadata {
+    var value = data['value'];
+    var offsetVal = value['offset'];
+    var offset = isPresent(offsetVal) ? NumberWrapper.parseFloat(offsetVal) : null;
+    var styles = <Array<string|{[key: string]: string | number}>>value['styles'];
+    return new CompileAnimationStyleMetadata(offset, styles);
+  }
+
+  constructor(
+      public offset: number, public styles: Array<string|{[key: string]: string | number}> = null) {
+    super();
+  }
+
+  toJson(): {[key: string]: any} {
+    return {
+      'class': 'AnimationStyleMetadata',
+      'value': {'offset': this.offset, 'styles': this.styles}
+    };
+  }
+}
+
+export class CompileAnimationAnimateMetadata extends CompileAnimationMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationAnimateMetadata {
+    var value = data['value'];
+    var timings = <string|number>value['timings'];
+    var styles = _objFromJson(value['styles'], metadataFromJson);
+    return new CompileAnimationAnimateMetadata(timings, styles);
+  }
+
+  constructor(
+      public timings: string|number = 0, public styles: CompileAnimationStyleMetadata|
+      CompileAnimationKeyframesSequenceMetadata = null) {
+    super();
+  }
+
+  toJson(): {[key: string]: any} {
+    return {
+      'class': 'AnimationAnimateMetadata',
+      'value': {'timings': this.timings, 'styles': _objToJson(this.styles)}
+    };
+  }
+}
+
+export abstract class CompileAnimationWithStepsMetadata extends CompileAnimationMetadata {
+  constructor(public steps: CompileAnimationMetadata[] = null) { super(); }
+}
+
+export class CompileAnimationSequenceMetadata extends CompileAnimationWithStepsMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationSequenceMetadata {
+    var steps = _arrayFromJson(data['value'], metadataFromJson);
+    return new CompileAnimationSequenceMetadata(steps);
+  }
+
+  constructor(steps: CompileAnimationMetadata[] = null) { super(steps); }
+
+  toJson(): {[key: string]: any} {
+    return {'class': 'AnimationSequenceMetadata', 'value': _arrayToJson(this.steps)};
+  }
+}
+
+export class CompileAnimationGroupMetadata extends CompileAnimationWithStepsMetadata {
+  static fromJson(data: {[key: string]: any}): CompileAnimationGroupMetadata {
+    var steps = _arrayFromJson(data['value'], metadataFromJson);
+    return new CompileAnimationGroupMetadata(steps);
+  }
+
+  constructor(steps: CompileAnimationMetadata[] = null) { super(steps); }
+
+  toJson(): {[key: string]: any} {
+    return {'class': 'AnimationGroupMetadata', 'value': _arrayToJson(this.steps)};
+  }
 }
 
 export class CompileIdentifierMetadata implements CompileMetadataWithIdentifier {
@@ -100,19 +227,20 @@ export class CompileDiDependencyMetadata {
   token: CompileTokenMetadata;
   value: any;
 
-  constructor({isAttribute, isSelf, isHost, isSkipSelf, isOptional, isValue, query, viewQuery,
-               token, value}: {
-    isAttribute?: boolean,
-    isSelf?: boolean,
-    isHost?: boolean,
-    isSkipSelf?: boolean,
-    isOptional?: boolean,
-    isValue?: boolean,
-    query?: CompileQueryMetadata,
-    viewQuery?: CompileQueryMetadata,
-    token?: CompileTokenMetadata,
-    value?: any
-  } = {}) {
+  constructor(
+      {isAttribute, isSelf, isHost, isSkipSelf, isOptional, isValue, query, viewQuery, token,
+       value}: {
+        isAttribute?: boolean,
+        isSelf?: boolean,
+        isHost?: boolean,
+        isSkipSelf?: boolean,
+        isOptional?: boolean,
+        isValue?: boolean,
+        query?: CompileQueryMetadata,
+        viewQuery?: CompileQueryMetadata,
+        token?: CompileTokenMetadata,
+        value?: any
+      } = {}) {
     this.isAttribute = normalizeBool(isAttribute);
     this.isSelf = normalizeBool(isSelf);
     this.isHost = normalizeBool(isHost);
@@ -267,11 +395,9 @@ export class CompileTokenMetadata implements CompileMetadataWithIdentifier {
   identifierIsInstance: boolean;
   private _assetCacheKey = UNDEFINED;
 
-  constructor({value, identifier, identifierIsInstance}: {
-    value?: any,
-    identifier?: CompileIdentifierMetadata,
-    identifierIsInstance?: boolean
-  }) {
+  constructor(
+      {value, identifier, identifierIsInstance}:
+          {value?: any, identifier?: CompileIdentifierMetadata, identifierIsInstance?: boolean}) {
     this.value = value;
     this.identifier = identifier;
     this.identifierIsInstance = normalizeBool(identifierIsInstance);
@@ -305,11 +431,9 @@ export class CompileTokenMetadata implements CompileMetadataWithIdentifier {
     if (this._assetCacheKey === UNDEFINED) {
       if (isPresent(this.identifier)) {
         if (isPresent(this.identifier.moduleUrl) &&
-                      isPresent(getUrlScheme(this.identifier.moduleUrl))) {
-          var uri = reflector.importUri({
-            'filePath': this.identifier.moduleUrl,
-            'name': this.identifier.name
-          });
+            isPresent(getUrlScheme(this.identifier.moduleUrl))) {
+          var uri = reflector.importUri(
+              {'filePath': this.identifier.moduleUrl, 'name': this.identifier.name});
           this._assetCacheKey = `${this.identifier.name}|${uri}|${this.identifierIsInstance}`;
         } else {
           this._assetCacheKey = null;
@@ -325,7 +449,7 @@ export class CompileTokenMetadata implements CompileMetadataWithIdentifier {
     var rk = this.runtimeCacheKey;
     var ak = this.assetCacheKey;
     return (isPresent(rk) && rk == token2.runtimeCacheKey) ||
-           (isPresent(ak) && ak == token2.assetCacheKey);
+        (isPresent(ak) && ak == token2.assetCacheKey);
   }
 
   get name(): string {
@@ -355,7 +479,7 @@ export class CompileTokenMap<VALUE> {
   get(token: CompileTokenMetadata): VALUE {
     var rk = token.runtimeCacheKey;
     var ak = token.assetCacheKey;
-    var result;
+    var result: any /** TODO #9100 */;
     if (isPresent(rk)) {
       result = this._valueMap.get(rk);
     }
@@ -477,44 +601,52 @@ export class CompileTemplateMetadata {
   templateUrl: string;
   styles: string[];
   styleUrls: string[];
+  animations: CompileAnimationEntryMetadata[];
   ngContentSelectors: string[];
-  constructor({encapsulation, template, templateUrl, styles, styleUrls, ngContentSelectors}: {
-    encapsulation?: ViewEncapsulation,
-    template?: string,
-    templateUrl?: string,
-    styles?: string[],
-    styleUrls?: string[],
-    ngContentSelectors?: string[]
-  } = {}) {
-    this.encapsulation = isPresent(encapsulation) ? encapsulation : ViewEncapsulation.Emulated;
+  constructor(
+      {encapsulation, template, templateUrl, styles, styleUrls, animations, ngContentSelectors}: {
+        encapsulation?: ViewEncapsulation,
+        template?: string,
+        templateUrl?: string,
+        styles?: string[],
+        styleUrls?: string[],
+        ngContentSelectors?: string[],
+        animations?: CompileAnimationEntryMetadata[]
+      } = {}) {
+    this.encapsulation = encapsulation;
     this.template = template;
     this.templateUrl = templateUrl;
     this.styles = isPresent(styles) ? styles : [];
     this.styleUrls = isPresent(styleUrls) ? styleUrls : [];
+    this.animations = isPresent(animations) ? ListWrapper.flatten(animations) : [];
     this.ngContentSelectors = isPresent(ngContentSelectors) ? ngContentSelectors : [];
   }
 
   static fromJson(data: {[key: string]: any}): CompileTemplateMetadata {
+    var animations =
+        <CompileAnimationEntryMetadata[]>_arrayFromJson(data['animations'], metadataFromJson);
     return new CompileTemplateMetadata({
       encapsulation: isPresent(data['encapsulation']) ?
-                         VIEW_ENCAPSULATION_VALUES[data['encapsulation']] :
-                         data['encapsulation'],
+          VIEW_ENCAPSULATION_VALUES[data['encapsulation']] :
+          data['encapsulation'],
       template: data['template'],
       templateUrl: data['templateUrl'],
       styles: data['styles'],
       styleUrls: data['styleUrls'],
+      animations: animations,
       ngContentSelectors: data['ngContentSelectors']
     });
   }
 
   toJson(): {[key: string]: any} {
     return {
-      'encapsulation':
-          isPresent(this.encapsulation) ? serializeEnum(this.encapsulation) : this.encapsulation,
+      'encapsulation': isPresent(this.encapsulation) ? serializeEnum(this.encapsulation) :
+                                                       this.encapsulation,
       'template': this.template,
       'templateUrl': this.templateUrl,
       'styles': this.styles,
       'styleUrls': this.styleUrls,
+      'animations': _objToJson(this.animations),
       'ngContentSelectors': this.ngContentSelectors
     };
   }
@@ -524,25 +656,26 @@ export class CompileTemplateMetadata {
  * Metadata regarding compilation of a directive.
  */
 export class CompileDirectiveMetadata implements CompileMetadataWithType {
-  static create({type, isComponent, selector, exportAs, changeDetection, inputs, outputs, host,
-                 lifecycleHooks, providers, viewProviders, queries, viewQueries, template}: {
-    type?: CompileTypeMetadata,
-    isComponent?: boolean,
-    selector?: string,
-    exportAs?: string,
-    changeDetection?: ChangeDetectionStrategy,
-    inputs?: string[],
-    outputs?: string[],
-    host?: {[key: string]: string},
-    lifecycleHooks?: LifecycleHooks[],
-    providers?:
-        Array<CompileProviderMetadata | CompileTypeMetadata | CompileIdentifierMetadata | any[]>,
-    viewProviders?:
-        Array<CompileProviderMetadata | CompileTypeMetadata | CompileIdentifierMetadata | any[]>,
-    queries?: CompileQueryMetadata[],
-    viewQueries?: CompileQueryMetadata[],
-    template?: CompileTemplateMetadata
-  } = {}): CompileDirectiveMetadata {
+  static create(
+      {type, isComponent, selector, exportAs, changeDetection, inputs, outputs, host,
+       lifecycleHooks, providers, viewProviders, queries, viewQueries, template}: {
+        type?: CompileTypeMetadata,
+        isComponent?: boolean,
+        selector?: string,
+        exportAs?: string,
+        changeDetection?: ChangeDetectionStrategy,
+        inputs?: string[],
+        outputs?: string[],
+        host?: {[key: string]: string},
+        lifecycleHooks?: LifecycleHooks[],
+        providers?:
+            Array<CompileProviderMetadata|CompileTypeMetadata|CompileIdentifierMetadata|any[]>,
+        viewProviders?:
+            Array<CompileProviderMetadata|CompileTypeMetadata|CompileIdentifierMetadata|any[]>,
+        queries?: CompileQueryMetadata[],
+        viewQueries?: CompileQueryMetadata[],
+        template?: CompileTemplateMetadata
+      } = {}): CompileDirectiveMetadata {
     var hostListeners: {[key: string]: string} = {};
     var hostProperties: {[key: string]: string} = {};
     var hostAttributes: {[key: string]: string} = {};
@@ -613,28 +746,29 @@ export class CompileDirectiveMetadata implements CompileMetadataWithType {
   viewQueries: CompileQueryMetadata[];
 
   template: CompileTemplateMetadata;
-  constructor({type, isComponent, selector, exportAs, changeDetection, inputs, outputs,
-               hostListeners, hostProperties, hostAttributes, lifecycleHooks, providers,
-               viewProviders, queries, viewQueries, template}: {
-    type?: CompileTypeMetadata,
-    isComponent?: boolean,
-    selector?: string,
-    exportAs?: string,
-    changeDetection?: ChangeDetectionStrategy,
-    inputs?: {[key: string]: string},
-    outputs?: {[key: string]: string},
-    hostListeners?: {[key: string]: string},
-    hostProperties?: {[key: string]: string},
-    hostAttributes?: {[key: string]: string},
-    lifecycleHooks?: LifecycleHooks[],
-    providers?:
-        Array<CompileProviderMetadata | CompileTypeMetadata | CompileIdentifierMetadata | any[]>,
-    viewProviders?:
-        Array<CompileProviderMetadata | CompileTypeMetadata | CompileIdentifierMetadata | any[]>,
-    queries?: CompileQueryMetadata[],
-    viewQueries?: CompileQueryMetadata[],
-    template?: CompileTemplateMetadata
-  } = {}) {
+  constructor(
+      {type, isComponent, selector, exportAs, changeDetection, inputs, outputs, hostListeners,
+       hostProperties, hostAttributes, lifecycleHooks, providers, viewProviders, queries,
+       viewQueries, template}: {
+        type?: CompileTypeMetadata,
+        isComponent?: boolean,
+        selector?: string,
+        exportAs?: string,
+        changeDetection?: ChangeDetectionStrategy,
+        inputs?: {[key: string]: string},
+        outputs?: {[key: string]: string},
+        hostListeners?: {[key: string]: string},
+        hostProperties?: {[key: string]: string},
+        hostAttributes?: {[key: string]: string},
+        lifecycleHooks?: LifecycleHooks[],
+        providers?:
+            Array<CompileProviderMetadata|CompileTypeMetadata|CompileIdentifierMetadata|any[]>,
+        viewProviders?:
+            Array<CompileProviderMetadata|CompileTypeMetadata|CompileIdentifierMetadata|any[]>,
+        queries?: CompileQueryMetadata[],
+        viewQueries?: CompileQueryMetadata[],
+        template?: CompileTemplateMetadata
+      } = {}) {
     this.type = type;
     this.isComponent = isComponent;
     this.selector = selector;
@@ -662,8 +796,8 @@ export class CompileDirectiveMetadata implements CompileMetadataWithType {
       exportAs: data['exportAs'],
       type: isPresent(data['type']) ? CompileTypeMetadata.fromJson(data['type']) : data['type'],
       changeDetection: isPresent(data['changeDetection']) ?
-                           CHANGE_DETECTION_STRATEGY_VALUES[data['changeDetection']] :
-                           data['changeDetection'],
+          CHANGE_DETECTION_STRATEGY_VALUES[data['changeDetection']] :
+          data['changeDetection'],
       inputs: data['inputs'],
       outputs: data['outputs'],
       hostListeners: data['hostListeners'],
@@ -707,8 +841,8 @@ export class CompileDirectiveMetadata implements CompileMetadataWithType {
 /**
  * Construct {@link CompileDirectiveMetadata} from {@link ComponentTypeMetadata} and a selector.
  */
-export function createHostComponentMeta(componentType: CompileTypeMetadata,
-                                        componentSelector: string): CompileDirectiveMetadata {
+export function createHostComponentMeta(
+    componentType: CompileTypeMetadata, componentSelector: string): CompileDirectiveMetadata {
   var template = CssSelector.parse(componentSelector)[0].getMatchingElementTemplate();
   return CompileDirectiveMetadata.create({
     type: new CompileTypeMetadata({
@@ -717,8 +851,14 @@ export function createHostComponentMeta(componentType: CompileTypeMetadata,
       moduleUrl: componentType.moduleUrl,
       isHost: true
     }),
-    template: new CompileTemplateMetadata(
-        {template: template, templateUrl: '', styles: [], styleUrls: [], ngContentSelectors: []}),
+    template: new CompileTemplateMetadata({
+      template: template,
+      templateUrl: '',
+      styles: [],
+      styleUrls: [],
+      ngContentSelectors: [],
+      animations: []
+    }),
     changeDetection: ChangeDetectionStrategy.Default,
     inputs: [],
     outputs: [],
@@ -777,14 +917,22 @@ var _COMPILE_METADATA_FROM_JSON = {
   'Type': CompileTypeMetadata.fromJson,
   'Provider': CompileProviderMetadata.fromJson,
   'Identifier': CompileIdentifierMetadata.fromJson,
-  'Factory': CompileFactoryMetadata.fromJson
+  'Factory': CompileFactoryMetadata.fromJson,
+  'AnimationEntryMetadata': CompileAnimationEntryMetadata.fromJson,
+  'AnimationStateDeclarationMetadata': CompileAnimationStateDeclarationMetadata.fromJson,
+  'AnimationStateTransitionMetadata': CompileAnimationStateTransitionMetadata.fromJson,
+  'AnimationSequenceMetadata': CompileAnimationSequenceMetadata.fromJson,
+  'AnimationGroupMetadata': CompileAnimationGroupMetadata.fromJson,
+  'AnimationAnimateMetadata': CompileAnimationAnimateMetadata.fromJson,
+  'AnimationStyleMetadata': CompileAnimationStyleMetadata.fromJson,
+  'AnimationKeyframesSequenceMetadata': CompileAnimationKeyframesSequenceMetadata.fromJson
 };
 
 function _arrayFromJson(obj: any[], fn: (a: {[key: string]: any}) => any): any {
   return isBlank(obj) ? null : obj.map(o => _objFromJson(o, fn));
 }
 
-function _arrayToJson(obj: any[]): string | {[key: string]: any} {
+function _arrayToJson(obj: any[]): string|{[key: string]: any} {
   return isBlank(obj) ? null : obj.map(_objToJson);
 }
 
@@ -794,7 +942,7 @@ function _objFromJson(obj: any, fn: (a: {[key: string]: any}) => any): any {
   return fn(obj);
 }
 
-function _objToJson(obj: any): string | {[key: string]: any} {
+function _objToJson(obj: any): string|{[key: string]: any} {
   if (isArray(obj)) return _arrayToJson(obj);
   if (isString(obj) || isBlank(obj) || isBoolean(obj) || isNumber(obj)) return obj;
   return obj.toJson();

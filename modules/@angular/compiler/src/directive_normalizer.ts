@@ -1,37 +1,26 @@
 import {Injectable, ViewEncapsulation} from '@angular/core';
 
-import {isPresent} from '../src/facade/lang';
-import {BaseException} from '../src/facade/exceptions';
 import {PromiseWrapper} from '../src/facade/async';
+import {BaseException} from '../src/facade/exceptions';
+import {isBlank, isPresent} from '../src/facade/lang';
 
-import {
-  CompileTypeMetadata,
-  CompileDirectiveMetadata,
-  CompileTemplateMetadata,
-} from './compile_metadata';
+import {CompileTypeMetadata, CompileDirectiveMetadata, CompileTemplateMetadata,} from './compile_metadata';
 import {XHR} from './xhr';
 import {UrlResolver} from './url_resolver';
 import {extractStyleUrls, isStyleUrlResolvable} from './style_url_resolver';
 
-import {
-  HtmlAstVisitor,
-  HtmlElementAst,
-  HtmlTextAst,
-  HtmlAttrAst,
-  HtmlCommentAst,
-  HtmlExpansionAst,
-  HtmlExpansionCaseAst,
-  htmlVisitAll
-} from './html_ast';
+import {HtmlAstVisitor, HtmlElementAst, HtmlTextAst, HtmlAttrAst, HtmlCommentAst, HtmlExpansionAst, HtmlExpansionCaseAst, htmlVisitAll} from './html_ast';
 import {HtmlParser} from './html_parser';
+import {CompilerConfig} from './config';
 
 import {preparseElement, PreparsedElementType} from './template_preparser';
 
 
 @Injectable()
 export class DirectiveNormalizer {
-  constructor(private _xhr: XHR, private _urlResolver: UrlResolver,
-              private _htmlParser: HtmlParser) {}
+  constructor(
+      private _xhr: XHR, private _urlResolver: UrlResolver, private _htmlParser: HtmlParser,
+      private _config: CompilerConfig) {}
 
   normalizeDirective(directive: CompileDirectiveMetadata): Promise<CompileDirectiveMetadata> {
     if (!directive.isComponent) {
@@ -59,23 +48,25 @@ export class DirectiveNormalizer {
               }));
   }
 
-  normalizeTemplate(directiveType: CompileTypeMetadata,
-                    template: CompileTemplateMetadata): Promise<CompileTemplateMetadata> {
+  normalizeTemplate(directiveType: CompileTypeMetadata, template: CompileTemplateMetadata):
+      Promise<CompileTemplateMetadata> {
     if (isPresent(template.template)) {
       return PromiseWrapper.resolve(this.normalizeLoadedTemplate(
           directiveType, template, template.template, directiveType.moduleUrl));
     } else if (isPresent(template.templateUrl)) {
       var sourceAbsUrl = this._urlResolver.resolve(directiveType.moduleUrl, template.templateUrl);
       return this._xhr.get(sourceAbsUrl)
-          .then(templateContent => this.normalizeLoadedTemplate(directiveType, template,
-                                                                templateContent, sourceAbsUrl));
+          .then(
+              templateContent => this.normalizeLoadedTemplate(
+                  directiveType, template, templateContent, sourceAbsUrl));
     } else {
       throw new BaseException(`No template specified for component ${directiveType.name}`);
     }
   }
 
-  normalizeLoadedTemplate(directiveType: CompileTypeMetadata, templateMeta: CompileTemplateMetadata,
-                          template: string, templateAbsUrl: string): CompileTemplateMetadata {
+  normalizeLoadedTemplate(
+      directiveType: CompileTypeMetadata, templateMeta: CompileTemplateMetadata, template: string,
+      templateAbsUrl: string): CompileTemplateMetadata {
     var rootNodesAndErrors = this._htmlParser.parse(template, directiveType.name);
     if (rootNodesAndErrors.errors.length > 0) {
       var errorString = rootNodesAndErrors.errors.join('\n');
@@ -99,6 +90,9 @@ export class DirectiveNormalizer {
     });
 
     var encapsulation = templateMeta.encapsulation;
+    if (isBlank(encapsulation)) {
+      encapsulation = this._config.defaultEncapsulation;
+    }
     if (encapsulation === ViewEncapsulation.Emulated && allResolvedStyles.length === 0 &&
         allStyleAbsUrls.length === 0) {
       encapsulation = ViewEncapsulation.None;
@@ -109,7 +103,8 @@ export class DirectiveNormalizer {
       templateUrl: templateAbsUrl,
       styles: allResolvedStyles,
       styleUrls: allStyleAbsUrls,
-      ngContentSelectors: visitor.ngContentSelectors
+      ngContentSelectors: visitor.ngContentSelectors,
+      animations: templateMeta.animations
     });
   }
 }

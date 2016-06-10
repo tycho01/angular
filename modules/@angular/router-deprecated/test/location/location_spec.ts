@@ -1,13 +1,4 @@
-import {
-  describe,
-  it,
-  iit,
-  ddescribe,
-  expect,
-  inject,
-  beforeEach,
-  beforeEachProviders,
-} from '@angular/core/testing/testing_internal';
+import {describe, it, iit, ddescribe, expect, inject, beforeEach, beforeEachProviders,} from '@angular/core/testing/testing_internal';
 import {AsyncTestCompleter} from '@angular/core/testing/testing_internal';
 
 import {Injector, provide, ReflectiveInjector} from '@angular/core';
@@ -17,14 +8,14 @@ import {MockLocationStrategy} from '@angular/common/testing';
 export function main() {
   describe('Location', () => {
 
-    var locationStrategy, location;
+    var locationStrategy: any /** TODO #9100 */, location: any /** TODO #9100 */;
 
-    function makeLocation(baseHref: string = '/my/app',
-                          provider: any = /*@ts2dart_const*/[]): Location {
+    function makeLocation(
+        baseHref: string = '/my/app', provider: any = /*@ts2dart_const*/[]): Location {
       locationStrategy = new MockLocationStrategy();
       locationStrategy.internalBaseHref = baseHref;
       let injector = ReflectiveInjector.resolveAndCreate(
-          [Location, provide(LocationStrategy, {useValue: locationStrategy}), provider]);
+          [Location, {provide: LocationStrategy, useValue: locationStrategy}, provider]);
       return location = injector.get(Location);
     }
 
@@ -43,19 +34,21 @@ export function main() {
       expect(locationStrategy.path()).toEqual('/my/app/user/btford');
     });
 
-    it('should normalize urls on popstate', inject([AsyncTestCompleter], (async) => {
-         locationStrategy.simulatePopState('/my/app/user/btford');
-         location.subscribe((ev) => {
+    it('should normalize urls on popstate',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+
+         location.subscribe((ev: any /** TODO #9100 */) => {
            expect(ev['url']).toEqual('/user/btford');
            async.done();
-         })
+         });
+         locationStrategy.simulatePopState('/my/app/user/btford');
        }));
 
     it('should revert to the previous path when a back() operation is executed', () => {
       var locationStrategy = new MockLocationStrategy();
       var location = new Location(locationStrategy);
 
-      function assertUrl(path) { expect(location.path()).toEqual(path); }
+      function assertUrl(path: any /** TODO #9100 */) { expect(location.path()).toEqual(path); }
 
       location.go('/ready');
       assertUrl('/ready');
@@ -77,8 +70,8 @@ export function main() {
       var locationStrategy = new MockLocationStrategy();
       var location = new Location(locationStrategy);
 
-      location.go('/home', "key=value");
-      expect(location.path()).toEqual("/home?key=value");
+      location.go('/home', 'key=value');
+      expect(location.path()).toEqual('/home?key=value');
     });
   });
 }

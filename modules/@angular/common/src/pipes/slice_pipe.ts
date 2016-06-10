@@ -1,8 +1,7 @@
-import {Injectable, PipeTransform, WrappedValue, Pipe} from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
-import {isBlank, isString, isArray, StringWrapper} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
-import {ListWrapper} from '../../src/facade/collection';
+import {ListWrapper} from '../facade/collection';
+import {StringWrapper, isArray, isBlank, isString} from '../facade/lang';
 
 import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
 
@@ -42,6 +41,8 @@ import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
  * When operating on a [List], the returned list is always a copy even when all
  * the elements are being returned.
  *
+ * When operating on a blank value, returns it.
+ *
  * ## List Example
  *
  * This `ngFor` example:
@@ -56,16 +57,17 @@ import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
  * ## String Examples
  *
  * {@example core/pipes/ts/slice_pipe/slice_pipe_example.ts region='SlicePipe_string'}
+ *
+ * @stable
  */
 
 @Pipe({name: 'slice', pure: false})
-@Injectable()
 export class SlicePipe implements PipeTransform {
   transform(value: any, start: number, end: number = null): any {
+    if (isBlank(value)) return value;
     if (!this.supports(value)) {
       throw new InvalidPipeArgumentException(SlicePipe, value);
     }
-    if (isBlank(value)) return value;
     if (isString(value)) {
       return StringWrapper.slice(value, start, end);
     }

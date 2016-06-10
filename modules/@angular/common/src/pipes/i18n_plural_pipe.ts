@@ -1,5 +1,7 @@
-import {Injectable, PipeTransform, Pipe} from '@angular/core';
-import {isStringMap, StringWrapper, isPresent, RegExpWrapper} from '../../src/facade/lang';
+import {Pipe, PipeTransform} from '@angular/core';
+
+import {RegExpWrapper, StringWrapper, isPresent, isStringMap} from '../facade/lang';
+
 import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
 
 var interpolationExp: RegExp = RegExpWrapper.create('#');
@@ -34,9 +36,9 @@ var interpolationExp: RegExp = RegExpWrapper.create('#');
  *  }
  *  ```
  *
+ * @experimental
  */
 @Pipe({name: 'i18nPlural', pure: true})
-@Injectable()
 export class I18nPluralPipe implements PipeTransform {
   transform(value: number, pluralMap: {[count: string]: string}): string {
     var key: string;

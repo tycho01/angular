@@ -1,31 +1,17 @@
-import {
-  describe,
-  it,
-  iit,
-  ddescribe,
-  expect,
-  inject,
-  beforeEach,
-  beforeEachProviders,
-} from '@angular/core/testing/testing_internal';
+import {describe, it, iit, ddescribe, expect, inject, beforeEach, beforeEachProviders,} from '@angular/core/testing/testing_internal';
 
 import {Injector, provide} from '@angular/core';
-import {
-  PlatformLocation,
-  LocationStrategy,
-  PathLocationStrategy,
-  APP_BASE_HREF
-} from '@angular/common';
+import {PlatformLocation, LocationStrategy, PathLocationStrategy, APP_BASE_HREF} from '@angular/common';
 import {SpyPlatformLocation} from '../spies';
 
 export function main() {
   describe('PathLocationStrategy', () => {
-    var platformLocation, locationStrategy;
+    var platformLocation: any /** TODO #9100 */, locationStrategy: any /** TODO #9100 */;
 
-    beforeEachProviders(() => [
-      PathLocationStrategy,
-      provide(PlatformLocation, {useFactory: makeSpyPlatformLocation})
-    ]);
+    beforeEachProviders(() => [PathLocationStrategy, {
+                          provide: PlatformLocation,
+                          useFactory: makeSpyPlatformLocation
+                        }]);
 
     it('should throw without a base element or APP_BASE_HREF', () => {
       platformLocation = new SpyPlatformLocation();
@@ -38,10 +24,12 @@ export function main() {
     });
 
     describe('without APP_BASE_HREF', () => {
-      beforeEach(inject([PlatformLocation, PathLocationStrategy], (pl, ls) => {
-        platformLocation = pl;
-        locationStrategy = ls;
-      }));
+      beforeEach(inject(
+          [PlatformLocation, PathLocationStrategy],
+          (pl: any /** TODO #9100 */, ls: any /** TODO #9100 */) => {
+            platformLocation = pl;
+            locationStrategy = ls;
+          }));
 
       it('should prepend urls with a hash for non-empty URLs', () => {
         expect(locationStrategy.prepareExternalUrl('foo')).toEqual('foo');
@@ -67,14 +55,16 @@ export function main() {
     });
 
     describe('with APP_BASE_HREF with neither leading nor trailing slash', () => {
-      beforeEachProviders(() => [provide(APP_BASE_HREF, {useValue: 'app'})]);
+      beforeEachProviders(() => [{provide: APP_BASE_HREF, useValue: 'app'}]);
 
-      beforeEach(inject([PlatformLocation, PathLocationStrategy], (pl, ls) => {
-        platformLocation = pl;
-        locationStrategy = ls;
-        platformLocation.spy('pushState');
-        platformLocation.pathname = '';
-      }));
+      beforeEach(inject(
+          [PlatformLocation, PathLocationStrategy],
+          (pl: any /** TODO #9100 */, ls: any /** TODO #9100 */) => {
+            platformLocation = pl;
+            locationStrategy = ls;
+            platformLocation.spy('pushState');
+            platformLocation.pathname = '';
+          }));
 
       it('should prepend urls with a hash for non-empty URLs', () => {
         expect(locationStrategy.prepareExternalUrl('foo')).toEqual('app/foo');
@@ -100,14 +90,16 @@ export function main() {
     });
 
     describe('with APP_BASE_HREF with leading slash', () => {
-      beforeEachProviders(() => [provide(APP_BASE_HREF, {useValue: '/app'})]);
+      beforeEachProviders(() => [{provide: APP_BASE_HREF, useValue: '/app'}]);
 
-      beforeEach(inject([PlatformLocation, PathLocationStrategy], (pl, ls) => {
-        platformLocation = pl;
-        locationStrategy = ls;
-        platformLocation.spy('pushState');
-        platformLocation.pathname = '';
-      }));
+      beforeEach(inject(
+          [PlatformLocation, PathLocationStrategy],
+          (pl: any /** TODO #9100 */, ls: any /** TODO #9100 */) => {
+            platformLocation = pl;
+            locationStrategy = ls;
+            platformLocation.spy('pushState');
+            platformLocation.pathname = '';
+          }));
 
       it('should prepend urls with a hash for non-empty URLs', () => {
         expect(locationStrategy.prepareExternalUrl('foo')).toEqual('/app/foo');
@@ -133,14 +125,16 @@ export function main() {
     });
 
     describe('with APP_BASE_HREF with both leading and trailing slash', () => {
-      beforeEachProviders(() => [provide(APP_BASE_HREF, {useValue: '/app/'})]);
+      beforeEachProviders(() => [{provide: APP_BASE_HREF, useValue: '/app/'}]);
 
-      beforeEach(inject([PlatformLocation, PathLocationStrategy], (pl, ls) => {
-        platformLocation = pl;
-        locationStrategy = ls;
-        platformLocation.spy('pushState');
-        platformLocation.pathname = '';
-      }));
+      beforeEach(inject(
+          [PlatformLocation, PathLocationStrategy],
+          (pl: any /** TODO #9100 */, ls: any /** TODO #9100 */) => {
+            platformLocation = pl;
+            locationStrategy = ls;
+            platformLocation.spy('pushState');
+            platformLocation.pathname = '';
+          }));
 
       it('should prepend urls with a hash for non-empty URLs', () => {
         expect(locationStrategy.prepareExternalUrl('foo')).toEqual('/app/foo');

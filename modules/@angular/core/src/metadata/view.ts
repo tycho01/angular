@@ -1,9 +1,12 @@
-import {Type} from '../../src/facade/lang';
+import {AnimationEntryMetadata} from '../animation/metadata';
+import {Type} from '../facade/lang';
+
 
 /**
  * Defines template and style encapsulation options available for Component's {@link View}.
  *
  * See {@link ViewMetadata#encapsulation}.
+ * @stable
  */
 export enum ViewEncapsulation {
   /**
@@ -111,9 +114,9 @@ export class ViewMetadata {
    * }
    * ```
    */
-  directives: Array<Type | any[]>;
+  directives: Array<Type|any[]>;
 
-  pipes: Array<Type | any[]>;
+  pipes: Array<Type|any[]>;
 
   /**
    * Specify how the template and the styles should be encapsulated.
@@ -123,15 +126,19 @@ export class ViewMetadata {
    */
   encapsulation: ViewEncapsulation;
 
-  constructor({templateUrl, template, directives, pipes, encapsulation, styles, styleUrls}: {
-    templateUrl?: string,
-    template?: string,
-    directives?: Array<Type | any[]>,
-    pipes?: Array<Type | any[]>,
-    encapsulation?: ViewEncapsulation,
-    styles?: string[],
-    styleUrls?: string[],
-  } = {}) {
+  animations: AnimationEntryMetadata[];
+
+  constructor(
+      {templateUrl, template, directives, pipes, encapsulation, styles, styleUrls, animations}: {
+        templateUrl?: string,
+        template?: string,
+        directives?: Array<Type|any[]>,
+        pipes?: Array<Type|any[]>,
+        encapsulation?: ViewEncapsulation,
+        styles?: string[],
+        styleUrls?: string[],
+        animations?: AnimationEntryMetadata[]
+      } = {}) {
     this.templateUrl = templateUrl;
     this.template = template;
     this.styleUrls = styleUrls;
@@ -139,5 +146,6 @@ export class ViewMetadata {
     this.directives = directives;
     this.pipes = pipes;
     this.encapsulation = encapsulation;
+    this.animations = animations;
   }
 }

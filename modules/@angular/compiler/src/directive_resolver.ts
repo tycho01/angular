@@ -1,19 +1,5 @@
-import {
-  resolveForwardRef,
-  Injectable,
-  DirectiveMetadata,
-  ComponentMetadata,
-  InputMetadata,
-  OutputMetadata,
-  HostBindingMetadata,
-  HostListenerMetadata,
-  ContentChildrenMetadata,
-  ViewChildrenMetadata,
-  ContentChildMetadata,
-  ViewChildMetadata,
-  reflector
-} from '@angular/core';
-import {ReflectorReader} from '../core_private';
+import {resolveForwardRef, Injectable, DirectiveMetadata, ComponentMetadata, InputMetadata, OutputMetadata, HostBindingMetadata, HostListenerMetadata, ContentChildrenMetadata, ViewChildrenMetadata, ContentChildMetadata, ViewChildMetadata,} from '@angular/core';
+import {ReflectorReader, reflector} from '../core_private';
 
 import {Type, isPresent, stringify} from '../src/facade/lang';
 import {BaseException} from '../src/facade/exceptions';
@@ -59,11 +45,11 @@ export class DirectiveResolver {
     throw new BaseException(`No Directive annotation found on ${stringify(type)}`);
   }
 
-  private _mergeWithPropertyMetadata(dm: DirectiveMetadata,
-                                     propertyMetadata: {[key: string]: any[]},
-                                     directiveType: Type): DirectiveMetadata {
-    var inputs = [];
-    var outputs = [];
+  private _mergeWithPropertyMetadata(
+      dm: DirectiveMetadata, propertyMetadata: {[key: string]: any[]},
+      directiveType: Type): DirectiveMetadata {
+    var inputs: any[] /** TODO #9100 */ = [];
+    var outputs: any[] /** TODO #9100 */ = [];
     var host: {[key: string]: string} = {};
     var queries: {[key: string]: any} = {};
 
@@ -118,12 +104,12 @@ export class DirectiveResolver {
     return this._merge(dm, inputs, outputs, host, queries, directiveType);
   }
 
-  private _merge(dm: DirectiveMetadata, inputs: string[], outputs: string[],
-                 host: {[key: string]: string}, queries: {[key: string]: any},
-                 directiveType: Type): DirectiveMetadata {
+  private _merge(
+      dm: DirectiveMetadata, inputs: string[], outputs: string[], host: {[key: string]: string},
+      queries: {[key: string]: any}, directiveType: Type): DirectiveMetadata {
     var mergedInputs = isPresent(dm.inputs) ? ListWrapper.concat(dm.inputs, inputs) : inputs;
 
-    var mergedOutputs;
+    var mergedOutputs: any /** TODO #9100 */;
     if (isPresent(dm.outputs)) {
       dm.outputs.forEach((propName: string) => {
         if (ListWrapper.contains(outputs, propName)) {

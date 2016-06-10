@@ -22,9 +22,12 @@ echo 'travis_fold:start:test.buildPackages'
 echo 'travis_fold:end:test.buildPackages'
 
 
+./scripts/ci-lite/offline_compiler_test.sh
+./tools/typings-test/test.sh
+
 echo 'travis_fold:start:test.e2e.localChrome'
 cd dist/
-python -m SimpleHTTPServer 7777 &
+$(npm bin)/gulp serve &
 cd ..
 if [[ ${TRAVIS} ]]; then
   sh -e /etc/init.d/xvfb start

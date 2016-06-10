@@ -1,11 +1,4 @@
-import {
-  beforeEach,
-  ddescribe,
-  describe,
-  expect,
-  iit,
-  it,
-} from '@angular/core/testing/testing_internal';
+import {beforeEach, ddescribe, describe, expect, iit, it,} from '@angular/core/testing/testing_internal';
 
 import {stringify} from '../src/facade/lang';
 import {MockViewResolver} from '../testing';
@@ -30,7 +23,6 @@ export function main() {
         var view = viewResolver.resolve(SomeComponent);
         expect(view.template).toEqual('overridden template');
         expect(isBlank(view.directives)).toBe(true);
-
       });
 
       it('should not allow overriding a view after it has been resolved', () => {

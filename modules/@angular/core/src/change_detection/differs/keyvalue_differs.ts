@@ -1,15 +1,16 @@
-import {isBlank, isPresent} from '../../../src/facade/lang';
-import {BaseException} from '../../../src/facade/exceptions';
-import {ListWrapper} from '../../../src/facade/collection';
+import {OptionalMetadata, Provider, SkipSelfMetadata} from '../../di';
+import {ListWrapper} from '../../facade/collection';
+import {BaseException} from '../../facade/exceptions';
+import {isBlank, isPresent} from '../../facade/lang';
 import {ChangeDetectorRef} from '../change_detector_ref';
-import {Provider, SkipSelfMetadata, OptionalMetadata} from '../../di';
+
 
 /**
  * A differ that tracks changes made to an object over time.
  */
 export interface KeyValueDiffer {
-  diff(object: any);
-  onDestroy();
+  diff(object: any): any /** TODO #9100 */;
+  onDestroy(): any /** TODO #9100 */;
 }
 
 /**
@@ -23,6 +24,7 @@ export interface KeyValueDifferFactory {
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
  * @ts2dart_const
+ * @stable
  */
 export class KeyValueDiffers {
   /*@ts2dart_const*/

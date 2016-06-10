@@ -12,11 +12,8 @@ import {Date, DateWrapper} from '@angular/facade';
 import {ListWrapper} from '@angular/facade';
 
 import {
-  Validator,
   RegressionSlopeValidator,
   ReflectiveInjector,
-  bind,
-  provide,
   MeasureValues
 } from 'benchpress/common';
 
@@ -26,9 +23,9 @@ export function main() {
 
     function createValidator({size, metric}) {
       validator = ReflectiveInjector.resolveAndCreate([
-                                      RegressionSlopeValidator.BINDINGS,
-                                      bind(RegressionSlopeValidator.METRIC).toValue(metric),
-                                      bind(RegressionSlopeValidator.SAMPLE_SIZE).toValue(size)
+                                      RegressionSlopeValidator.PROVIDERS,
+                                      {provide: RegressionSlopeValidator.METRIC, useValue(metric)},
+                                      {provide: RegressionSlopeValidator.SAMPLE_SIZE, useValue(size)}
                                     ])
                       .get(RegressionSlopeValidator);
     }

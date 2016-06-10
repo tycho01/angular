@@ -5,6 +5,7 @@ import 'package:angular2/src/core/change_detection/change_detection.dart';
 import './metadata/di.dart';
 import './metadata/directives.dart';
 import './metadata/view.dart';
+import './metadata/animations.dart' show AnimationEntryMetadata;
 
 export './metadata/di.dart';
 export './metadata/directives.dart';
@@ -21,6 +22,7 @@ export './metadata/lifecycle_hooks.dart' show
 
 /**
  * See: [DirectiveMetadata] for docs.
+ * @stable
  */
 class Directive extends DirectiveMetadata {
   const Directive(
@@ -32,8 +34,6 @@ class Directive extends DirectiveMetadata {
       @Deprecated('Use `outputs` or `@Output` instead')
       List<String> events,
       Map<String, String> host,
-      @Deprecated('Use `providers` instead')
-      List bindings,
       List providers,
       String exportAs,
       Map<String, dynamic> queries})
@@ -44,7 +44,6 @@ class Directive extends DirectiveMetadata {
             properties: properties,
             events: events,
             host: host,
-            bindings: bindings,
             providers: providers,
             exportAs: exportAs,
             queries: queries);
@@ -52,6 +51,7 @@ class Directive extends DirectiveMetadata {
 
 /**
  * See: [ComponentMetadata] for docs.
+ * @stable
  */
 class Component extends ComponentMetadata {
   const Component(
@@ -63,14 +63,10 @@ class Component extends ComponentMetadata {
       @Deprecated('Use `outputs` or `@Output` instead')
       List<String> events,
       Map<String, String> host,
-      @Deprecated('Use `providers` instead')
-      List bindings,
       List providers,
       String exportAs,
       String moduleId,
       Map<String, dynamic> queries,
-      @Deprecated('Use `viewProviders` instead')
-      List viewBindings,
       List viewProviders,
       ChangeDetectionStrategy changeDetection,
       String templateUrl,
@@ -79,7 +75,8 @@ class Component extends ComponentMetadata {
       dynamic pipes,
       ViewEncapsulation encapsulation,
       List<String> styles,
-      List<String> styleUrls})
+      List<String> styleUrls,
+      List<AnimationEntryMetadata> animations})
       : super(
             selector: selector,
             inputs: inputs,
@@ -87,11 +84,9 @@ class Component extends ComponentMetadata {
             properties: properties,
             events: events,
             host: host,
-            bindings: bindings,
             providers: providers,
             exportAs: exportAs,
             moduleId: moduleId,
-            viewBindings: viewBindings,
             viewProviders: viewProviders,
             queries: queries,
             changeDetection: changeDetection,
@@ -101,11 +96,13 @@ class Component extends ComponentMetadata {
             pipes: pipes,
             encapsulation: encapsulation,
             styles: styles,
-            styleUrls: styleUrls);
+            styleUrls: styleUrls,
+            animations: animations);
 }
 
 /**
  * See: [ViewMetadata] for docs.
+ * @deprecated
  */
 class View extends ViewMetadata {
   const View(
@@ -115,7 +112,8 @@ class View extends ViewMetadata {
       dynamic pipes,
       ViewEncapsulation encapsulation,
       List<String> styles,
-      List<String> styleUrls})
+      List<String> styleUrls,
+      List<AnimationEntryMetadata> animations})
       : super(
             templateUrl: templateUrl,
             template: template,
@@ -123,11 +121,13 @@ class View extends ViewMetadata {
             pipes: pipes,
             encapsulation: encapsulation,
             styles: styles,
-            styleUrls: styleUrls);
+            styleUrls: styleUrls,
+            animations: animations);
 }
 
 /**
  * See: [PipeMetadata] for docs.
+ * @stable
  */
 class Pipe extends PipeMetadata {
   const Pipe({name, pure}) : super(name: name, pure: pure);
@@ -135,6 +135,7 @@ class Pipe extends PipeMetadata {
 
 /**
  * See: [AttributeMetadata] for docs.
+ * @stable
  */
 class Attribute extends AttributeMetadata {
   const Attribute(String attributeName) : super(attributeName);
@@ -142,8 +143,8 @@ class Attribute extends AttributeMetadata {
 
 /**
  * See: [QueryMetadata] for docs.
+ * @deprecated Use ContentChildren/ContentChild instead
  */
-@Deprecated("Use ContentChildren/ContentChild instead")
 class Query extends QueryMetadata {
   const Query(dynamic /*Type | string*/ selector,
       {bool descendants: false, dynamic read: null})
@@ -152,6 +153,7 @@ class Query extends QueryMetadata {
 
 /**
  * See: [ContentChildrenMetadata] for docs.
+ * @stable
  */
 class ContentChildren extends ContentChildrenMetadata {
   const ContentChildren(dynamic /*Type | string*/ selector,
@@ -161,6 +163,7 @@ class ContentChildren extends ContentChildrenMetadata {
 
 /**
  * See: [ContentChildMetadata] for docs.
+ * @stable
  */
 class ContentChild extends ContentChildMetadata {
   const ContentChild(dynamic /*Type | string*/ selector, {dynamic read: null}) : super(selector, read: read);
@@ -168,8 +171,8 @@ class ContentChild extends ContentChildMetadata {
 
 /**
  * See: [ViewQueryMetadata] for docs.
+ * @deprecated Use ViewChildren/ViewChild instead
  */
-@Deprecated("Use ViewChildren/ViewChild instead")
 class ViewQuery extends ViewQueryMetadata {
   const ViewQuery(dynamic /*Type | string*/ selector, {dynamic read: null})
       : super(selector, descendants: true, read: read);
@@ -177,6 +180,7 @@ class ViewQuery extends ViewQueryMetadata {
 
 /**
  * See: [ViewChildrenMetadata] for docs.
+ * @stable
  */
 class ViewChildren extends ViewChildrenMetadata {
   const ViewChildren(dynamic /*Type | string*/ selector, {dynamic read: null}) : super(selector, read: read);
@@ -184,6 +188,7 @@ class ViewChildren extends ViewChildrenMetadata {
 
 /**
  * See: [ViewChildMetadata] for docs.
+ * @stable
  */
 class ViewChild extends ViewChildMetadata {
   const ViewChild(dynamic /*Type | string*/ selector, {dynamic read: null}) : super(selector, read: read);
@@ -191,6 +196,7 @@ class ViewChild extends ViewChildMetadata {
 
 /**
  * See: [InputMetadata] for docs.
+ * @stable
  */
 class Input extends InputMetadata {
   const Input([String bindingPropertyName]) : super(bindingPropertyName);
@@ -198,6 +204,7 @@ class Input extends InputMetadata {
 
 /**
  * See: [OutputMetadata] for docs.
+ * @stable
  */
 class Output extends OutputMetadata {
   const Output([String bindingPropertyName]) : super(bindingPropertyName);
@@ -205,6 +212,7 @@ class Output extends OutputMetadata {
 
 /**
  * See: [HostBindingMetadata] for docs.
+ * @stable
  */
 class HostBinding extends HostBindingMetadata {
   const HostBinding([String hostPropertyName]) : super(hostPropertyName);
@@ -212,6 +220,7 @@ class HostBinding extends HostBindingMetadata {
 
 /**
  * See: [HostListenerMetadata] for docs.
+ * @stable
  */
 class HostListener extends HostListenerMetadata {
   const HostListener(String eventName, [List<String> args])

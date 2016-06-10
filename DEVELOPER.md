@@ -32,17 +32,17 @@ following products on your development machine:
   (version `>=3.5.3 <4.0`), which comes with Node. Depending on your system, you can install Node either from
   source or as a pre-packaged bundle.
 
-* *Optional*: [Dart](https://www.dartlang.org) (version ` >=1.13.2 <2.0.0`), specifically the Dart-SDK and
+* *Optional*: [Dart](https://www.dartlang.org) (version `>=1.13.2 <2.0.0`), specifically the Dart SDK and
   Dartium (a version of [Chromium](http://www.chromium.org) with native support for Dart through
-  the Dart VM). One of the **simplest** ways to get both is to install the **Dart Editor bundle**,
-  which includes the editor, SDK and Dartium. See the [Dart tools](https://www.dartlang.org/tools)
-  download [page for instructions](https://www.dartlang.org/tools/download.html).  
-  You can also download both **stable** and **dev** channel versions from the [download
-  archive](https://www.dartlang.org/tools/download-archive). In that case, on Windows, Dart must be added
-  to the `Path` (e.g. `path-to-dart-sdk-folder\bin`) and a new `DARTIUM_BIN` environment variable must be
-  created, pointing to the executable (e.g. `path-to-dartium-folder\chrome.exe).`
+  the Dart VM). Visit Dart's [Downloads page](https://www.dartlang.org/downloads) page for
+  instructions. You can also download both **stable** and **dev** channel versions from the
+  [download archive](https://www.dartlang.org/downloads/archive/). In that case, on Windows, Dart
+  must be added to the `PATH` (e.g. `path-to-dart-sdk-folder\bin`) and a new `DARTIUM_BIN`
+  environment variable must be created, pointing to the executable (e.g.
+  `path-to-dartium-folder\chrome.exe`).
 
-
+* [Java Development Kit](http://www.oracle.com/technetwork/es/java/javase/downloads/index.html) which is used
+  to execute the selenium standalone server for e2e testing.
 
 ## Getting the Sources
 
@@ -238,17 +238,17 @@ repository, allowing many tools and editors to share our settings.
 
 To check the formatting of your code, run
 
-    gulp check-format
+    gulp lint
 
-Note that the continuous build on Travis runs `gulp enforce-format`. Unlike the `check-format` task,
-this will actually fail the build if files aren't formatted according to the style guide.
+Note that the continuous build on CircleCI will fail the build if files aren't formatted according
+to the style guide.
 
 Your life will be easier if you include the formatter in your standard workflow. Otherwise, you'll
 likely forget to check the formatting, and waste time waiting for a build on Travis that fails due
 to some whitespace difference.
 
-* Use `$(npm bin)/clang-format -i [file name]` to format a file (or multiple).
-* Use `gulp enforce-format` to check if your code is `clang-format` clean. This also gives
+* Use `gulp format` to format everything.
+* Use `gulp lint` to check if your code is `clang-format` clean. This also gives
   you a command line to format your code.
 * `clang-format` also includes a git hook, run `git clang-format` to format all files you
   touched.

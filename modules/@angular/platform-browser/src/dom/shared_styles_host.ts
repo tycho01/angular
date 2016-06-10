@@ -1,5 +1,5 @@
 import {Inject, Injectable} from '@angular/core';
-import {SetWrapper} from '../../src/facade/collection';
+import {SetWrapper} from '../facade/collection';
 
 import {getDOM} from './dom_adapter';
 import {DOCUMENT} from './dom_tokens';
@@ -14,7 +14,7 @@ export class SharedStylesHost {
   constructor() {}
 
   addStyles(styles: string[]) {
-    var additions = [];
+    var additions: any[] /** TODO #9100 */ = [];
     styles.forEach(style => {
       if (!SetWrapper.has(this._stylesSet, style)) {
         this._stylesSet.add(style);

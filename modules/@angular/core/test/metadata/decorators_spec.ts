@@ -1,13 +1,4 @@
-import {
-  beforeEach,
-  ddescribe,
-  describe,
-  expect,
-  iit,
-  inject,
-  it,
-  xit,
-} from '@angular/core/testing/testing_internal';
+import {beforeEach, ddescribe, describe, expect, iit, inject, it, xit,} from '@angular/core/testing/testing_internal';
 
 import {Component, Directive} from '@angular/core';
 import {reflector} from '@angular/core/src/reflection/reflection';
@@ -27,7 +18,7 @@ export function main() {
 
     it('should create type in ES5', () => {
       function MyComponent(){};
-      var as;
+      var as: any /** TODO #9100 */;
       (<any>MyComponent).annotations = as = Component({}).View({});
       expect(reflector.annotations(MyComponent)).toEqual(as.annotations);
     });

@@ -1,15 +1,17 @@
-import {Map, MapWrapper} from '../../src/facade/collection';
-import {scheduleMicroTask} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
-import {NgZone} from '../zone/ng_zone';
-import {ObservableWrapper} from '../../src/facade/async';
 import {Injectable} from '../di/decorators';
+import {ObservableWrapper} from '../facade/async';
+import {Map, MapWrapper} from '../facade/collection';
+import {BaseException} from '../facade/exceptions';
+import {scheduleMicroTask} from '../facade/lang';
+import {NgZone} from '../zone/ng_zone';
+
 
 
 /**
  * The Testability service provides testing hooks that can be accessed from
  * the browser and by services such as Protractor. Each bootstrapped Angular
  * application on the page will have an instance of Testability.
+ * @experimental
  */
 @Injectable()
 export class Testability {
@@ -101,6 +103,7 @@ export class Testability {
 
 /**
  * A global registry of {@link Testability} instances for specific elements.
+ * @experimental
  */
 @Injectable()
 export class TestabilityRegistry {
@@ -130,21 +133,22 @@ export class TestabilityRegistry {
  */
 export interface GetTestability {
   addToWindow(registry: TestabilityRegistry): void;
-  findTestabilityInTree(registry: TestabilityRegistry, elem: any,
-                        findInAncestors: boolean): Testability;
+  findTestabilityInTree(registry: TestabilityRegistry, elem: any, findInAncestors: boolean):
+      Testability;
 }
 
 /* @ts2dart_const */
 class _NoopGetTestability implements GetTestability {
   addToWindow(registry: TestabilityRegistry): void {}
-  findTestabilityInTree(registry: TestabilityRegistry, elem: any,
-                        findInAncestors: boolean): Testability {
+  findTestabilityInTree(registry: TestabilityRegistry, elem: any, findInAncestors: boolean):
+      Testability {
     return null;
   }
 }
 
 /**
  * Set the {@link GetTestability} implementation used by the Angular testing framework.
+ * @experimental
  */
 export function setTestabilityGetter(getter: GetTestability): void {
   _testabilityGetter = getter;

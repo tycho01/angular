@@ -1,17 +1,20 @@
-import {Type, isBlank, isString, stringify} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
-import {PromiseWrapper} from '../../src/facade/async';
-import {reflector} from '../reflection/reflection';
-import {ComponentFactory} from './component_factory';
 import {Injectable} from '../di/decorators';
+import {PromiseWrapper} from '../facade/async';
+import {BaseException} from '../facade/exceptions';
+import {Type, isBlank, isString, stringify} from '../facade/lang';
+import {reflector} from '../reflection/reflection';
+
+import {ComponentFactory} from './component_factory';
+
 
 /**
  * Low-level service for loading {@link ComponentFactory}s, which
  * can later be used to create and render a Component instance.
+ * @experimental
  */
 export abstract class ComponentResolver {
   abstract resolveComponent(component: Type|string): Promise<ComponentFactory<any>>;
-  abstract clearCache();
+  abstract clearCache(): any /** TODO #9100 */;
 }
 
 function _isComponentFactory(type: any): boolean {
@@ -22,7 +25,8 @@ function _isComponentFactory(type: any): boolean {
 export class ReflectorComponentResolver extends ComponentResolver {
   resolveComponent(component: Type|string): Promise<ComponentFactory<any>> {
     if (isString(component)) {
-      return PromiseWrapper.reject(new BaseException(`Cannot resolve component using '${component}'.`), null);
+      return PromiseWrapper.reject(
+          new BaseException(`Cannot resolve component using '${component}'.`), null);
     }
 
     var metadatas = reflector.annotations(<Type>component);

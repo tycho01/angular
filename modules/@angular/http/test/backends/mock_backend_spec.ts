@@ -1,14 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  ddescribe,
-  describe,
-  expect,
-  iit,
-  inject,
-  it,
-  xit,
-} from '@angular/core/testing/testing_internal';
+import {afterEach, beforeEach, ddescribe, describe, expect, iit, inject, it, xit,} from '@angular/core/testing/testing_internal';
 import {AsyncTestCompleter} from '@angular/core/testing/testing_internal';
 import {ObservableWrapper} from '../../src/facade/async';
 import {BrowserXhr} from '../../src/backends/browser_xhr';
@@ -34,7 +24,7 @@ export function main() {
 
     beforeEach(() => {
       var injector = ReflectiveInjector.resolveAndCreate(
-          [provide(ResponseOptions, {useClass: BaseResponseOptions}), MockBackend]);
+          [{provide: ResponseOptions, useClass: BaseResponseOptions}, MockBackend]);
       backend = injector.get(MockBackend);
       var base = new BaseRequestOptions();
       sampleRequest1 = new Request(base.merge(new RequestOptions({url: 'https://google.com'})));
@@ -107,8 +97,8 @@ export function main() {
           let responseObservable: ReplaySubject<Response> =
               backend.createConnection(sampleRequest1).response;
           responseObservable.subscribe(res => expect(res.text()).toBe('response1'));
-          responseObservable.subscribe(res => expect(res.text()).toBe('response2'), null,
-                                       async.done);
+          responseObservable.subscribe(
+              res => expect(res.text()).toBe('response2'), null, async.done);
         }));
 
     // TODO(robwormald): readyStates are leaving?

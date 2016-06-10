@@ -1,11 +1,10 @@
-import {Injectable, Inject, OpaqueToken, NgZone} from '@angular/core';
+import {Inject, Injectable, NgZone, OpaqueToken} from '@angular/core';
 
-import {BaseException} from '../../../src/facade/exceptions';
-import {ListWrapper} from '../../../src/facade/collection';
+import {ListWrapper} from '../../facade/collection';
+import {BaseException} from '../../facade/exceptions';
 
 
-export const EVENT_MANAGER_PLUGINS: OpaqueToken =
-    /*@ts2dart_const*/ new OpaqueToken("EventManagerPlugins");
+export const EVENT_MANAGER_PLUGINS: OpaqueToken = new OpaqueToken('EventManagerPlugins');
 
 @Injectable()
 export class EventManager {
@@ -48,10 +47,10 @@ export class EventManagerPlugin {
   supports(eventName: string): boolean { return false; }
 
   addEventListener(element: HTMLElement, eventName: string, handler: Function): Function {
-    throw "not implemented";
+    throw 'not implemented';
   }
 
   addGlobalEventListener(element: string, eventName: string, handler: Function): Function {
-    throw "not implemented";
+    throw 'not implemented';
   }
 }

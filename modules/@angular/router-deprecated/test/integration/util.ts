@@ -1,23 +1,15 @@
-import {
-  beforeEach,
-  ddescribe,
-  xdescribe,
-  describe,
-  inject,
-  beforeEachProviders,
-  it,
-  xit
-} from '@angular/core/testing/testing_internal';
-import {provide, Component} from '@angular/core';
-import {isBlank} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
-import {RootRouter} from '@angular/router-deprecated/src/router';
-import {Router, ROUTER_DIRECTIVES, ROUTER_PRIMARY_COMPONENT} from '@angular/router-deprecated';
 import {Location} from '@angular/common';
-import {RouteRegistry} from '@angular/router-deprecated/src/route_registry';
-import {getDOM} from '@angular/platform-browser/src/dom/dom_adapter';
 import {SpyLocation} from '@angular/common/testing';
-import {TestComponentBuilder, ComponentFixture} from '@angular/compiler/testing';
+import {ComponentFixture, TestComponentBuilder} from '@angular/compiler/testing';
+import {Component, provide} from '@angular/core';
+import {beforeEach, beforeEachProviders, ddescribe, describe, inject, it, xdescribe, xit} from '@angular/core/testing/testing_internal';
+import {getDOM} from '@angular/platform-browser/src/dom/dom_adapter';
+import {ROUTER_DIRECTIVES, ROUTER_PRIMARY_COMPONENT, Router} from '@angular/router-deprecated';
+import {RouteRegistry} from '@angular/router-deprecated/src/route_registry';
+import {RootRouter} from '@angular/router-deprecated/src/router';
+
+import {BaseException} from '../../src/facade/exceptions';
+import {isBlank} from '../../src/facade/lang';
 
 
 /**
@@ -36,24 +28,22 @@ export class RootCmp {
 
 export function compile(
     tcb: TestComponentBuilder,
-    template: string = "<router-outlet></router-outlet>"): Promise<ComponentFixture<RootCmp>> {
+    template: string = '<router-outlet></router-outlet>'): Promise<ComponentFixture<RootCmp>> {
   return tcb.overrideTemplate(RootCmp, ('<div>' + template + '</div>')).createAsync(RootCmp);
 }
 
 export var TEST_ROUTER_PROVIDERS: any[] = [
-  RouteRegistry,
-  provide(Location, {useClass: SpyLocation}),
-  provide(ROUTER_PRIMARY_COMPONENT, {useValue: RootCmp}),
-  provide(Router, {useClass: RootRouter})
+  RouteRegistry, {provide: Location, useClass: SpyLocation},
+  {provide: ROUTER_PRIMARY_COMPONENT, useValue: RootCmp}, {provide: Router, useClass: RootRouter}
 ];
 
-export function clickOnElement(anchorEl) {
+export function clickOnElement(anchorEl: any /** TODO #9100 */) {
   var dispatchedEvent = getDOM().createMouseEvent('click');
   getDOM().dispatchEvent(anchorEl, dispatchedEvent);
   return dispatchedEvent;
 }
 
-export function getHref(elt) {
+export function getHref(elt: any /** TODO #9100 */) {
   return getDOM().getAttribute(elt, 'href');
 }
 
@@ -62,7 +52,7 @@ export function getHref(elt) {
  * Router integration suite DSL
  */
 
-var specNameBuilder = [];
+var specNameBuilder: any[] /** TODO #9100 */ = [];
 
 // we add the specs themselves onto this map
 export var specs = {};
@@ -110,7 +100,7 @@ function descriptionToSpecName(description: string): string {
 export function itShouldRoute() {
   var specSuiteName = spaceCaseToCamelCase(specNameBuilder.join(' '));
 
-  var spec = specs[specSuiteName];
+  var spec = (specs as any /** TODO #9100 */)[specSuiteName];
   if (isBlank(spec)) {
     throw new BaseException(`Router integration spec suite "${specSuiteName}" was not found.`);
   } else {

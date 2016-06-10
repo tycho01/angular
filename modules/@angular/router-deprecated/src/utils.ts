@@ -1,5 +1,5 @@
-import {isPresent, isBlank} from '../src/facade/lang';
 import {StringMapWrapper} from '../src/facade/collection';
+import {isBlank, isPresent} from '../src/facade/lang';
 
 export class TouchMap {
   map: {[key: string]: string} = {};
@@ -7,7 +7,7 @@ export class TouchMap {
 
   constructor(map: {[key: string]: any}) {
     if (isPresent(map)) {
-      StringMapWrapper.forEach(map, (value, key) => {
+      StringMapWrapper.forEach(map, (value: any /** TODO #9100 */, key: any /** TODO #9100 */) => {
         this.map[key] = isPresent(value) ? value.toString() : null;
         this.keys[key] = true;
       });

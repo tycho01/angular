@@ -1,6 +1,4 @@
-/// <reference path="../typings/es6-promise/es6-promise.d.ts" />
-
-declare module "broccoli-writer" {
+declare module 'broccoli-writer' {
   class Writer {
     write(readTree: (tree: BroccoliTree) => Promise<string>, destDir: string): Promise<any>;
   }

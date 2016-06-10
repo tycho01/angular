@@ -1,47 +1,27 @@
-import {
-  ListWrapper,
-  StringMapWrapper,
-} from '../../src/facade/collection';
+import {ObservableWrapper} from '../facade/async';
+import {ListWrapper, Map, MapWrapper, StringMapWrapper} from '../facade/collection';
+import {Type, assertionsEnabled, isArray, isBlank, isNumber, isPresent, isPrimitive, isString, stringify} from '../facade/lang';
+import {RenderComponentType, RenderDebugInfo, Renderer, RootRenderer} from '../render/api';
 
 import {AppElement} from './element';
-import {
-  assertionsEnabled,
-  isPresent,
-  isBlank,
-  Type,
-  isArray,
-  isNumber,
-  stringify,
-  isPrimitive,
-  isString
-} from '../../src/facade/lang';
-
-import {ObservableWrapper} from '../../src/facade/async';
-import {Renderer, RootRenderer, RenderComponentType, RenderDebugInfo} from '../render/api';
 import {ViewRef_} from './view_ref';
-
 import {ViewType} from './view_type';
-import {
-  ViewUtils,
-  flattenNestedViewRenderNodes,
-  ensureSlotCount,
-  arrayLooseIdentical,
-  mapLooseIdentical
-} from './view_utils';
-import {
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
-  ChangeDetectorState,
-} from '../change_detection/change_detection';
+import {ViewUtils, arrayLooseIdentical, ensureSlotCount, flattenNestedViewRenderNodes, mapLooseIdentical} from './view_utils';
+
+import {ChangeDetectorRef, ChangeDetectionStrategy, ChangeDetectorState,} from '../change_detection/change_detection';
 import {wtfCreateScope, wtfLeave, WtfScopeFn} from '../profile/profile';
-import {
-  ExpressionChangedAfterItHasBeenCheckedException,
-  ViewDestroyedException,
-  ViewWrappedException
-} from './exceptions';
+import {ExpressionChangedAfterItHasBeenCheckedException, ViewDestroyedException, ViewWrappedException} from './exceptions';
 import {StaticNodeDebugInfo, DebugContext} from './debug_context';
 import {ElementInjector} from './element_injector';
 import {Injector} from '../di/injector';
+
+import {AUTO_STYLE} from '../animation/metadata';
+import {AnimationPlayer} from '../animation/animation_player';
+import {AnimationGroupPlayer} from '../animation/animation_group_player';
+import {AnimationKeyframe} from '../animation/animation_keyframe';
+import {AnimationStyles} from '../animation/animation_styles';
+import {AnimationDriver} from '../animation/animation_driver';
+import {ActiveAnimationPlayersMap} from '../animation/active_animation_players_map';
 
 var _scope_check: WtfScopeFn = wtfCreateScope(`AppView#check(ascii id)`);
 
@@ -63,7 +43,7 @@ export abstract class AppView<T> {
   // change detection will fail.
   cdState: ChangeDetectorState = ChangeDetectorState.NeverChecked;
 
-  projectableNodes: Array<any | any[]>;
+  projectableNodes: Array<any|any[]>;
 
   destroyed: boolean = false;
 
@@ -71,11 +51,14 @@ export abstract class AppView<T> {
 
   private _hasExternalHostElement: boolean;
 
+  public activeAnimationPlayers = new ActiveAnimationPlayersMap();
+
   public context: T;
 
-  constructor(public clazz: any, public componentType: RenderComponentType, public type: ViewType,
-              public viewUtils: ViewUtils, public parentInjector: Injector,
-              public declarationAppElement: AppElement, public cdMode: ChangeDetectionStrategy) {
+  constructor(
+      public clazz: any, public componentType: RenderComponentType, public type: ViewType,
+      public viewUtils: ViewUtils, public parentInjector: Injector,
+      public declarationAppElement: AppElement, public cdMode: ChangeDetectionStrategy) {
     this.ref = new ViewRef_(this);
     if (type === ViewType.COMPONENT || type === ViewType.HOST) {
       this.renderer = viewUtils.renderComponent(componentType);
@@ -84,10 +67,28 @@ export abstract class AppView<T> {
     }
   }
 
-  create(context: T, givenProjectableNodes: Array<any | any[]>,
-         rootSelectorOrNode: string | any): AppElement {
+  cancelActiveAnimation(element: any, animationName: string, removeAllAnimations: boolean = false) {
+    if (removeAllAnimations) {
+      this.activeAnimationPlayers.findAllPlayersByElement(element).forEach(
+          player => player.destroy());
+    } else {
+      var player = this.activeAnimationPlayers.find(element, animationName);
+      if (isPresent(player)) {
+        player.destroy();
+      }
+    }
+  }
+
+  registerAndStartAnimation(element: any, animationName: string, player: AnimationPlayer): void {
+    this.activeAnimationPlayers.set(element, animationName, player);
+    player.onDone(() => { this.activeAnimationPlayers.remove(element, animationName); });
+    player.play();
+  }
+
+  create(context: T, givenProjectableNodes: Array<any|any[]>, rootSelectorOrNode: string|any):
+      AppElement {
     this.context = context;
-    var projectableNodes;
+    var projectableNodes: any /** TODO #9100 */;
     switch (this.type) {
       case ViewType.COMPONENT:
         projectableNodes = ensureSlotCount(givenProjectableNodes, this.componentType.slotCount);
@@ -110,10 +111,11 @@ export abstract class AppView<T> {
    * Overwritten by implementations.
    * Returns the AppElement for the host element for ViewType.HOST.
    */
-  createInternal(rootSelectorOrNode: string | any): AppElement { return null; }
+  createInternal(rootSelectorOrNode: string|any): AppElement { return null; }
 
-  init(rootNodesOrAppElements: any[], allNodes: any[], disposables: Function[],
-       subscriptions: any[]) {
+  init(
+      rootNodesOrAppElements: any[], allNodes: any[], disposables: Function[],
+      subscriptions: any[]) {
     this.rootNodesOrAppElements = rootNodesOrAppElements;
     this.allNodes = allNodes;
     this.disposables = disposables;
@@ -126,9 +128,9 @@ export abstract class AppView<T> {
     }
   }
 
-  selectOrCreateHostElement(elementName: string, rootSelectorOrNode: string | any,
-                            debugInfo: RenderDebugInfo): any {
-    var hostElement;
+  selectOrCreateHostElement(
+      elementName: string, rootSelectorOrNode: string|any, debugInfo: RenderDebugInfo): any {
+    var hostElement: any /** TODO #9100 */;
     if (isPresent(rootSelectorOrNode)) {
       hostElement = this.renderer.selectRootElement(rootSelectorOrNode, debugInfo);
     } else {
@@ -193,13 +195,34 @@ export abstract class AppView<T> {
     }
     this.destroyInternal();
     this.dirtyParentQueriesInternal();
-    this.renderer.destroyView(hostElement, this.allNodes);
+
+    if (this.activeAnimationPlayers.length == 0) {
+      this.renderer.destroyView(hostElement, this.allNodes);
+    } else {
+      var player = new AnimationGroupPlayer(this.activeAnimationPlayers.getAllPlayers());
+      player.onDone(() => { this.renderer.destroyView(hostElement, this.allNodes); });
+    }
   }
 
   /**
    * Overwritten by implementations
    */
   destroyInternal(): void {}
+
+  /**
+   * Overwritten by implementations
+   */
+  detachInternal(): void {}
+
+  detach(): void {
+    this.detachInternal();
+    if (this.activeAnimationPlayers.length == 0) {
+      this.renderer.detachView(this.flatRootNodes);
+    } else {
+      var player = new AnimationGroupPlayer(this.activeAnimationPlayers.getAllPlayers());
+      player.onDone(() => { this.renderer.detachView(this.flatRootNodes); });
+    }
+  }
 
   get changeDetectorRef(): ChangeDetectorRef { return this.ref; }
 
@@ -211,8 +234,8 @@ export abstract class AppView<T> {
 
   get lastRootNode(): any {
     var lastNode = this.rootNodesOrAppElements.length > 0 ?
-                       this.rootNodesOrAppElements[this.rootNodesOrAppElements.length - 1] :
-                       null;
+        this.rootNodesOrAppElements[this.rootNodesOrAppElements.length - 1] :
+        null;
     return _findLastRenderNode(lastNode);
   }
 
@@ -223,8 +246,7 @@ export abstract class AppView<T> {
 
   detectChanges(throwOnChange: boolean): void {
     var s = _scope_check(this.clazz);
-    if (this.cdMode === ChangeDetectionStrategy.Detached ||
-        this.cdMode === ChangeDetectionStrategy.Checked ||
+    if (this.cdMode === ChangeDetectionStrategy.Checked ||
         this.cdState === ChangeDetectorState.Errored)
       return;
     if (this.destroyed) {
@@ -248,13 +270,17 @@ export abstract class AppView<T> {
 
   detectContentChildrenChanges(throwOnChange: boolean) {
     for (var i = 0; i < this.contentChildren.length; ++i) {
-      this.contentChildren[i].detectChanges(throwOnChange);
+      var child = this.contentChildren[i];
+      if (child.cdMode === ChangeDetectionStrategy.Detached) continue;
+      child.detectChanges(throwOnChange);
     }
   }
 
   detectViewChildrenChanges(throwOnChange: boolean) {
     for (var i = 0; i < this.viewChildren.length; ++i) {
-      this.viewChildren[i].detectChanges(throwOnChange);
+      var child = this.viewChildren[i];
+      if (child.cdMode === ChangeDetectionStrategy.Detached) continue;
+      child.detectChanges(throwOnChange);
     }
   }
 
@@ -292,14 +318,15 @@ export abstract class AppView<T> {
 export class DebugAppView<T> extends AppView<T> {
   private _currentDebugContext: DebugContext = null;
 
-  constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils,
-              parentInjector: Injector, declarationAppElement: AppElement,
-              cdMode: ChangeDetectionStrategy, public staticNodeDebugInfos: StaticNodeDebugInfo[]) {
+  constructor(
+      clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils,
+      parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectionStrategy,
+      public staticNodeDebugInfos: StaticNodeDebugInfo[]) {
     super(clazz, componentType, type, viewUtils, parentInjector, declarationAppElement, cdMode);
   }
 
-  create(context: T, givenProjectableNodes: Array<any | any[]>,
-         rootSelectorOrNode: string | any): AppElement {
+  create(context: T, givenProjectableNodes: Array<any|any[]>, rootSelectorOrNode: string|any):
+      AppElement {
     this._resetDebug();
     try {
       return super.create(context, givenProjectableNodes, rootSelectorOrNode);
@@ -313,6 +340,16 @@ export class DebugAppView<T> extends AppView<T> {
     this._resetDebug();
     try {
       return super.injectorGet(token, nodeIndex, notFoundResult);
+    } catch (e) {
+      this._rethrowWithContext(e, e.stack);
+      throw e;
+    }
+  }
+
+  detach(): void {
+    this._resetDebug();
+    try {
+      super.detach();
     } catch (e) {
       this._rethrowWithContext(e, e.stack);
       throw e;
@@ -358,7 +395,7 @@ export class DebugAppView<T> extends AppView<T> {
 
   eventHandler(cb: Function): Function {
     var superHandler = super.eventHandler(cb);
-    return (event) => {
+    return (event: any /** TODO #9100 */) => {
       this._resetDebug();
       try {
         return superHandler(event);
@@ -371,7 +408,7 @@ export class DebugAppView<T> extends AppView<T> {
 }
 
 function _findLastRenderNode(node: any): any {
-  var lastNode;
+  var lastNode: any /** TODO #9100 */;
   if (node instanceof AppElement) {
     var appEl = <AppElement>node;
     lastNode = appEl.nativeElement;

@@ -1,5 +1,6 @@
 /**
  * Stores error information; delivered via [NgZone.onError] stream.
+ * @deprecated
  */
 export class NgZoneError {
   constructor(public error: any, public stackTrace: any) {}
@@ -36,15 +37,15 @@ export class NgZoneImpl {
 
     if (Zone) {
       this.outer = this.inner = Zone.current;
-      if (Zone['wtfZoneSpec']) {
-        this.inner = this.inner.fork(Zone['wtfZoneSpec']);
+      if ((Zone as any /** TODO #9100 */)['wtfZoneSpec']) {
+        this.inner = this.inner.fork((Zone as any /** TODO #9100 */)['wtfZoneSpec']);
       }
-      if (trace && Zone['longStackTraceZoneSpec']) {
-        this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
+      if (trace && (Zone as any /** TODO #9100 */)['longStackTraceZoneSpec']) {
+        this.inner = this.inner.fork((Zone as any /** TODO #9100 */)['longStackTraceZoneSpec']);
       }
       this.inner = this.inner.fork({
         name: 'angular',
-        properties:<any>{'isAngularZone': true},
+        properties: <any>{'isAngularZone': true},
         onInvokeTask: (delegate: ZoneDelegate, current: Zone, target: Zone, task: Task,
                        applyThis: any, applyArgs: any): any => {
           try {

@@ -1,39 +1,12 @@
-import {
-  ddescribe,
-  describe,
-  xdescribe,
-  it,
-  iit,
-  xit,
-  expect,
-  beforeEach,
-  afterEach,
-  inject,
-  beforeEachProviders
-} from '@angular/core/testing/testing_internal';
+import {LIFECYCLE_HOOKS_VALUES} from '@angular/core/src/metadata/lifecycle_hooks';
+import {afterEach, beforeEach, beforeEachProviders, ddescribe, describe, expect, iit, inject, it, xdescribe, xit} from '@angular/core/testing/testing_internal';
 
 import {IS_DART, stringify} from '../src/facade/lang';
 import {CompileMetadataResolver} from '../src/metadata_resolver';
-import {LIFECYCLE_HOOKS_VALUES} from '@angular/core/src/metadata/lifecycle_hooks';
-import {
-  Component,
-  Directive,
-  ViewEncapsulation,
-  ChangeDetectionStrategy,
-  OnChanges,
-  OnInit,
-  DoCheck,
-  OnDestroy,
-  AfterContentInit,
-  AfterContentChecked,
-  AfterViewInit,
-  AfterViewChecked,
-  SimpleChange,
-  provide
-} from '@angular/core';
+
+import {Component, Directive, ViewEncapsulation, ChangeDetectionStrategy, OnChanges, OnInit, DoCheck, OnDestroy, AfterContentInit, AfterContentChecked, AfterViewInit, AfterViewChecked, SimpleChanges,} from '@angular/core';
 
 import {TEST_PROVIDERS} from './test_bindings';
-import {MODULE_SUFFIX} from '@angular/compiler/src/util';
 import {PLATFORM_DIRECTIVES} from '@angular/core/src/platform_directives_and_pipes';
 import {MalformedStylesComponent} from './metadata_resolver_fixture';
 
@@ -80,6 +53,14 @@ export function main() {
                  .toThrowError(`Expected 'styles' to be an array of strings.`);
            }
          }));
+
+      it('should throw with descriptive error message when provider token can not be resolved',
+         inject([CompileMetadataResolver], (resolver: CompileMetadataResolver) => {
+           if (!IS_DART) {
+             expect(() => resolver.getDirectiveMetadata(MyBrokenComp1))
+                 .toThrowError(`Can't resolve all parameters for MyBrokenComp1: (?).`);
+           }
+         }));
     });
 
     describe('getViewDirectivesMetadata', () => {
@@ -90,9 +71,9 @@ export function main() {
                .toContain(resolver.getDirectiveMetadata(SomeDirective));
          }));
 
-      describe("platform directives", () => {
+      describe('platform directives', () => {
         beforeEachProviders(
-            () => [provide(PLATFORM_DIRECTIVES, {useValue: [ADirective], multi: true})]);
+            () => [{provide: PLATFORM_DIRECTIVES, useValue: [ADirective], multi: true}]);
 
         it('should include platform directives when available',
            inject([CompileMetadataResolver], (resolver: CompileMetadataResolver) => {
@@ -141,7 +122,7 @@ class ComponentWithoutModuleId {
 class ComponentWithEverything implements OnChanges,
     OnInit, DoCheck, OnDestroy, AfterContentInit, AfterContentChecked, AfterViewInit,
     AfterViewChecked {
-  ngOnChanges(changes: {[key: string]: SimpleChange}): void {}
+  ngOnChanges(changes: SimpleChanges): void {}
   ngOnInit(): void {}
   ngDoCheck(): void {}
   ngOnDestroy(): void {}
@@ -149,4 +130,9 @@ class ComponentWithEverything implements OnChanges,
   ngAfterContentChecked(): void {}
   ngAfterViewInit(): void {}
   ngAfterViewChecked(): void {}
+}
+
+@Component({selector: 'my-broken-comp', template: ''})
+class MyBrokenComp1 {
+  constructor(public dependency: any) {}
 }

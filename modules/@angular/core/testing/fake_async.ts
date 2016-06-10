@@ -1,7 +1,7 @@
 import {BaseException} from '../index';
 import {getTestInjector} from './test_injector';
 
-let _FakeAsyncTestZoneSpecType = Zone['FakeAsyncTestZoneSpec'];
+let _FakeAsyncTestZoneSpecType = (Zone as any /** TODO #9100 */)['FakeAsyncTestZoneSpec'];
 
 /**
  * Wraps a function to be executed in the fakeAsync zone:
@@ -27,7 +27,7 @@ export function fakeAsync(fn: Function): Function {
   let fakeAsyncTestZoneSpec = new _FakeAsyncTestZoneSpecType();
   let fakeAsyncZone = Zone.current.fork(fakeAsyncTestZoneSpec);
 
-  return function(...args) {
+  return function(...args: any[] /** TODO #9100 */) {
     let res = fakeAsyncZone.run(() => {
       let res = fn(...args);
       flushMicrotasks();
@@ -35,8 +35,9 @@ export function fakeAsync(fn: Function): Function {
     });
 
     if (fakeAsyncTestZoneSpec.pendingPeriodicTimers.length > 0) {
-      throw new BaseException(`${fakeAsyncTestZoneSpec.pendingPeriodicTimers.length} ` +
-                              `periodic timer(s) still in the queue.`);
+      throw new BaseException(
+          `${fakeAsyncTestZoneSpec.pendingPeriodicTimers.length} ` +
+          `periodic timer(s) still in the queue.`);
     }
 
     if (fakeAsyncTestZoneSpec.pendingTimers.length > 0) {
@@ -78,6 +79,15 @@ export function clearPendingTimers(): void {
  */
 export function tick(millis: number = 0): void {
   _getFakeAsyncZoneSpec().tick(millis);
+}
+
+/**
+ * Discard all remaining periodic tasks.
+ */
+export function discardPeriodicTasks(): void {
+  let zoneSpec = _getFakeAsyncZoneSpec();
+  let pendingTimers = zoneSpec.pendingPeriodicTimers;
+  zoneSpec.pendingPeriodicTimers.length = 0;
 }
 
 /**

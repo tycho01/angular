@@ -1,5 +1,5 @@
 import {bootstrap} from '@angular/platform-browser';
-import {Component, Directive, Host, forwardRef, Provider, Injectable} from '@angular/core';
+import {Component, Injectable} from '@angular/core';
 import {NgIf, NgFor, FORM_DIRECTIVES} from '@angular/common';
 
 /**
@@ -179,7 +179,7 @@ class PersonsComponent {
 
 @Component({
   selector: 'person-management-app',
-  viewBindings: [DataService],
+  viewProviders: [DataService],
   template: `
     <button (click)="switchToEditName()">Edit Full Name</button>
     <button (click)="switchToPersonList()">Person Array</button>

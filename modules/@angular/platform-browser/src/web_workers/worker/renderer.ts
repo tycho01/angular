@@ -1,31 +1,27 @@
-import {
-  Renderer,
-  RootRenderer,
-  RenderComponentType,
-  Injectable,
-  ViewEncapsulation
-} from '@angular/core';
-import {RenderDebugInfo} from '../../../core_private';
+import {Injectable, RenderComponentType, Renderer, RootRenderer, ViewEncapsulation} from '@angular/core';
 
+import {AnimationKeyframe, AnimationPlayer, AnimationStyles, RenderDebugInfo} from '../../../core_private';
+import {ObservableWrapper} from '../../facade/async';
+import {ListWrapper} from '../../facade/collection';
+import {isBlank, isPresent} from '../../facade/lang';
 import {ClientMessageBrokerFactory, FnArg, UiArguments} from '../shared/client_message_broker';
-import {isPresent, isBlank} from '../../../src/facade/lang';
-import {ListWrapper} from '../../../src/facade/collection';
-import {RenderStore} from '../shared/render_store';
-import {RENDERER_CHANNEL, EVENT_CHANNEL} from '../shared/messaging_api';
-import {Serializer, RenderStoreObject} from '../shared/serializer';
 import {MessageBus} from '../shared/message_bus';
-import {ObservableWrapper} from '../../../src/facade/async';
+import {EVENT_CHANNEL, RENDERER_CHANNEL} from '../shared/messaging_api';
+import {RenderStore} from '../shared/render_store';
+import {RenderStoreObject, Serializer} from '../shared/serializer';
+
 import {deserializeGenericEvent} from './event_deserializer';
 
 @Injectable()
 export class WebWorkerRootRenderer implements RootRenderer {
-  private _messageBroker;
+  private _messageBroker: any /** TODO #9100 */;
   public globalEvents: NamedEventEmitter = new NamedEventEmitter();
   private _componentRenderers: Map<string, WebWorkerRenderer> =
       new Map<string, WebWorkerRenderer>();
 
-  constructor(messageBrokerFactory: ClientMessageBrokerFactory, bus: MessageBus,
-              private _serializer: Serializer, private _renderStore: RenderStore) {
+  constructor(
+      messageBrokerFactory: ClientMessageBrokerFactory, bus: MessageBus,
+      private _serializer: Serializer, private _renderStore: RenderStore) {
     this._messageBroker = messageBrokerFactory.createMessageBroker(RENDERER_CHANNEL);
     bus.initChannel(EVENT_CHANNEL);
     var source = bus.from(EVENT_CHANNEL);
@@ -82,26 +78,25 @@ export class WebWorkerRootRenderer implements RootRenderer {
 }
 
 export class WebWorkerRenderer implements Renderer, RenderStoreObject {
-  constructor(private _rootRenderer: WebWorkerRootRenderer,
-              private _componentType: RenderComponentType) {}
+  constructor(
+      private _rootRenderer: WebWorkerRootRenderer, private _componentType: RenderComponentType) {}
 
   private _runOnService(fnName: string, fnArgs: FnArg[]) {
     var fnArgsWithRenderer = [new FnArg(this, RenderStoreObject)].concat(fnArgs);
     this._rootRenderer.runOnService(fnName, fnArgsWithRenderer);
   }
 
-  selectRootElement(selectorOrNode: string, debugInfo: RenderDebugInfo): any {
+  selectRootElement(selectorOrNode: string, debugInfo?: RenderDebugInfo): any {
     var node = this._rootRenderer.allocateNode();
-    this._runOnService('selectRootElement',
-                       [new FnArg(selectorOrNode, null), new FnArg(node, RenderStoreObject)]);
+    this._runOnService(
+        'selectRootElement', [new FnArg(selectorOrNode, null), new FnArg(node, RenderStoreObject)]);
     return node;
   }
 
-  createElement(parentElement: any, name: string, debugInfo: RenderDebugInfo): any {
+  createElement(parentElement: any, name: string, debugInfo?: RenderDebugInfo): any {
     var node = this._rootRenderer.allocateNode();
     this._runOnService('createElement', [
-      new FnArg(parentElement, RenderStoreObject),
-      new FnArg(name, null),
+      new FnArg(parentElement, RenderStoreObject), new FnArg(name, null),
       new FnArg(node, RenderStoreObject)
     ]);
     return node;
@@ -109,15 +104,15 @@ export class WebWorkerRenderer implements Renderer, RenderStoreObject {
 
   createViewRoot(hostElement: any): any {
     var viewRoot = this._componentType.encapsulation === ViewEncapsulation.Native ?
-                       this._rootRenderer.allocateNode() :
-                       hostElement;
+        this._rootRenderer.allocateNode() :
+        hostElement;
     this._runOnService(
         'createViewRoot',
         [new FnArg(hostElement, RenderStoreObject), new FnArg(viewRoot, RenderStoreObject)]);
     return viewRoot;
   }
 
-  createTemplateAnchor(parentElement: any, debugInfo: RenderDebugInfo): any {
+  createTemplateAnchor(parentElement: any, debugInfo?: RenderDebugInfo): any {
     var node = this._rootRenderer.allocateNode();
     this._runOnService(
         'createTemplateAnchor',
@@ -125,11 +120,10 @@ export class WebWorkerRenderer implements Renderer, RenderStoreObject {
     return node;
   }
 
-  createText(parentElement: any, value: string, debugInfo: RenderDebugInfo): any {
+  createText(parentElement: any, value: string, debugInfo?: RenderDebugInfo): any {
     var node = this._rootRenderer.allocateNode();
     this._runOnService('createText', [
-      new FnArg(parentElement, RenderStoreObject),
-      new FnArg(value, null),
+      new FnArg(parentElement, RenderStoreObject), new FnArg(value, null),
       new FnArg(node, RenderStoreObject)
     ]);
     return node;
@@ -160,63 +154,56 @@ export class WebWorkerRenderer implements Renderer, RenderStoreObject {
 
   setElementProperty(renderElement: any, propertyName: string, propertyValue: any) {
     this._runOnService('setElementProperty', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(propertyName, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(propertyName, null),
       new FnArg(propertyValue, null)
     ]);
   }
 
   setElementAttribute(renderElement: any, attributeName: string, attributeValue: string) {
     this._runOnService('setElementAttribute', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(attributeName, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(attributeName, null),
       new FnArg(attributeValue, null)
     ]);
   }
 
   setBindingDebugInfo(renderElement: any, propertyName: string, propertyValue: string) {
     this._runOnService('setBindingDebugInfo', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(propertyName, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(propertyName, null),
       new FnArg(propertyValue, null)
     ]);
   }
 
   setElementClass(renderElement: any, className: string, isAdd: boolean) {
     this._runOnService('setElementClass', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(className, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(className, null),
       new FnArg(isAdd, null)
     ]);
   }
 
   setElementStyle(renderElement: any, styleName: string, styleValue: string) {
     this._runOnService('setElementStyle', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(styleName, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(styleName, null),
       new FnArg(styleValue, null)
     ]);
   }
 
-  invokeElementMethod(renderElement: any, methodName: string, args: any[]) {
+  invokeElementMethod(renderElement: any, methodName: string, args?: any[]) {
     this._runOnService('invokeElementMethod', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(methodName, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(methodName, null),
       new FnArg(args, null)
     ]);
   }
 
   setText(renderNode: any, text: string) {
-    this._runOnService('setText',
-                       [new FnArg(renderNode, RenderStoreObject), new FnArg(text, null)]);
+    this._runOnService(
+        'setText', [new FnArg(renderNode, RenderStoreObject), new FnArg(text, null)]);
   }
 
   listen(renderElement: WebWorkerRenderNode, name: string, callback: Function): Function {
     renderElement.events.listen(name, callback);
     var unlistenCallbackId = this._rootRenderer.allocateId();
     this._runOnService('listen', [
-      new FnArg(renderElement, RenderStoreObject),
-      new FnArg(name, null),
+      new FnArg(renderElement, RenderStoreObject), new FnArg(name, null),
       new FnArg(unlistenCallbackId, null)
     ]);
     return () => {
@@ -235,6 +222,13 @@ export class WebWorkerRenderer implements Renderer, RenderStoreObject {
       this._rootRenderer.globalEvents.unlisten(eventNameWithTarget(target, name), callback);
       this._runOnService('listenDone', [new FnArg(unlistenCallbackId, null)]);
     };
+  }
+
+  animate(
+      element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[],
+      duration: number, delay: number, easing: string): AnimationPlayer {
+    // TODO
+    return null;
   }
 }
 

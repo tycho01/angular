@@ -1,15 +1,18 @@
-import {Inject, Injectable} from '@angular/core';
-import {DOCUMENT} from '../src/dom/dom_tokens';
-import {getDOM} from '../src/dom/dom_adapter';
 import {TestComponentRenderer} from '@angular/compiler/testing';
+import {Inject, Injectable} from '@angular/core';
+
+import {getDOM} from '../src/dom/dom_adapter';
+import {DOCUMENT} from '../src/dom/dom_tokens';
+
 import {el} from './browser_util';
+
 
 /**
  * A DOM based implementation of the TestComponentRenderer.
  */
 @Injectable()
 export class DOMTestComponentRenderer extends TestComponentRenderer {
-  constructor(@Inject(DOCUMENT) private _doc) { super(); }
+  constructor(@Inject(DOCUMENT) private _doc: any /** TODO #9100 */) { super(); }
 
   insertRootElement(rootElId: string) {
     let rootEl = el(`<div id="${rootElId}"></div>`);

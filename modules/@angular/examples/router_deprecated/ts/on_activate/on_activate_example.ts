@@ -1,12 +1,8 @@
-import {Component, provide, ComponentRef} from '@angular/core';
-import {bootstrap} from '@angular/platform-browser';
-import {
-  OnActivate,
-  ComponentInstruction,
-  RouteConfig,
-  ROUTER_DIRECTIVES
-} from '@angular/router-deprecated';
 import {APP_BASE_HREF} from '@angular/common';
+import {Component, ComponentRef, provide} from '@angular/core';
+import {bootstrap} from '@angular/platform-browser';
+import {ComponentInstruction, OnActivate, ROUTER_DIRECTIVES, RouteConfig} from '@angular/router-deprecated';
+
 
 // #docregion routerOnActivate
 @Component({template: `Child`})
@@ -53,5 +49,5 @@ export class AppCmp {
 
 export function main(): Promise<ComponentRef<AppCmp>> {
   return bootstrap(
-      AppCmp, [provide(APP_BASE_HREF, {useValue: '/@angular/examples/router/ts/on_activate'})]);
+      AppCmp, [{provide: APP_BASE_HREF, useValue: '/@angular/examples/router/ts/on_activate'}]);
 }

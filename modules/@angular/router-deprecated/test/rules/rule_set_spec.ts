@@ -1,12 +1,4 @@
-import {
-  describe,
-  it,
-  iit,
-  ddescribe,
-  expect,
-  inject,
-  beforeEach,
-} from '@angular/core/testing/testing_internal';
+import {describe, it, iit, ddescribe, expect, inject, beforeEach,} from '@angular/core/testing/testing_internal';
 import {AsyncTestCompleter} from '@angular/core/testing/testing_internal';
 import {RouteMatch, PathMatch, RedirectMatch} from '../../src/rules/rules';
 import {RuleSet} from '../../src/rules/rule_set';
@@ -23,65 +15,88 @@ export function main() {
     beforeEach(() => { recognizer = new RuleSet(); });
 
 
-    it('should recognize a static segment', inject([AsyncTestCompleter], (async) => {
+    it('should recognize a static segment',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
          recognizer.config(new Route({path: '/test', component: DummyCmpA}));
-         recognize(recognizer, '/test')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
-               async.done();
-             });
+         recognize(recognizer, '/test').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           async.done();
+         });
        }));
 
 
-    it('should recognize a single slash', inject([AsyncTestCompleter], (async) => {
+    it('should recognize a single slash',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
          recognizer.config(new Route({path: '/', component: DummyCmpA}));
-         recognize(recognizer, '/')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
-               async.done();
-             });
+         recognize(recognizer, '/').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           async.done();
+         });
        }));
 
 
-    it('should recognize a dynamic segment', inject([AsyncTestCompleter], (async) => {
+    it('should recognize a dynamic segment',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
          recognizer.config(new Route({path: '/user/:name', component: DummyCmpA}));
-         recognize(recognizer, '/user/brian')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
-               expect(getParams(solutions[0])).toEqual({'name': 'brian'});
-               async.done();
-             });
+         recognize(recognizer, '/user/brian').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           expect(getParams(solutions[0])).toEqual({'name': 'brian'});
+           async.done();
+         });
        }));
 
 
-    it('should recognize a star segment', inject([AsyncTestCompleter], (async) => {
+    it('should recognize a star segment',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
          recognizer.config(new Route({path: '/first/*rest', component: DummyCmpA}));
-         recognize(recognizer, '/first/second/third')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
-               expect(getParams(solutions[0])).toEqual({'rest': 'second/third'});
-               async.done();
-             });
+         recognize(recognizer, '/first/second/third').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           expect(getParams(solutions[0])).toEqual({'rest': 'second/third'});
+           async.done();
+         });
        }));
 
-    it('should recognize a regex', inject([AsyncTestCompleter], (async) => {
-         function emptySerializer(params): GeneratedUrl { return new GeneratedUrl('', {}); }
+    it('should recognize a regex', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+         function emptySerializer(params: any /** TODO #9100 */): GeneratedUrl {
+           return new GeneratedUrl('', {});
+         }
 
          recognizer.config(
              new Route({regex: '^(.+)/(.+)$', serializer: emptySerializer, component: DummyCmpA}));
-         recognize(recognizer, '/first/second')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
-               expect(getParams(solutions[0]))
-                   .toEqual({'0': 'first/second', '1': 'first', '2': 'second'});
-               async.done();
-             });
+         recognize(recognizer, '/first/second').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           expect(getParams(solutions[0]))
+               .toEqual({'0': 'first/second', '1': 'first', '2': 'second'});
+           async.done();
+         });
        }));
+
+    it('should recognize a regex with named_groups',
+       inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+         function emptySerializer(params: any /** TODO #9100 */): GeneratedUrl {
+           return new GeneratedUrl('', {});
+         }
+
+         recognizer.config(new Route({
+           regex: '^(.+)/(.+)$',
+           regex_group_names: ['cc', 'a', 'b'],
+           serializer: emptySerializer,
+           component: DummyCmpA
+         }));
+         recognize(recognizer, '/first/second').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           expect(getComponentType(solutions[0])).toEqual(DummyCmpA);
+           expect(getParams(solutions[0]))
+               .toEqual({'cc': 'first/second', 'a': 'first', 'b': 'second'});
+           async.done();
+         });
+       }));
+
 
 
     it('should throw when given two routes that start with the same static segment', () => {
@@ -93,31 +108,32 @@ export function main() {
 
     it('should throw when given two routes that have dynamic segments in the same order', () => {
       recognizer.config(new Route({path: '/hello/:person/how/:doyoudou', component: DummyCmpA}));
-      expect(() => recognizer.config(
-                 new Route({path: '/hello/:friend/how/:areyou', component: DummyCmpA})))
+      expect(
+          () => recognizer.config(
+              new Route({path: '/hello/:friend/how/:areyou', component: DummyCmpA})))
           .toThrowError(
               'Configuration \'/hello/:friend/how/:areyou\' conflicts with existing route \'/hello/:person/how/:doyoudou\'');
 
-      expect(() => recognizer.config(
-                 new Redirect({path: '/hello/:pal/how/:goesit', redirectTo: ['/Foo']})))
+      expect(
+          () => recognizer.config(
+              new Redirect({path: '/hello/:pal/how/:goesit', redirectTo: ['/Foo']})))
           .toThrowError(
               'Configuration \'/hello/:pal/how/:goesit\' conflicts with existing route \'/hello/:person/how/:doyoudou\'');
     });
 
 
-    it('should recognize redirects', inject([AsyncTestCompleter], (async) => {
+    it('should recognize redirects', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
          recognizer.config(new Route({path: '/b', component: DummyCmpA}));
          recognizer.config(new Redirect({path: '/a', redirectTo: ['B']}));
-         recognize(recognizer, '/a')
-             .then((solutions: RouteMatch[]) => {
-               expect(solutions.length).toBe(1);
-               var solution = solutions[0];
-               expect(solution).toBeAnInstanceOf(RedirectMatch);
-               if (solution instanceof RedirectMatch) {
-                 expect(solution.redirectTo).toEqual(['B']);
-               }
-               async.done();
-             });
+         recognize(recognizer, '/a').then((solutions: RouteMatch[]) => {
+           expect(solutions.length).toBe(1);
+           var solution = solutions[0];
+           expect(solution).toBeAnInstanceOf(RedirectMatch);
+           if (solution instanceof RedirectMatch) {
+             expect(solution.redirectTo).toEqual(['B']);
+           }
+           async.done();
+         });
        }));
 
 
@@ -135,7 +151,7 @@ export function main() {
 
 
     it('should generate using a serializer', () => {
-      function simpleSerializer(params): GeneratedUrl {
+      function simpleSerializer(params: any /** TODO #9100 */): GeneratedUrl {
         var extra = {c: params['c']};
         return new GeneratedUrl(`/${params['a']}/${params['b']}`, extra);
       }
@@ -161,8 +177,9 @@ export function main() {
 
 
     it('should throw if the route alias is not TitleCase', () => {
-      expect(() => recognizer.config(
-                 new Route({path: 'app/user/:name', component: DummyCmpA, name: 'user'})))
+      expect(
+          () => recognizer.config(
+              new Route({path: 'app/user/:name', component: DummyCmpA, name: 'user'})))
           .toThrowError(
               `Route "app/user/:name" with name "user" does not begin with an uppercase letter. Route names should be PascalCase like "User".`);
     });
@@ -170,15 +187,14 @@ export function main() {
 
     describe('params', () => {
       it('should recognize parameters within the URL path',
-         inject([AsyncTestCompleter], (async) => {
+         inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
            recognizer.config(
                new Route({path: 'profile/:name', component: DummyCmpA, name: 'User'}));
-           recognize(recognizer, '/profile/matsko?comments=all')
-               .then((solutions: RouteMatch[]) => {
-                 expect(solutions.length).toBe(1);
-                 expect(getParams(solutions[0])).toEqual({'name': 'matsko', 'comments': 'all'});
-                 async.done();
-               });
+           recognize(recognizer, '/profile/matsko?comments=all').then((solutions: RouteMatch[]) => {
+             expect(solutions.length).toBe(1);
+             expect(getParams(solutions[0])).toEqual({'name': 'matsko', 'comments': 'all'});
+             async.done();
+           });
          }));
 
 
@@ -196,20 +212,19 @@ export function main() {
 
 
       it('should prefer positional params over query params',
-         inject([AsyncTestCompleter], (async) => {
+         inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
            recognizer.config(
                new Route({path: 'profile/:name', component: DummyCmpA, name: 'User'}));
-           recognize(recognizer, '/profile/yegor?name=igor')
-               .then((solutions: RouteMatch[]) => {
-                 expect(solutions.length).toBe(1);
-                 expect(getParams(solutions[0])).toEqual({'name': 'yegor'});
-                 async.done();
-               });
+           recognize(recognizer, '/profile/yegor?name=igor').then((solutions: RouteMatch[]) => {
+             expect(solutions.length).toBe(1);
+             expect(getParams(solutions[0])).toEqual({'name': 'yegor'});
+             async.done();
+           });
          }));
 
 
       it('should ignore matrix params for the top-level component',
-         inject([AsyncTestCompleter], (async) => {
+         inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
            recognizer.config(
                new Route({path: '/home/:subject', component: DummyCmpA, name: 'User'}));
            recognize(recognizer, '/home;sort=asc/zero;one=1?two=2')

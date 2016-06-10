@@ -1,13 +1,7 @@
-import {KeyValueChangeRecord} from '@angular/core';
-import {
-  DoCheck,
-  KeyValueDiffer,
-  KeyValueDiffers,
-  ElementRef,
-  Directive,
-  Renderer
-} from '@angular/core';
-import {isPresent, isBlank} from '../../src/facade/lang';
+import {Directive, DoCheck, ElementRef, KeyValueChangeRecord, KeyValueDiffer, KeyValueDiffers, Renderer} from '@angular/core';
+
+import {isBlank, isPresent} from '../facade/lang';
+
 
 /**
  * The `NgStyle` directive changes styles based on a result of expression evaluation.
@@ -59,6 +53,8 @@ import {isPresent, isBlank} from '../../src/facade/lang';
  *
  * In this example the `font-style`, `font-size` and `font-weight` styles will be updated
  * based on the `style` property's value changes.
+ *
+ * @stable
  */
 @Directive({selector: '[ngStyle]', inputs: ['rawStyle: ngStyle']})
 export class NgStyle implements DoCheck {
@@ -67,8 +63,8 @@ export class NgStyle implements DoCheck {
   /** @internal */
   _differ: KeyValueDiffer;
 
-  constructor(private _differs: KeyValueDiffers, private _ngEl: ElementRef,
-              private _renderer: Renderer) {}
+  constructor(
+      private _differs: KeyValueDiffers, private _ngEl: ElementRef, private _renderer: Renderer) {}
 
   set rawStyle(v: {[key: string]: string}) {
     this._rawStyle = v;

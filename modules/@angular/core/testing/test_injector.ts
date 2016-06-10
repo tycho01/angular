@@ -1,6 +1,6 @@
-import {ReflectiveInjector, Provider, PLATFORM_INITIALIZER, Type} from '../index';
-import {BaseException} from '../src/facade/exceptions';
+import {PLATFORM_INITIALIZER, Provider, ReflectiveInjector, Type} from '../index';
 import {ListWrapper} from '../src/facade/collection';
+import {BaseException} from '../src/facade/exceptions';
 import {FunctionWrapper, isPresent} from '../src/facade/lang';
 
 import {async} from './async';
@@ -13,7 +13,7 @@ export class TestInjector {
 
   private _injector: ReflectiveInjector = null;
 
-  private _providers: Array<Type | Provider | any[]> = [];
+  private _providers: Array<Type|Provider|any[]|any> = [];
 
   reset() {
     this._injector = null;
@@ -21,11 +21,11 @@ export class TestInjector {
     this._instantiated = false;
   }
 
-  platformProviders: Array<Type | Provider | any[]> = [];
+  platformProviders: Array<Type|Provider|any[]|any> = [];
 
-  applicationProviders: Array<Type | Provider | any[]> = [];
+  applicationProviders: Array<Type|Provider|any[]|any> = [];
 
-  addProviders(providers: Array<Type | Provider | any[]>) {
+  addProviders(providers: Array<Type|Provider|any[]|any>) {
     if (this._instantiated) {
       throw new BaseException('Cannot add providers after test injector is instantiated');
     }
@@ -76,8 +76,9 @@ export function getTestInjector() {
  * Test Providers for individual platforms are available from
  * 'angular2/platform/testing/<platform_name>'.
  */
-export function setBaseTestProviders(platformProviders: Array<Type | Provider | any[]>,
-                                     applicationProviders: Array<Type | Provider | any[]>) {
+export function setBaseTestProviders(
+    platformProviders: Array<Type|Provider|any[]>,
+    applicationProviders: Array<Type|Provider|any[]>) {
   var testInjector = getTestInjector();
   if (testInjector.platformProviders.length > 0 || testInjector.applicationProviders.length > 0) {
     throw new BaseException('Cannot set base providers because it has already been called');
@@ -134,7 +135,7 @@ export function inject(tokens: any[], fn: Function): Function {
       let completer: AsyncTestCompleter = testInjector.get(AsyncTestCompleter);
       testInjector.execute(tokens, fn);
       return completer.promise;
-    }
+    };
   } else {
     // Return a synchronous test method with the injected tokens.
     return () => { return getTestInjector().execute(tokens, fn); };
@@ -155,15 +156,15 @@ export class InjectSetupWrapper {
     return () => {
       this._addProviders();
       return inject_impl(tokens, fn)();
-    }
+    };
   }
 
-  /** @Deprecated {use async(withProviders().inject())} */
+  /** @deprecated {use async(withProviders().inject())} */
   injectAsync(tokens: any[], fn: Function): Function {
     return () => {
       this._addProviders();
       return injectAsync_impl(tokens, fn)();
-    }
+    };
   }
 }
 
@@ -172,7 +173,7 @@ export function withProviders(providers: () => any) {
 }
 
 /**
- * @Deprecated {use async(inject())}
+ * @deprecated {use async(inject())}
  *
  * Allows injecting dependencies in `beforeEach()` and `it()`. The test must return
  * a promise which will resolve when all asynchronous activity is complete.

@@ -1,6 +1,3 @@
-/// <reference path="../typings/es6-promise/es6-promise.d.ts" />
-
-
 interface BroccoliTree {
   /**
    * Contains the fs path for the input tree when the plugin takes only one input tree.
@@ -66,13 +63,13 @@ interface BroccoliTree {
    */
   description?: string;
 
-  rebuild(): (Promise<any>| void);
+  rebuild(): (Promise<any>|void);
   cleanup(): void;
 }
 
 
 interface OldBroccoliTree {
-  read?(readTree: (tree: BroccoliTree) => Promise<string>): (Promise<string>| string);
+  read?(readTree: (tree: BroccoliTree) => Promise<string>): (Promise<string>|string);
 }
 
 

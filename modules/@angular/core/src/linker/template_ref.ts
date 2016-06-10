@@ -1,6 +1,7 @@
 import {isBlank} from '../facade/lang';
-import {ElementRef} from './element_ref';
+
 import {AppElement} from './element';
+import {ElementRef} from './element_ref';
 import {AppView} from './view';
 import {EmbeddedViewRef} from './view_ref';
 
@@ -17,6 +18,7 @@ const EMPTY_CONTEXT = /*@ts2dart_const*/ new Object();
  * To instantiate Embedded Views based on a Template, use
  * {@link ViewContainerRef#createEmbeddedView}, which will create the View and attach it to the
  * View Container.
+ * @stable
  */
 export abstract class TemplateRef<C> {
   /**
@@ -40,8 +42,8 @@ export class TemplateRef_<C> extends TemplateRef<C> {
   constructor(private _appElement: AppElement, private _viewFactory: Function) { super(); }
 
   createEmbeddedView(context: C): EmbeddedViewRef<C> {
-    var view: AppView<C> = this._viewFactory(this._appElement.parentView.viewUtils,
-                                             this._appElement.parentInjector, this._appElement);
+    var view: AppView<C> = this._viewFactory(
+        this._appElement.parentView.viewUtils, this._appElement.parentInjector, this._appElement);
     if (isBlank(context)) {
       context = <any>EMPTY_CONTEXT;
     }

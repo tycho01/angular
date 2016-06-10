@@ -1,7 +1,7 @@
 declare var System: any;
 
 
-(function(global) {
+(function(global: any /** TODO #9100 */) {
 
   writeScriptTag('/all/playground/vendor/es6-shim.js');
   writeScriptTag('/all/playground/vendor/zone.js');
@@ -9,7 +9,7 @@ declare var System: any;
   writeScriptTag('/all/playground/vendor/system.src.js');
   writeScriptTag('/all/playground/vendor/Reflect.js');
   writeScriptTag('/all/playground/vendor/rxjs/bundles/Rx.js', 'playgroundBootstrap()');
-  global.playgroundBootstrap = playgroundBootstrap;
+  (<any>global).playgroundBootstrap = playgroundBootstrap;
 
   function playgroundBootstrap() {
     // check query param
@@ -27,7 +27,7 @@ declare var System: any;
           '@angular/router': '/packages-dist/router/bundles/router.umd.js',
           '@angular/router-deprecated': '/packages-dist/router-deprecated/bundles/router-deprecated.umd.js',
           '@angular/core/src/facade': '/all/@angular/core/src/facade',
-          'rxjs': location.pathname.replace(/index\.html$/, '') + 'rxjs'
+          'rxjs': location.pathname.replace(/\w+\.html$/i, '') + 'rxjs'
         },
         packages: {
           'app': {defaultExtension: 'js'},
@@ -59,11 +59,11 @@ declare var System: any;
 
 
     // BOOTSTRAP the app!
-    System.import('index').then(function(m) { m.main(); }, console.error.bind(console));
+    System.import('index').then(function(m: any /** TODO #9100 */) { m.main(); }, console.error.bind(console));
   }
 
 
-  function writeScriptTag(scriptUrl, onload?) {
+  function writeScriptTag(scriptUrl: any /** TODO #9100 */, onload?: any /** TODO #9100 */) {
     document.write(`<script src="${scriptUrl}" onload="${onload}"></script>`);
   }
 }(window));

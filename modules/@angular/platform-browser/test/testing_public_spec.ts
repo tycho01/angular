@@ -1,25 +1,8 @@
-import {
-  it,
-  iit,
-  xit,
-  describe,
-  ddescribe,
-  xdescribe,
-  expect,
-  beforeEach,
-  inject,
-  beforeEachProviders
-} from '@angular/core/testing';
-import {
-  fakeAsync,
-  async,
-  flushMicrotasks,
-  withProviders,
-  Log,
-  tick,
-} from '@angular/core/testing';
+import {beforeEach, beforeEachProviders, ddescribe, describe, expect, iit, inject, it, xdescribe, xit} from '@angular/core/testing';
+
+import {fakeAsync, async, withProviders, tick,} from '@angular/core/testing';
 import {TestComponentBuilder} from '@angular/compiler/testing';
-import {Injectable, bind, Component, ViewMetadata} from '@angular/core';
+import {Injectable, provide, Component, ViewMetadata} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {PromiseWrapper} from '../../http/src/facade/promise';
 
@@ -118,7 +101,7 @@ export function main() {
 
     it('should run normal tests', () => { actuallyDone = true; });
 
-    it('should run normal async tests', (done) => {
+    it('should run normal async tests', (done: any /** TODO #9100 */) => {
       setTimeout(() => {
         actuallyDone = true;
         done();
@@ -136,25 +119,30 @@ export function main() {
 
   describe('using the test injector with the inject helper', () => {
     describe('setting up Providers', () => {
-      beforeEachProviders(() => [bind(FancyService).toValue(new FancyService())]);
+      beforeEachProviders(() => [{provide: FancyService, useValue: new FancyService()}]);
 
-      it('should use set up providers',
-         inject([FancyService], (service) => { expect(service.value).toEqual('real value'); }));
+      it('should use set up providers', inject([FancyService], (service: any /** TODO #9100 */) => {
+           expect(service.value).toEqual('real value');
+         }));
 
-      it('should wait until returned promises', async(inject([FancyService], (service) => {
-           service.getAsyncValue().then((value) => { expect(value).toEqual('async value'); });
-           service.getTimeoutValue().then((value) => { expect(value).toEqual('timeout value'); });
+      it('should wait until returned promises',
+         async(inject([FancyService], (service: any /** TODO #9100 */) => {
+           service.getAsyncValue().then(
+               (value: any /** TODO #9100 */) => { expect(value).toEqual('async value'); });
+           service.getTimeoutValue().then(
+               (value: any /** TODO #9100 */) => { expect(value).toEqual('timeout value'); });
          })));
 
-      it('should allow the use of fakeAsync', fakeAsync(inject([FancyService], (service) => {
-           var value;
-           service.getAsyncValue().then(function(val) { value = val; });
+      it('should allow the use of fakeAsync',
+         fakeAsync(inject([FancyService], (service: any /** TODO #9100 */) => {
+           var value: any /** TODO #9100 */;
+           service.getAsyncValue().then(function(val: any /** TODO #9100 */) { value = val; });
            tick();
            expect(value).toEqual('async value');
          })));
 
-      it('should allow use of "done"', (done) => {
-        inject([FancyService], (service) => {
+      it('should allow use of "done"', (done: any /** TODO #9100 */) => {
+        inject([FancyService], (service: any /** TODO #9100 */) => {
           let count = 0;
           let id = setInterval(() => {
             count++;
@@ -167,33 +155,39 @@ export function main() {
       });
 
       describe('using beforeEach', () => {
-        beforeEach(inject([FancyService],
-                          (service) => { service.value = 'value modified in beforeEach'; }));
+        beforeEach(inject([FancyService], (service: any /** TODO #9100 */) => {
+          service.value = 'value modified in beforeEach';
+        }));
 
-        it('should use modified providers', inject([FancyService], (service) => {
+        it('should use modified providers',
+           inject([FancyService], (service: any /** TODO #9100 */) => {
              expect(service.value).toEqual('value modified in beforeEach');
            }));
       });
 
       describe('using async beforeEach', () => {
-        beforeEach(async(inject([FancyService], (service) => {
-          service.getAsyncValue().then((value) => { service.value = value; });
+        beforeEach(async(inject([FancyService], (service: any /** TODO #9100 */) => {
+          service.getAsyncValue().then(
+              (value: any /** TODO #9100 */) => { service.value = value; });
         })));
 
         it('should use asynchronously modified value',
-           inject([FancyService], (service) => { expect(service.value).toEqual('async value'); }));
+           inject([FancyService], (service: any /** TODO #9100 */) => {
+             expect(service.value).toEqual('async value');
+           }));
       });
     });
 
     describe('per test providers', () => {
       it('should allow per test providers',
-         withProviders(() => [bind(FancyService).toValue(new FancyService())])
-             .inject([FancyService],
-                     (service) => { expect(service.value).toEqual('real value'); }));
+         withProviders(() => [{provide: FancyService, useValue: new FancyService()}])
+             .inject([FancyService], (service: any /** TODO #9100 */) => {
+               expect(service.value).toEqual('real value');
+             }));
 
       it('should return value from inject', () => {
-        let retval = withProviders(() => [bind(FancyService).toValue(new FancyService())])
-                         .inject([FancyService], (service) => {
+        let retval = withProviders(() => [{provide: FancyService, useValue: new FancyService()}])
+                         .inject([FancyService], (service: any /** TODO #9100 */) => {
                            expect(service.value).toEqual('real value');
                            return 10;
                          })();
@@ -209,9 +203,9 @@ export function main() {
     var patchJasmineIt = () => {
       var deferred = PromiseWrapper.completer();
       originalJasmineIt = jasmine.getEnv().it;
-      jasmine.getEnv().it = (description: string, fn) => {
+      jasmine.getEnv().it = (description: string, fn: any /** TODO #9100 */) => {
         var done = () => { deferred.resolve() };
-        (<any>done).fail = (err) => { deferred.reject(err) };
+        (<any>done).fail = (err: any /** TODO #9100 */) => { deferred.reject(err) };
         fn(done);
         return null;
       };
@@ -225,7 +219,7 @@ export function main() {
       originalJasmineBeforeEach = jasmine.getEnv().beforeEach;
       jasmine.getEnv().beforeEach = (fn: any) => {
         var done = () => { deferred.resolve() };
-        (<any>done).fail = (err) => { deferred.reject(err) };
+        (<any>done).fail = (err: any /** TODO #9100 */) => { deferred.reject(err) };
         fn(done);
         return null;
       };
@@ -233,22 +227,24 @@ export function main() {
     };
 
     var restoreJasmineBeforeEach =
-        () => { jasmine.getEnv().beforeEach = originalJasmineBeforeEach; }
+        () => { jasmine.getEnv().beforeEach = originalJasmineBeforeEach; };
 
-    it('should fail when an asynchronous error is thrown', (done) => {
+    it('should fail when an asynchronous error is thrown', (done: any /** TODO #9100 */) => {
       var itPromise = patchJasmineIt();
 
       it('throws an async error',
          async(inject([], () => { setTimeout(() => { throw new Error('bar'); }, 0); })));
 
-      itPromise.then(() => { done.fail('Expected test to fail, but it did not'); }, (err) => {
-        expect(err).toEqual('bar');
-        done();
-      });
+      itPromise.then(
+          () => { done.fail('Expected test to fail, but it did not'); },
+          (err) => {
+            expect(err).toEqual('bar');
+            done();
+          });
       restoreJasmineIt();
     });
 
-    it('should fail when a returned promise is rejected', (done) => {
+    it('should fail when a returned promise is rejected', (done: any /** TODO #9100 */) => {
       var itPromise = patchJasmineIt();
 
       it('should fail with an error from a promise', async(inject([], () => {
@@ -259,28 +255,32 @@ export function main() {
            return p;
          })));
 
-      itPromise.then(() => { done.fail('Expected test to fail, but it did not'); }, (err) => {
-        expect(err).toEqual('Uncaught (in promise): baz');
-        done();
-      });
+      itPromise.then(
+          () => { done.fail('Expected test to fail, but it did not'); },
+          (err) => {
+            expect(err).toEqual('Uncaught (in promise): baz');
+            done();
+          });
       restoreJasmineIt();
     });
 
     describe('using beforeEachProviders', () => {
-      beforeEachProviders(() => [bind(FancyService).toValue(new FancyService())]);
+      beforeEachProviders(() => [{provide: FancyService, useValue: new FancyService()}]);
 
-      beforeEach(
-          inject([FancyService], (service) => { expect(service.value).toEqual('real value'); }));
+      beforeEach(inject([FancyService], (service: any /** TODO #9100 */) => {
+        expect(service.value).toEqual('real value');
+      }));
 
       describe('nested beforeEachProviders', () => {
 
         it('should fail when the injector has already been used', () => {
           patchJasmineBeforeEach();
           expect(() => {
-            beforeEachProviders(() => [bind(FancyService).toValue(new FancyService())]);
+            beforeEachProviders(() => [{provide: FancyService, useValue: new FancyService()}]);
           })
-              .toThrowError('beforeEachProviders was called after the injector had been used ' +
-                            'in a beforeEach or it block. This invalidates the test injector');
+              .toThrowError(
+                  'beforeEachProviders was called after the injector had been used ' +
+                  'in a beforeEach or it block. This invalidates the test injector');
           restoreJasmineBeforeEach();
         });
       });
@@ -326,8 +326,8 @@ export function main() {
     it('should override a view',
        async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
-         tcb.overrideView(ChildComp,
-                          new ViewMetadata({template: '<span>Modified {{childBinding}}</span>'}))
+         tcb.overrideView(
+                ChildComp, new ViewMetadata({template: '<span>Modified {{childBinding}}</span>'}))
              .createAsync(ChildComp)
              .then((componentFixture) => {
                componentFixture.detectChanges();
@@ -349,7 +349,7 @@ export function main() {
        })));
 
 
-    it("should override child component's dependencies",
+    it('should override child component\'s dependencies',
        async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
          tcb.overrideDirective(ParentComp, ChildComp, ChildWithChildComp)
@@ -366,7 +366,8 @@ export function main() {
     it('should override a provider',
        async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
-         tcb.overrideProviders(TestProvidersComp, [bind(FancyService).toClass(MockFancyService)])
+         tcb.overrideProviders(
+                TestProvidersComp, [{provide: FancyService, useClass: MockFancyService}])
              .createAsync(TestProvidersComp)
              .then((componentFixture) => {
                componentFixture.detectChanges();
@@ -379,8 +380,8 @@ export function main() {
     it('should override a viewProvider',
        async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
-         tcb.overrideViewProviders(TestViewProvidersComp,
-                                   [bind(FancyService).toClass(MockFancyService)])
+         tcb.overrideViewProviders(
+                TestViewProvidersComp, [{provide: FancyService, useClass: MockFancyService}])
              .createAsync(TestViewProvidersComp)
              .then((componentFixture) => {
                componentFixture.detectChanges();

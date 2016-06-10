@@ -1,27 +1,10 @@
-import {
-  ddescribe,
-  describe,
-  xdescribe,
-  it,
-  iit,
-  xit,
-  expect,
-  beforeEach,
-  afterEach,
-  inject,
-  beforeEachProviders
-} from '@angular/core/testing/testing_internal';
-
 import {HtmlParser} from '@angular/compiler/src/html_parser';
-import {
-  preparseElement,
-  PreparsedElementType,
-  PreparsedElement
-} from '@angular/compiler/src/template_preparser';
+import {PreparsedElement, PreparsedElementType, preparseElement} from '@angular/compiler/src/template_preparser';
+import {afterEach, beforeEach, beforeEachProviders, ddescribe, describe, expect, iit, inject, it, xdescribe, xit} from '@angular/core/testing/testing_internal';
 
 export function main() {
   describe('preparseElement', () => {
-    var htmlParser;
+    var htmlParser: any /** TODO #9100 */;
     beforeEach(inject([HtmlParser], (_htmlParser: HtmlParser) => { htmlParser = _htmlParser; }));
 
     function preparse(html: string): PreparsedElement {

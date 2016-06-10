@@ -1,14 +1,10 @@
-import {isPresent, isBlank, isArray} from '../../src/facade/lang';
-import {BaseException} from '../../src/facade/exceptions';
 import {CompileIdentifierMetadata} from '../compile_metadata';
+import {BaseException} from '../facade/exceptions';
+import {isArray, isBlank, isPresent} from '../facade/lang';
+
 import * as o from './output_ast';
-import {
-  OutputEmitter,
-  EmitterVisitorContext,
-  AbstractEmitterVisitor,
-  CATCH_ERROR_VAR,
-  CATCH_STACK_VAR,
-} from './abstract_emitter';
+
+import {OutputEmitter, EmitterVisitorContext, AbstractEmitterVisitor, CATCH_ERROR_VAR, CATCH_STACK_VAR,} from './abstract_emitter';
 import {ImportGenerator} from './path_util';
 
 var _debugModuleUrl = 'asset://debug/lib';
@@ -39,7 +35,7 @@ export function debugOutputAstAsDart(ast: o.Statement | o.Expression | o.Type | 
 export class DartEmitter implements OutputEmitter {
   constructor(private _importGenerator: ImportGenerator) {}
   emitStatements(moduleUrl: string, stmts: o.Statement[], exportedVars: string[]): string {
-    var srcParts = [];
+    var srcParts: any[] /** TODO #9100 */ = [];
     // Note: We are not creating a library here as Dart does not need it.
     // Dart analzyer might complain about it though.
 
@@ -195,7 +191,7 @@ class _DartEmitterVisitor extends AbstractEmitterVisitor implements o.TypeVisito
   }
 
   getBuiltinMethodName(method: o.BuiltinMethod): string {
-    var name;
+    var name: any /** TODO #9100 */;
     switch (method) {
       case o.BuiltinMethod.ConcatArray:
         name = '.addAll';
@@ -271,7 +267,7 @@ class _DartEmitterVisitor extends AbstractEmitterVisitor implements o.TypeVisito
     return null;
   }
   visitBuiltintType(type: o.BuiltinType, ctx: EmitterVisitorContext): any {
-    var typeStr;
+    var typeStr: any /** TODO #9100 */;
     switch (type.name) {
       case o.BuiltinTypeName.Bool:
         typeStr = 'bool';
@@ -323,7 +319,7 @@ class _DartEmitterVisitor extends AbstractEmitterVisitor implements o.TypeVisito
   }
 
   private _visitParams(params: o.FnParam[], ctx: EmitterVisitorContext): void {
-    this.visitAllObjects((param) => {
+    this.visitAllObjects((param: any /** TODO #9100 */) => {
       if (isPresent(param.type)) {
         param.type.visitType(this, ctx);
         ctx.print(' ');
@@ -332,8 +328,8 @@ class _DartEmitterVisitor extends AbstractEmitterVisitor implements o.TypeVisito
     }, params, ctx, ',');
   }
 
-  private _visitIdentifier(value: CompileIdentifierMetadata, typeParams: o.Type[],
-                           ctx: EmitterVisitorContext): void {
+  private _visitIdentifier(
+      value: CompileIdentifierMetadata, typeParams: o.Type[], ctx: EmitterVisitorContext): void {
     if (isBlank(value.name)) {
       throw new BaseException(`Internal error: unknown identifier ${value}`);
     }
@@ -348,7 +344,8 @@ class _DartEmitterVisitor extends AbstractEmitterVisitor implements o.TypeVisito
     ctx.print(value.name);
     if (isPresent(typeParams) && typeParams.length > 0) {
       ctx.print(`<`);
-      this.visitAllObjects((type) => type.visitType(this, ctx), typeParams, ctx, ',');
+      this.visitAllObjects(
+          (type: any /** TODO #9100 */) => type.visitType(this, ctx), typeParams, ctx, ',');
       ctx.print(`>`);
     }
   }

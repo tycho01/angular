@@ -1,4 +1,4 @@
-import {isBlank} from '../../src/facade/lang';
+import {isBlank} from '../facade/lang';
 
 /**
  * Describes the current state of the change detector.
@@ -21,13 +21,14 @@ export enum ChangeDetectorState {
    * or calling a directive lifecycle method and is now in an inconsistent state. Change
    * detectors in this state will no longer detect changes.
    */
-  Errored
+  Errored,
 }
 
 
 /**
  * Describes within the change detector which strategy will be used the next time change
  * detection is triggered.
+ * @stable
  */
 export enum ChangeDetectionStrategy {
   /**
@@ -74,7 +75,7 @@ export var CHANGE_DETECTION_STRATEGY_VALUES = [
   ChangeDetectionStrategy.CheckAlways,
   ChangeDetectionStrategy.Detached,
   ChangeDetectionStrategy.OnPush,
-  ChangeDetectionStrategy.Default
+  ChangeDetectionStrategy.Default,
 ];
 
 /**
@@ -83,11 +84,11 @@ export var CHANGE_DETECTION_STRATEGY_VALUES = [
 export var CHANGE_DETECTOR_STATE_VALUES = [
   ChangeDetectorState.NeverChecked,
   ChangeDetectorState.CheckedBefore,
-  ChangeDetectorState.Errored
+  ChangeDetectorState.Errored,
 ];
 
-export function isDefaultChangeDetectionStrategy(
-    changeDetectionStrategy: ChangeDetectionStrategy): boolean {
+export function isDefaultChangeDetectionStrategy(changeDetectionStrategy: ChangeDetectionStrategy):
+    boolean {
   return isBlank(changeDetectionStrategy) ||
-         changeDetectionStrategy === ChangeDetectionStrategy.Default;
+      changeDetectionStrategy === ChangeDetectionStrategy.Default;
 }

@@ -1,22 +1,13 @@
-import {PromiseWrapper, EventEmitter} from '../../src/facade/async';
-import {StringMapWrapper} from '../../src/facade/collection';
-import {isBlank, isPresent} from '../../src/facade/lang';
-import {
-  Directive,
-  Attribute,
-  DynamicComponentLoader,
-  ComponentRef,
-  ViewContainerRef,
-  provide,
-  ReflectiveInjector,
-  OnDestroy,
-  Output
-} from '@angular/core';
-import * as routerMod from '../router';
-import {ComponentInstruction, RouteParams, RouteData} from '../instruction';
+import {Attribute, ComponentRef, Directive, DynamicComponentLoader, OnDestroy, Output, ReflectiveInjector, ViewContainerRef, provide} from '@angular/core';
+
+import {EventEmitter, PromiseWrapper} from '../facade/async';
+import {StringMapWrapper} from '../facade/collection';
+import {isBlank, isPresent} from '../facade/lang';
+import {ComponentInstruction, RouteData, RouteParams} from '../instruction';
+import {CanDeactivate, CanReuse, OnActivate, OnDeactivate, OnReuse} from '../interfaces';
 import * as hookMod from '../lifecycle/lifecycle_annotations';
 import {hasLifecycleHook} from '../lifecycle/route_lifecycle_reflector';
-import {OnActivate, CanReuse, OnReuse, OnDeactivate, CanDeactivate} from '../interfaces';
+import * as routerMod from '../router';
 
 let _resolveToTrue = PromiseWrapper.resolve(true);
 
@@ -37,8 +28,9 @@ export class RouterOutlet implements OnDestroy {
 
   @Output('activate') public activateEvents = new EventEmitter<any>();
 
-  constructor(private _viewContainerRef: ViewContainerRef, private _loader: DynamicComponentLoader,
-              private _parentRouter: routerMod.Router, @Attribute('name') nameAttr: string) {
+  constructor(
+      private _viewContainerRef: ViewContainerRef, private _loader: DynamicComponentLoader,
+      private _parentRouter: routerMod.Router, @Attribute('name') nameAttr: string) {
     if (isPresent(nameAttr)) {
       this.name = nameAttr;
       this._parentRouter.registerAuxOutlet(this);
@@ -58,9 +50,9 @@ export class RouterOutlet implements OnDestroy {
     var childRouter = this._parentRouter.childRouter(componentType);
 
     var providers = ReflectiveInjector.resolve([
-      provide(RouteData, {useValue: nextInstruction.routeData}),
-      provide(RouteParams, {useValue: new RouteParams(nextInstruction.params)}),
-      provide(routerMod.Router, {useValue: childRouter})
+      {provide: RouteData, useValue: nextInstruction.routeData},
+      {provide: RouteParams, useValue: new RouteParams(nextInstruction.params)},
+      {provide: routerMod.Router, useValue: childRouter}
     ]);
     this._componentRef =
         this._loader.loadNextToLocation(componentType, this._viewContainerRef, providers);
@@ -155,7 +147,7 @@ export class RouterOutlet implements OnDestroy {
    * or resolves to true if the hook is not present.
    */
   routerCanReuse(nextInstruction: ComponentInstruction): Promise<boolean> {
-    var result;
+    var result: any /** TODO #9100 */;
 
     if (isBlank(this._currentInstruction) ||
         this._currentInstruction.componentType != nextInstruction.componentType) {
@@ -166,8 +158,8 @@ export class RouterOutlet implements OnDestroy {
               (<CanReuse>ref.instance).routerCanReuse(nextInstruction, this._currentInstruction));
     } else {
       result = nextInstruction == this._currentInstruction ||
-               (isPresent(nextInstruction.params) && isPresent(this._currentInstruction.params) &&
-                StringMapWrapper.equals(nextInstruction.params, this._currentInstruction.params));
+          (isPresent(nextInstruction.params) && isPresent(this._currentInstruction.params) &&
+           StringMapWrapper.equals(nextInstruction.params, this._currentInstruction.params));
     }
     return <Promise<boolean>>PromiseWrapper.resolve(result);
   }

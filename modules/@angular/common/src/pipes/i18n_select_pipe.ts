@@ -1,7 +1,10 @@
-import {Injectable, PipeTransform, Pipe} from '@angular/core';
-import {isStringMap} from '../../src/facade/lang';
-import {StringMapWrapper} from '../../src/facade/collection';
+import {Pipe, PipeTransform} from '@angular/core';
+
+import {StringMapWrapper} from '../facade/collection';
+import {isStringMap} from '../facade/lang';
+
 import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
+
 
 /**
  *
@@ -31,9 +34,10 @@ import {InvalidPipeArgumentException} from './invalid_pipe_argument_exception';
  *    ...
  *  }
  *  ```
+ *
+ *  @experimental
  */
 @Pipe({name: 'i18nSelect', pure: true})
-@Injectable()
 export class I18nSelectPipe implements PipeTransform {
   transform(value: string, mapping: {[key: string]: string}): string {
     if (!isStringMap(mapping)) {

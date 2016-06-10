@@ -1,20 +1,15 @@
-import {
-  Directive,
-  ViewContainerRef,
-  TemplateRef,
-  ContentChildren,
-  QueryList,
-  Attribute,
-  AfterContentInit,
-  Input
-} from '@angular/core';
-import {isPresent, NumberWrapper} from '../../src/facade/lang';
-import {Map} from '../../src/facade/collection';
+import {AfterContentInit, Attribute, ContentChildren, Directive, Input, QueryList, TemplateRef, ViewContainerRef} from '@angular/core';
+
+import {Map} from '../facade/collection';
+import {NumberWrapper, isPresent} from '../facade/lang';
 
 import {SwitchView} from './ng_switch';
 
 const _CATEGORY_DEFAULT = 'other';
 
+/**
+ * @experimental
+ */
 export abstract class NgLocalization { abstract getPluralCategory(value: any): string; }
 
 /**
@@ -46,7 +41,7 @@ export abstract class NgLocalization { abstract getPluralCategory(value: any): s
  *
  * @Component({
  *    selector: 'app',
- *    providers: [provide(NgLocalization, {useClass: MyLocalization})]
+ *    providers: [{provide: NgLocalization, useClass: MyLocalization}]
  * })
  * @View({
  *   template: `
@@ -71,19 +66,24 @@ export abstract class NgLocalization { abstract getPluralCategory(value: any): s
  * }
  *
  * ```
+ * @experimental
  */
 
 @Directive({selector: '[ngPluralCase]'})
 export class NgPluralCase {
   /** @internal */
   _view: SwitchView;
-  constructor(@Attribute('ngPluralCase') public value: string, template: TemplateRef<Object>,
-              viewContainer: ViewContainerRef) {
+  constructor(
+      @Attribute('ngPluralCase') public value: string, template: TemplateRef<Object>,
+      viewContainer: ViewContainerRef) {
     this._view = new SwitchView(viewContainer, template);
   }
 }
 
 
+/**
+ * @experimental
+ */
 @Directive({selector: '[ngPlural]'})
 export class NgPlural implements AfterContentInit {
   private _switchValue: number;
@@ -136,7 +136,7 @@ export class NgPlural implements AfterContentInit {
   }
 
   /** @internal */
-  _isValueView(pluralCase: NgPluralCase): boolean { return pluralCase.value[0] === "="; }
+  _isValueView(pluralCase: NgPluralCase): boolean { return pluralCase.value[0] === '='; }
 
   /** @internal */
   _formatValue(pluralCase: NgPluralCase): any {

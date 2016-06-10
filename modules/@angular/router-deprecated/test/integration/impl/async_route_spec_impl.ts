@@ -1,12 +1,4 @@
-import {
-  beforeEach,
-  beforeEachProviders,
-  expect,
-  iit,
-  inject,
-  it,
-  xit,
-} from '@angular/core/testing/testing_internal';
+import {beforeEach, beforeEachProviders, expect, iit, inject, it, xit,} from '@angular/core/testing/testing_internal';
 import {TestComponentBuilder, ComponentFixture} from '@angular/compiler/testing';
 import {AsyncTestCompleter} from '@angular/core/testing/testing_internal';
 
@@ -16,21 +8,7 @@ import {specs, compile, TEST_ROUTER_PROVIDERS, clickOnElement, getHref} from '..
 
 import {Router, AsyncRoute, Route} from '@angular/router-deprecated';
 
-import {
-  HelloCmp,
-  helloCmpLoader,
-  UserCmp,
-  userCmpLoader,
-  TeamCmp,
-  asyncTeamLoader,
-  ParentCmp,
-  parentCmpLoader,
-  asyncParentCmpLoader,
-  asyncDefaultParentCmpLoader,
-  ParentWithDefaultCmp,
-  parentWithDefaultCmpLoader,
-  asyncRouteDataCmp
-} from './fixture_components';
+import {HelloCmp, helloCmpLoader, UserCmp, userCmpLoader, TeamCmp, asyncTeamLoader, ParentCmp, parentCmpLoader, asyncParentCmpLoader, asyncDefaultParentCmpLoader, ParentWithDefaultCmp, parentWithDefaultCmpLoader, asyncRouteDataCmp} from './fixture_components';
 import {By} from '../../../../platform-browser/src/dom/debug/by';
 
 function getLinkElement(rtc: ComponentFixture<any>) {
@@ -38,24 +16,25 @@ function getLinkElement(rtc: ComponentFixture<any>) {
 }
 
 function asyncRoutesWithoutChildrenWithRouteData() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should inject route data into the component', inject([AsyncTestCompleter], (async) => {
+  it('should inject route data into the component',
+     inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute(
-                 {path: '/route-data', loader: asyncRouteDataCmp, data: {isAdmin: true}})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/route-data', loader: asyncRouteDataCmp, data: {isAdmin: true}})]))
            .then((_) => rtr.navigateByUrl('/route-data'))
            .then((_) => {
              fixture.detectChanges();
@@ -65,11 +44,11 @@ function asyncRoutesWithoutChildrenWithRouteData() {
      }));
 
   it('should inject empty object if the route has no data property',
-     inject([AsyncTestCompleter], (async) => {
+     inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/route-data-default', loader: asyncRouteDataCmp})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/route-data-default', loader: asyncRouteDataCmp})]))
            .then((_) => rtr.navigateByUrl('/route-data-default'))
            .then((_) => {
              fixture.detectChanges();
@@ -80,22 +59,24 @@ function asyncRoutesWithoutChildrenWithRouteData() {
 }
 
 function asyncRoutesWithoutChildrenWithoutParams() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
            .then((_) => rtr.navigateByUrl('/test'))
            .then((_) => {
              fixture.detectChanges();
@@ -104,11 +85,11 @@ function asyncRoutesWithoutChildrenWithoutParams() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
            .then((_) => rtr.navigate(['/Hello']))
            .then((_) => {
              fixture.detectChanges();
@@ -117,11 +98,11 @@ function asyncRoutesWithoutChildrenWithoutParams() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `<a [routerLink]="['Hello']">go to hello</a> | <router-outlet></router-outlet>`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
            .then((_) => {
              fixture.detectChanges();
              expect(getHref(getLinkElement(fixture))).toEqual('/test');
@@ -130,45 +111,50 @@ function asyncRoutesWithoutChildrenWithoutParams() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['Hello']">go to hello</a> | <router-outlet></router-outlet>`)
-           .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
-           .then((_) => {
-             fixture.detectChanges();
-             expect(fixture.debugElement.nativeElement).toHaveText('go to hello | ');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb, `<a [routerLink]="['Hello']">go to hello</a> | <router-outlet></router-outlet>`)
+               .then((rtc) => {fixture = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/test', loader: helloCmpLoader, name: 'Hello'})]))
+               .then((_) => {
+                 fixture.detectChanges();
+                 expect(fixture.debugElement.nativeElement).toHaveText('go to hello | ');
 
-             rtr.subscribe((_) => {
-               fixture.detectChanges();
-               expect(fixture.debugElement.nativeElement).toHaveText('go to hello | hello');
-               expect(location.urlChanges).toEqual(['/test']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   fixture.detectChanges();
+                   expect(fixture.debugElement.nativeElement).toHaveText('go to hello | hello');
+                   expect(location.urlChanges).toEqual(['/test']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(fixture));
-           });
-     }));
+                 clickOnElement(getLinkElement(fixture));
+               });
+         }));
 }
 
 
 function asyncRoutesWithoutChildrenWithParams() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
            .then((_) => rtr.navigateByUrl('/user/igor'))
            .then((_) => {
              fixture.detectChanges();
@@ -177,11 +163,12 @@ function asyncRoutesWithoutChildrenWithParams() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new Route({path: '/user/:name', component: UserCmp, name: 'User'})]))
+           .then(
+               (_) =>
+                   rtr.config([new Route({path: '/user/:name', component: UserCmp, name: 'User'})]))
            .then((_) => rtr.navigate(['/User', {name: 'brian'}]))
            .then((_) => {
              fixture.detectChanges();
@@ -190,11 +177,13 @@ function asyncRoutesWithoutChildrenWithParams() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
-       compile(tcb, `<a [routerLink]="['User', {name: 'naomi'}]">greet naomi</a> | <router-outlet></router-outlet>`)
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+       compile(
+           tcb,
+           `<a [routerLink]="['User', {name: 'naomi'}]">greet naomi</a> | <router-outlet></router-outlet>`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
            .then((_) => {
              fixture.detectChanges();
              expect(getHref(getLinkElement(fixture))).toEqual('/user/naomi');
@@ -203,32 +192,37 @@ function asyncRoutesWithoutChildrenWithParams() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['User', {name: 'naomi'}]">greet naomi</a> | <router-outlet></router-outlet>`)
-           .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
-           .then((_) => {
-             fixture.detectChanges();
-             expect(fixture.debugElement.nativeElement).toHaveText('greet naomi | ');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['User', {name: 'naomi'}]">greet naomi</a> | <router-outlet></router-outlet>`)
+               .then((rtc) => {fixture = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
+               .then((_) => {
+                 fixture.detectChanges();
+                 expect(fixture.debugElement.nativeElement).toHaveText('greet naomi | ');
 
-             rtr.subscribe((_) => {
-               fixture.detectChanges();
-               expect(fixture.debugElement.nativeElement).toHaveText('greet naomi | hello naomi');
-               expect(location.urlChanges).toEqual(['/user/naomi']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   fixture.detectChanges();
+                   expect(fixture.debugElement.nativeElement)
+                       .toHaveText('greet naomi | hello naomi');
+                   expect(location.urlChanges).toEqual(['/user/naomi']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(fixture));
-           });
-     }));
+                 clickOnElement(getLinkElement(fixture));
+               });
+         }));
 
   it('should navigate between components with different parameters',
-     inject([AsyncTestCompleter], (async) => {
+     inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/user/:name', loader: userCmpLoader, name: 'User'})]))
            .then((_) => rtr.navigateByUrl('/user/brian'))
            .then((_) => {
              fixture.detectChanges();
@@ -245,22 +239,24 @@ function asyncRoutesWithoutChildrenWithParams() {
 
 
 function asyncRoutesWithSyncChildrenWithoutDefaultRoutes() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigateByUrl('/a/b'))
            .then((_) => {
              fixture.detectChanges();
@@ -269,11 +265,11 @@ function asyncRoutesWithSyncChildrenWithoutDefaultRoutes() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigate(['/Parent', 'Child']))
            .then((_) => {
              fixture.detectChanges();
@@ -282,11 +278,13 @@ function asyncRoutesWithSyncChildrenWithoutDefaultRoutes() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
-       compile(tcb, `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+       compile(
+           tcb,
+           `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
            .then((_) => {
              fixture.detectChanges();
              expect(getHref(getLinkElement(fixture))).toEqual('/a');
@@ -295,47 +293,52 @@ function asyncRoutesWithSyncChildrenWithoutDefaultRoutes() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
-           .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config(
-                     [new AsyncRoute({path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
-           .then((_) => {
-             fixture.detectChanges();
-             expect(fixture.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+               .then((rtc) => {fixture = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/a/...', loader: parentCmpLoader, name: 'Parent'})]))
+               .then((_) => {
+                 fixture.detectChanges();
+                 expect(fixture.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
 
-             rtr.subscribe((_) => {
-               fixture.detectChanges();
-               expect(fixture.debugElement.nativeElement)
-                   .toHaveText('nav to child | outer { inner { hello } }');
-               expect(location.urlChanges).toEqual(['/a/b']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   fixture.detectChanges();
+                   expect(fixture.debugElement.nativeElement)
+                       .toHaveText('nav to child | outer { inner { hello } }');
+                   expect(location.urlChanges).toEqual(['/a/b']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(fixture));
-           });
-     }));
+                 clickOnElement(getLinkElement(fixture));
+               });
+         }));
 }
 
 
 function asyncRoutesWithSyncChildrenWithDefaultRoutes() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigateByUrl('/a'))
            .then((_) => {
              fixture.detectChanges();
@@ -344,12 +347,11 @@ function asyncRoutesWithSyncChildrenWithDefaultRoutes() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigate(['/Parent']))
            .then((_) => {
              fixture.detectChanges();
@@ -358,12 +360,13 @@ function asyncRoutesWithSyncChildrenWithDefaultRoutes() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
-       compile(tcb, `<a [routerLink]="['/Parent']">link to inner</a> | outer { <router-outlet></router-outlet> }`)
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+       compile(
+           tcb,
+           `<a [routerLink]="['/Parent']">link to inner</a> | outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})]))
            .then((_) => {
              fixture.detectChanges();
              expect(getHref(getLinkElement(fixture))).toEqual('/a');
@@ -372,48 +375,53 @@ function asyncRoutesWithSyncChildrenWithDefaultRoutes() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['/Parent']">link to inner</a> | outer { <router-outlet></router-outlet> }`)
-           .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})
-           ]))
-           .then((_) => {
-             fixture.detectChanges();
-             expect(fixture.debugElement.nativeElement).toHaveText('link to inner | outer {  }');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['/Parent']">link to inner</a> | outer { <router-outlet></router-outlet> }`)
+               .then((rtc) => {fixture = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/a/...', loader: parentWithDefaultCmpLoader, name: 'Parent'})]))
+               .then((_) => {
+                 fixture.detectChanges();
+                 expect(fixture.debugElement.nativeElement)
+                     .toHaveText('link to inner | outer {  }');
 
-             rtr.subscribe((_) => {
-               fixture.detectChanges();
-               expect(fixture.debugElement.nativeElement)
-                   .toHaveText('link to inner | outer { inner { hello } }');
-               expect(location.urlChanges).toEqual(['/a/b']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   fixture.detectChanges();
+                   expect(fixture.debugElement.nativeElement)
+                       .toHaveText('link to inner | outer { inner { hello } }');
+                   expect(location.urlChanges).toEqual(['/a/b']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(fixture));
-           });
-     }));
+                 clickOnElement(getLinkElement(fixture));
+               });
+         }));
 }
 
 
 function asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes() {
-  var rootTC;
-  var tcb;
-  var rtr;
+  var rootTC: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigateByUrl('/a/b'))
            .then((_) => {
              rootTC.detectChanges();
@@ -422,12 +430,11 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigate(['/Parent', 'Child']))
            .then((_) => {
              rootTC.detectChanges();
@@ -436,12 +443,13 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
-       compile(tcb, `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+       compile(
+           tcb,
+           `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})]))
            .then((_) => {
              rootTC.detectChanges();
              expect(getHref(getLinkElement(rootTC))).toEqual('/a');
@@ -450,49 +458,52 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
-           .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})
-           ]))
-           .then((_) => {
-             rootTC.detectChanges();
-             expect(rootTC.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['Parent', 'Child']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+               .then((rtc) => {rootTC = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/a/...', loader: asyncParentCmpLoader, name: 'Parent'})]))
+               .then((_) => {
+                 rootTC.detectChanges();
+                 expect(rootTC.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
 
-             rtr.subscribe((_) => {
-               rootTC.detectChanges();
-               expect(rootTC.debugElement.nativeElement)
-                   .toHaveText('nav to child | outer { inner { hello } }');
-               expect(location.urlChanges).toEqual(['/a/b']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   rootTC.detectChanges();
+                   expect(rootTC.debugElement.nativeElement)
+                       .toHaveText('nav to child | outer { inner { hello } }');
+                   expect(location.urlChanges).toEqual(['/a/b']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(rootTC));
-           });
-     }));
+                 clickOnElement(getLinkElement(rootTC));
+               });
+         }));
 }
 
 
 function asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes() {
-  var rootTC;
-  var tcb;
-  var rtr;
+  var rootTC: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute(
-                 {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigateByUrl('/a'))
            .then((_) => {
              rootTC.detectChanges();
@@ -501,13 +512,11 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute(
-                 {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})]))
            .then((_) => rtr.navigate(['/Parent']))
            .then((_) => {
              rootTC.detectChanges();
@@ -516,13 +525,13 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
-       compile(tcb, `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
+       compile(
+           tcb,
+           `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
            .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute(
-                 {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})]))
            .then((_) => {
              rootTC.detectChanges();
              expect(getHref(getLinkElement(rootTC))).toEqual('/a');
@@ -531,49 +540,52 @@ function asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(tcb, `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
-           .then((rtc) => {rootTC = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute(
-                 {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})
-           ]))
-           .then((_) => {
-             rootTC.detectChanges();
-             expect(rootTC.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['Parent']">nav to child</a> | outer { <router-outlet></router-outlet> }`)
+               .then((rtc) => {rootTC = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/a/...', loader: asyncDefaultParentCmpLoader, name: 'Parent'})]))
+               .then((_) => {
+                 rootTC.detectChanges();
+                 expect(rootTC.debugElement.nativeElement).toHaveText('nav to child | outer {  }');
 
-             rtr.subscribe((_) => {
-               rootTC.detectChanges();
-               expect(rootTC.debugElement.nativeElement)
-                   .toHaveText('nav to child | outer { inner { hello } }');
-               expect(location.urlChanges).toEqual(['/a/b']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   rootTC.detectChanges();
+                   expect(rootTC.debugElement.nativeElement)
+                       .toHaveText('nav to child | outer { inner { hello } }');
+                   expect(location.urlChanges).toEqual(['/a/b']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(rootTC));
-           });
-     }));
+                 clickOnElement(getLinkElement(rootTC));
+               });
+         }));
 }
 
 
 function asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes() {
-  var fixture;
-  var tcb;
-  var rtr;
+  var fixture: any /** TODO #9100 */;
+  var tcb: any /** TODO #9100 */;
+  var rtr: any /** TODO #9100 */;
 
   beforeEachProviders(() => TEST_ROUTER_PROVIDERS);
 
-  beforeEach(inject([TestComponentBuilder, Router], (tcBuilder, router) => {
-    tcb = tcBuilder;
-    rtr = router;
-  }));
+  beforeEach(inject(
+      [TestComponentBuilder, Router],
+      (tcBuilder: any /** TODO #9100 */, router: any /** TODO #9100 */) => {
+        tcb = tcBuilder;
+        rtr = router;
+      }));
 
-  it('should navigate by URL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `{ <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})]))
            .then((_) => rtr.navigateByUrl('/team/angular/user/matias'))
            .then((_) => {
              fixture.detectChanges();
@@ -583,12 +595,11 @@ function asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes() {
            });
      }));
 
-  it('should navigate by link DSL', inject([AsyncTestCompleter], (async) => {
+  it('should navigate by link DSL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(tcb, `{ <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})]))
            .then((_) => rtr.navigate(['/Team', {id: 'angular'}, 'User', {name: 'matias'}]))
            .then((_) => {
              fixture.detectChanges();
@@ -598,14 +609,13 @@ function asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes() {
            });
      }));
 
-  it('should generate a link URL', inject([AsyncTestCompleter], (async) => {
+  it('should generate a link URL', inject([AsyncTestCompleter], (async: AsyncTestCompleter) => {
        compile(
            tcb,
            `<a [routerLink]="['/Team', {id: 'angular'}, 'User', {name: 'matias'}]">nav to matias</a> { <router-outlet></router-outlet> }`)
            .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})
-           ]))
+           .then((_) => rtr.config([new AsyncRoute(
+                     {path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})]))
            .then((_) => {
              fixture.detectChanges();
              expect(getHref(getLinkElement(fixture))).toEqual('/team/angular');
@@ -614,43 +624,48 @@ function asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes() {
      }));
 
   it('should navigate from a link click',
-     inject([AsyncTestCompleter, Location], (async, location) => {
-       compile(
-           tcb,
-           `<a [routerLink]="['/Team', {id: 'angular'}, 'User', {name: 'matias'}]">nav to matias</a> { <router-outlet></router-outlet> }`)
-           .then((rtc) => {fixture = rtc})
-           .then((_) => rtr.config([
-             new AsyncRoute({path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})
-           ]))
-           .then((_) => {
-             fixture.detectChanges();
-             expect(fixture.debugElement.nativeElement).toHaveText('nav to matias {  }');
+     inject(
+         [AsyncTestCompleter, Location],
+         (async: AsyncTestCompleter, location: any /** TODO #9100 */) => {
+           compile(
+               tcb,
+               `<a [routerLink]="['/Team', {id: 'angular'}, 'User', {name: 'matias'}]">nav to matias</a> { <router-outlet></router-outlet> }`)
+               .then((rtc) => {fixture = rtc})
+               .then((_) => rtr.config([new AsyncRoute(
+                         {path: '/team/:id/...', loader: asyncTeamLoader, name: 'Team'})]))
+               .then((_) => {
+                 fixture.detectChanges();
+                 expect(fixture.debugElement.nativeElement).toHaveText('nav to matias {  }');
 
-             rtr.subscribe((_) => {
-               fixture.detectChanges();
-               expect(fixture.debugElement.nativeElement)
-                   .toHaveText('nav to matias { team angular | user { hello matias } }');
-               expect(location.urlChanges).toEqual(['/team/angular/user/matias']);
-               async.done();
-             });
+                 rtr.subscribe((_: any /** TODO #9100 */) => {
+                   fixture.detectChanges();
+                   expect(fixture.debugElement.nativeElement)
+                       .toHaveText('nav to matias { team angular | user { hello matias } }');
+                   expect(location.urlChanges).toEqual(['/team/angular/user/matias']);
+                   async.done();
+                 });
 
-             clickOnElement(getLinkElement(fixture));
-           });
-     }));
+                 clickOnElement(getLinkElement(fixture));
+               });
+         }));
 }
 
 export function registerSpecs() {
-  specs['asyncRoutesWithoutChildrenWithRouteData'] = asyncRoutesWithoutChildrenWithRouteData;
-  specs['asyncRoutesWithoutChildrenWithoutParams'] = asyncRoutesWithoutChildrenWithoutParams;
-  specs['asyncRoutesWithoutChildrenWithParams'] = asyncRoutesWithoutChildrenWithParams;
-  specs['asyncRoutesWithSyncChildrenWithoutDefaultRoutes'] =
+  (specs as any /** TODO #9100 */)['asyncRoutesWithoutChildrenWithRouteData'] =
+      asyncRoutesWithoutChildrenWithRouteData;
+  (specs as any /** TODO #9100 */)['asyncRoutesWithoutChildrenWithoutParams'] =
+      asyncRoutesWithoutChildrenWithoutParams;
+  (specs as any /** TODO #9100 */)['asyncRoutesWithoutChildrenWithParams'] =
+      asyncRoutesWithoutChildrenWithParams;
+  (specs as any /** TODO #9100 */)['asyncRoutesWithSyncChildrenWithoutDefaultRoutes'] =
       asyncRoutesWithSyncChildrenWithoutDefaultRoutes;
-  specs['asyncRoutesWithSyncChildrenWithDefaultRoutes'] =
+  (specs as any /** TODO #9100 */)['asyncRoutesWithSyncChildrenWithDefaultRoutes'] =
       asyncRoutesWithSyncChildrenWithDefaultRoutes;
-  specs['asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes'] =
+  (specs as
+       any /** TODO #9100 */)['asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes'] =
       asyncRoutesWithAsyncChildrenWithoutParamsWithoutDefaultRoutes;
-  specs['asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes'] =
+  (specs as any /** TODO #9100 */)['asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes'] =
       asyncRoutesWithAsyncChildrenWithoutParamsWithDefaultRoutes;
-  specs['asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes'] =
+  (specs as any /** TODO #9100 */)['asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes'] =
       asyncRoutesWithAsyncChildrenWithParamsWithoutDefaultRoutes;
 }

@@ -1,14 +1,17 @@
-import {Type, isArray, isPresent, serializeEnum} from '../../../src/facade/lang';
-import {BaseException} from '../../../src/facade/exceptions';
-import {Map, StringMapWrapper, MapWrapper} from '../../../src/facade/collection';
-import {RenderComponentType, Injectable, ViewEncapsulation} from '@angular/core';
+import {Injectable, RenderComponentType, ViewEncapsulation} from '@angular/core';
+
 import {VIEW_ENCAPSULATION_VALUES} from '../../../core_private';
+import {Map, MapWrapper, StringMapWrapper} from '../../facade/collection';
+import {BaseException} from '../../facade/exceptions';
+import {Type, isArray, isPresent, serializeEnum} from '../../facade/lang';
+
 import {RenderStore} from './render_store';
 import {LocationType} from './serialized_types';
 
+
 // PRIMITIVE is any type that does not need to be serialized (string, number, boolean)
 // We set it to String so that it is considered a Type.
-export const PRIMITIVE: Type = /*@ts2dart_const*/ String;
+export const PRIMITIVE: Type = String;
 
 @Injectable()
 export class Serializer {
@@ -33,7 +36,7 @@ export class Serializer {
     } else if (type === LocationType) {
       return this._serializeLocation(obj);
     } else {
-      throw new BaseException("No serializer for " + type.toString());
+      throw new BaseException('No serializer for ' + type.toString());
     }
   }
 
@@ -59,37 +62,7 @@ export class Serializer {
     } else if (type === LocationType) {
       return this._deserializeLocation(map);
     } else {
-      throw new BaseException("No deserializer for " + type.toString());
-    }
-  }
-
-  mapToObject(map: Map<string, any>, type?: Type): Object {
-    var object = {};
-    var serialize = isPresent(type);
-
-    map.forEach((value, key) => {
-      if (serialize) {
-        object[key] = this.serialize(value, type);
-      } else {
-        object[key] = value;
-      }
-    });
-    return object;
-  }
-
-  /*
-   * Transforms a Javascript object (StringMap) into a Map<string, V>
-   * If the values need to be deserialized pass in their type
-   * and they will be deserialized before being placed in the map
-   */
-  objectToMap(obj: {[key: string]: any}, type?: Type, data?: any): Map<string, any> {
-    if (isPresent(type)) {
-      var map = new Map<string, any>();
-      StringMapWrapper.forEach(obj,
-                               (val, key) => { map.set(key, this.deserialize(val, type, data)); });
-      return map;
-    } else {
-      return MapWrapper.createFromStringMap(obj);
+      throw new BaseException('No deserializer for ' + type.toString());
     }
   }
 
@@ -108,8 +81,9 @@ export class Serializer {
   }
 
   private _deserializeLocation(loc: {[key: string]: any}): LocationType {
-    return new LocationType(loc['href'], loc['protocol'], loc['host'], loc['hostname'], loc['port'],
-                            loc['pathname'], loc['search'], loc['hash'], loc['origin']);
+    return new LocationType(
+        loc['href'], loc['protocol'], loc['host'], loc['hostname'], loc['port'], loc['pathname'],
+        loc['search'], loc['hash'], loc['origin']);
   }
 
   private _serializeRenderComponentType(obj: RenderComponentType): Object {
@@ -123,9 +97,10 @@ export class Serializer {
   }
 
   private _deserializeRenderComponentType(map: {[key: string]: any}): RenderComponentType {
-    return new RenderComponentType(map['id'], map['templateUrl'], map['slotCount'],
-                                   this.deserialize(map['encapsulation'], ViewEncapsulation),
-                                   this.deserialize(map['styles'], PRIMITIVE));
+    return new RenderComponentType(
+        map['id'], map['templateUrl'], map['slotCount'],
+        this.deserialize(map['encapsulation'], ViewEncapsulation),
+        this.deserialize(map['styles'], PRIMITIVE));
   }
 }
 

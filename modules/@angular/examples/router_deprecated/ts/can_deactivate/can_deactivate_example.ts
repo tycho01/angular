@@ -1,13 +1,8 @@
-import {provide, Component, ComponentRef} from '@angular/core';
-import {bootstrap} from '@angular/platform-browser';
-import {
-  CanDeactivate,
-  RouteConfig,
-  RouteParams,
-  ComponentInstruction,
-  ROUTER_DIRECTIVES
-} from '@angular/router-deprecated';
 import {APP_BASE_HREF} from '@angular/common';
+import {Component, ComponentRef, provide} from '@angular/core';
+import {bootstrap} from '@angular/platform-browser';
+import {CanDeactivate, ComponentInstruction, ROUTER_DIRECTIVES, RouteConfig, RouteParams} from '@angular/router-deprecated';
+
 
 // #docregion routerCanDeactivate
 @Component({
@@ -63,5 +58,5 @@ export class AppCmp {
 
 export function main(): Promise<ComponentRef<AppCmp>> {
   return bootstrap(
-      AppCmp, [provide(APP_BASE_HREF, {useValue: '/@angular/examples/router/ts/can_deactivate'})]);
+      AppCmp, [{provide: APP_BASE_HREF, useValue: '/@angular/examples/router/ts/can_deactivate'}]);
 }
