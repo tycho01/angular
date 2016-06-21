@@ -151,21 +151,22 @@ export function main() {
       ]);
     });
 
-    it('should extract messages from special forms', () => {
+    it('should extract messages from expansion forms', () => {
       let res = extractor.extract(
           `
         <div>
           {messages.length, plural,
              =0 {You have <b>no</b> messages}
              =1 {You have one message}
+             other {You have messages}
           }
-        </div>
-      `,
+        </div>`,
           'someurl');
 
       expect(res.messages).toEqual([
-        new Message('You have <ph name="e1">no</ph> messages', 'plural_0', null),
-        new Message('You have one message', 'plural_1', null)
+        new Message('You have <ph name="e1">no</ph> messages', 'plural_=0', null),
+        new Message('You have one message', 'plural_=1', null),
+        new Message('You have messages', 'plural_other', null),
       ]);
     });
 
@@ -233,6 +234,14 @@ export function main() {
         let res = extractor.extract('<input&#Besfs', 'someurl');
         expect(res.errors.length).toEqual(1);
         expect(res.errors[0].msg).toEqual('Unexpected character "s"');
+      });
+
+      it('should return parse errors on unknown plural cases', () => {
+        let res = extractor.extract('{n, plural, unknown {-}}', 'someUrl');
+        expect(res.errors.length).toEqual(1);
+        expect(res.errors[0].msg)
+            .toEqual(
+                'Plural cases should be "=<number>" or one of zero, one, two, few, many, other');
       });
     });
   });

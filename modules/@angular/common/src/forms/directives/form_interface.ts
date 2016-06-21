@@ -1,11 +1,11 @@
-import {Control, ControlGroup} from '../model';
+import {FormControl, FormGroup} from '../model';
 
 import {NgControl} from './ng_control';
 import {NgControlGroup} from './ng_control_group';
 
 
 /**
- * An interface that {@link NgFormModel} and {@link NgForm} implement.
+ * An interface that {@link FormGroupDirective} and {@link NgForm} implement.
  *
  * Only used by the forms module.
  *
@@ -15,7 +15,7 @@ export interface Form {
   /**
    * Add a control to this form.
    */
-  addControl(dir: NgControl): void;
+  addControl(dir: NgControl): FormControl;
 
   /**
    * Remove a control from this form.
@@ -23,24 +23,24 @@ export interface Form {
   removeControl(dir: NgControl): void;
 
   /**
-   * Look up the {@link Control} associated with a particular {@link NgControl}.
+   * Look up the {@link FormControl} associated with a particular {@link NgControl}.
    */
-  getControl(dir: NgControl): Control;
+  getControl(dir: NgControl): FormControl;
 
   /**
    * Add a group of controls to this form.
    */
-  addControlGroup(dir: NgControlGroup): void;
+  addFormGroup(dir: NgControlGroup): void;
 
   /**
    * Remove a group of controls from this form.
    */
-  removeControlGroup(dir: NgControlGroup): void;
+  removeFormGroup(dir: NgControlGroup): void;
 
   /**
-   * Look up the {@link ControlGroup} associated with a particular {@link NgControlGroup}.
+   * Look up the {@link FormGroup} associated with a particular {@link NgControlGroup}.
    */
-  getControlGroup(dir: NgControlGroup): ControlGroup;
+  getFormGroup(dir: NgControlGroup): FormGroup;
 
   /**
    * Update the model for a particular control with a new value.

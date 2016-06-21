@@ -62,7 +62,7 @@ export class RuntimeCompiler implements ComponentResolver {
                 compMeta.selector, compiledTemplate.viewFactory, componentType));
   }
 
-  clearCache() {
+  clearCache(): void {
     this._styleCache.clear();
     this._compiledTemplateCache.clear();
     this._compiledTemplateDone.clear();
@@ -89,7 +89,7 @@ export class RuntimeCompiler implements ComponentResolver {
                     compMeta, compMeta.template.template, normalizedViewDirMetas, pipes,
                     compMeta.type.name);
 
-                var childPromises: any[] /** TODO #9100 */ = [];
+                var childPromises: Promise<any>[] = [];
                 compiledTemplate.init(this._compileComponent(
                     compMeta, parsedTemplate, styles, pipes, compilingComponentsPath,
                     childPromises));
@@ -133,7 +133,7 @@ export class RuntimeCompiler implements ComponentResolver {
         childPromises.push(this._compiledTemplateDone.get(childCacheKey));
       }
     });
-    var factory: any /** TODO #9100 */;
+    var factory: any;
     if (IS_DART || !this._genConfig.useJit) {
       factory = interpretStatements(
           compileResult.statements, compileResult.viewFactoryVar,
@@ -156,7 +156,7 @@ export class RuntimeCompiler implements ComponentResolver {
     var promises = result.dependencies.map((dep) => this._loadStylesheetDep(dep));
     return PromiseWrapper.all(promises)
         .then((cssTexts) => {
-          var nestedCompileResultPromises: any[] /** TODO #9100 */ = [];
+          var nestedCompileResultPromises: Promise<string[]>[] = [];
           for (var i = 0; i < result.dependencies.length; i++) {
             var dep = result.dependencies[i];
             var cssText = cssTexts[i];

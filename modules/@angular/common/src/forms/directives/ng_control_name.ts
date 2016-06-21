@@ -1,7 +1,7 @@
 import {Directive, Host, Inject, OnChanges, OnDestroy, Optional, Self, SimpleChanges, SkipSelf, forwardRef} from '@angular/core';
 
 import {EventEmitter, ObservableWrapper} from '../../facade/async';
-import {Control} from '../model';
+import {FormControl} from '../model';
 import {NG_ASYNC_VALIDATORS, NG_VALIDATORS} from '../validators';
 
 import {ControlContainer} from './control_container';
@@ -18,9 +18,9 @@ export const controlNameBinding: any =
     };
 
 /**
- * Creates and binds a control with a specified name to a DOM element.
+ * Creates and binds a form control with a specified name to a DOM element.
  *
- * This directive can only be used as a child of {@link NgForm} or {@link NgFormModel}.
+ * This directive can only be used as a child of {@link NgForm} or {@link FormGroupDirective}.
 
  * ### Example
  *
@@ -128,5 +128,5 @@ export class NgControlName extends NgControl implements OnChanges,
                 return composeAsyncValidators(this._asyncValidators);
               }
 
-              get control(): Control { return this.formDirective.getControl(this); }
+              get control(): FormControl { return this.formDirective.getControl(this); }
 }
